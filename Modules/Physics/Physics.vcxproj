@@ -13,7 +13,6 @@
     <ClInclude Include="SceneCollisionSystem.h" />
     <ClInclude Include="ScenePhysics.h" />
     <ClInclude Include="ShapeUtil.h" />
-    <ClInclude Include="..\..\Interface\include\Interface\ICollisionListener.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ColliderComponent.cpp" />

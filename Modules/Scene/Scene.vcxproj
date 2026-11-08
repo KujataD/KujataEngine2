@@ -8,7 +8,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="SceneModule.h" />
-    <ClInclude Include="..\..\Interface\include\Interface\IRenderQueue.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />

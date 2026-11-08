@@ -24,6 +24,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics", "Modules\Physics\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "Framework\Framework.vcxproj", "{1EC34E72-ADC4-401D-BD88-BC331E428EA9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "Interface\Interface.vcxproj", "{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -97,6 +99,12 @@ Global
 		{1EC34E72-ADC4-401D-BD88-BC331E428EA9}.Development|x64.Build.0 = Development|x64
 		{1EC34E72-ADC4-401D-BD88-BC331E428EA9}.Release|x64.ActiveCfg = Release|x64
 		{1EC34E72-ADC4-401D-BD88-BC331E428EA9}.Release|x64.Build.0 = Release|x64
+		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Debug|x64.ActiveCfg = Debug|x64
+		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Debug|x64.Build.0 = Debug|x64
+		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Development|x64.ActiveCfg = Development|x64
+		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Development|x64.Build.0 = Development|x64
+		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Release|x64.ActiveCfg = Release|x64
+		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,7 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="Window.h" />
-    <ClInclude Include="..\..\Interface\include\Interface\IWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp" />
