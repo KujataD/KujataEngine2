@@ -58,7 +58,7 @@ void Window::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 		nullptr);
 
 	if (hwnd == nullptr) {
-		printf("Failed to create window: %lu\n", GetLastError());
+		printf("ウィンドウを作れませんでした: %lu\n", GetLastError());
 		frameLoop.RequestQuit();
 		return;
 	}

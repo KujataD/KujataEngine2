@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5EB96AA8-05B7-498E-9308-56773D669D47}</ProjectGuid>
+    <RootNamespace>Gpu</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="Gpu.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Gpu.cpp" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+</Project>
