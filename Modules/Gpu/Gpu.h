@@ -1,15 +1,15 @@
 #pragma once
 
+#include "CommandContext.h"
 #include "Core/IModule.h"
-
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <wrl/client.h>
+#include "GpuDebugMessages.h"
+#include "GpuDevice.h"
+#include "SwapChain.h"
 
 namespace KujataEngine {
 
 /// <summary>
-/// GPUを見つけて、命令を受け付ける準備をするモジュール。
+/// GPUの部品を順番に動かして、毎フレーム画面に出すモジュール。
 /// </summary>
 class Gpu : public IModule {
 public:
@@ -17,24 +17,15 @@ public:
 	void Shutdown() override;
 
 private:
-	void EnableDebugLayer();
-	bool CreateFactory();
-	bool CreateDevice();
-	bool CreateCommandObjects();
-	bool CreateFence();
-	void SetUpDebugMessages();
-	void PrintDebugMessages();
+	void BeginFrame();
+	void EndFrame();
+	void StopIfGpuErrorFound();
 
-	Microsoft::WRL::ComPtr<IDXGIFactory7> factory_;
-	Microsoft::WRL::ComPtr<ID3D12Device> device_;
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
-	Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
-	HANDLE fenceEvent_ = nullptr;
-
-	// デバッグレイヤーが有効なときだけ値が入る。
-	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue_;
+	// メンバーは宣言の逆順に破棄されるので、使われる側を先に宣言する。
+	GpuDebugMessages debugMessages_;
+	GpuDevice device_;
+	CommandContext commandContext_;
+	SwapChain swapChain_;
 };
 
 } // namespace KujataEngine

@@ -5,10 +5,18 @@
     <RootNamespace>Gpu</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ClInclude Include="CommandContext.h" />
     <ClInclude Include="Gpu.h" />
+    <ClInclude Include="GpuDebugMessages.h" />
+    <ClInclude Include="GpuDevice.h" />
+    <ClInclude Include="SwapChain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommandContext.cpp" />
     <ClCompile Include="Gpu.cpp" />
+    <ClCompile Include="GpuDebugMessages.cpp" />
+    <ClCompile Include="GpuDevice.cpp" />
+    <ClCompile Include="SwapChain.cpp" />
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

@@ -1,7 +1,8 @@
 #include "Window.h"
 
+#include "Core/Assert.h"
+
 #include <Windows.h>
-#include <cstdio>
 
 namespace KujataEngine {
 
@@ -12,8 +13,8 @@ static const wchar_t* const kWindowClassName = L"KujataEngine2Window";
 /// OSがウィンドウにメッセージを届けるたびに呼ばれる。
 /// </summary>
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
-	// ウィンドウが閉じられたら、ProcessMessagesへWM_QUITを届ける。
-	if (message == WM_DESTROY) {
+	// 閉じる操作ではGpuが描いている窓を消さず、ループの終了だけを頼む。
+	if (message == WM_CLOSE) {
 		PostQuitMessage(0);
 		return 0;
 	}
@@ -22,6 +23,10 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARA
 }
 
 Window::Window(const wchar_t* title, int clientWidth, int clientHeight) {
+	KUJATA_ASSERT(title != nullptr);
+	KUJATA_ASSERT(clientWidth > 0);
+	KUJATA_ASSERT(clientHeight > 0);
+
 	title_ = title;
 	clientWidth_ = clientWidth;
 	clientHeight_ = clientHeight;
@@ -37,7 +42,8 @@ void Window::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	windowClass.hInstance = instance;
 	windowClass.lpszClassName = kWindowClassName;
 	windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	RegisterClass(&windowClass);
+	const ATOM registeredClass = RegisterClass(&windowClass);
+	KUJATA_ASSERT(registeredClass != 0);
 
 	// 指定の大きさはタイトルバーと枠を除いた領域なので、枠を含めた大きさに直す。
 	const DWORD windowStyle = WS_OVERLAPPEDWINDOW;
@@ -57,11 +63,7 @@ void Window::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 		instance,
 		nullptr);
 
-	if (hwnd == nullptr) {
-		printf("ウィンドウを作れませんでした: %lu\n", GetLastError());
-		frameLoop.RequestQuit();
-		return;
-	}
+	KUJATA_ASSERT(hwnd != nullptr);
 
 	handle_ = hwnd;
 	ShowWindow(hwnd, SW_SHOW);
@@ -75,11 +77,9 @@ void Window::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 }
 
 void Window::Shutdown() {
-	HWND hwnd = static_cast<HWND>(handle_);
-
-	// ×で閉じたときはOSがもう消しているので、残っているときだけ消す。
-	if (IsWindow(hwnd)) {
-		DestroyWindow(hwnd);
+	// Appは逆順に終了するので、この時点でGpuの片付けは終わっている。
+	if (handle_ != nullptr) {
+		DestroyWindow(static_cast<HWND>(handle_));
 	}
 
 	UnregisterClass(kWindowClassName, GetModuleHandle(nullptr));
