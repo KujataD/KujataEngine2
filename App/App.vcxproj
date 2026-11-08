@@ -75,6 +75,9 @@
     <ProjectReference Include="..\Modules\QuitAfterFrames\QuitAfterFrames.vcxproj">
       <Project>{9F4A6E03-1B7D-4C92-A5E8-D30B7F2C6A15}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\Scene\Scene.vcxproj">
+      <Project>{098c7c72-a6f4-41d0-be65-c060d081b0ea}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
