@@ -1,0 +1,4 @@
+root = true
+
+[*.{cpp,h,hpp,hlsl,hlsli,cs}]
+charset = utf-8

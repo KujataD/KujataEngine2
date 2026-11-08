@@ -1,0 +1,11 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+ipch/
+
+# ビルドの生成物
+build/
+x64/
