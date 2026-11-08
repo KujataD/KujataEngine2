@@ -1,5 +1,6 @@
 #include "Core/App.h"
 #include "Gpu/Gpu.h"
+#include "Renderer/Renderer.h"
 #include "Window/Window.h"
 
 #include <Windows.h>
@@ -16,6 +17,9 @@ int main() {
 
 	KujataEngine::Gpu gpu;
 	app.Add(&gpu);
+
+	KujataEngine::Renderer renderer;
+	app.Add(&renderer);
 
 	app.Run();
 	return 0;

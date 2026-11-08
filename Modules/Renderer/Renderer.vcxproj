@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D68DA75F-0278-454E-95AD-B75C8EE0217F}</ProjectGuid>
+    <RootNamespace>Renderer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="PipelineState.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="ShaderCompiler.h" />
+    <ClInclude Include="VertexBuffer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PipelineState.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ShaderCompiler.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Triangle.PS.hlsl" />
+    <None Include="Shaders\Triangle.VS.hlsl" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+</Project>

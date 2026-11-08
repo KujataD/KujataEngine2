@@ -23,8 +23,23 @@ void GpuDebugMessages::EnableDebugLayer() {
 
 void GpuDebugMessages::AttachToDevice(ID3D12Device* device) {
 #ifdef _DEBUG
-	// デバッグレイヤーが入っていない環境ではnullptrのままになる。
-	device->QueryInterface(IID_PPV_ARGS(&infoQueue_));
+	// デバッグレイヤーが入っていない環境では取得できない。
+	if (FAILED(device->QueryInterface(IID_PPV_ARGS(&infoQueue_)))) {
+		return;
+	}
+
+	// Windows11でDXGIとDX12のデバッグレイヤーが干渉して出る誤検出を除く。
+	D3D12_MESSAGE_ID deniedIds[] = { D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE };
+	D3D12_MESSAGE_SEVERITY deniedSeverities[] = { D3D12_MESSAGE_SEVERITY_INFO };
+
+	D3D12_INFO_QUEUE_FILTER filter = {};
+	filter.DenyList.NumIDs = _countof(deniedIds);
+	filter.DenyList.pIDList = deniedIds;
+	filter.DenyList.NumSeverities = _countof(deniedSeverities);
+	filter.DenyList.pSeverityList = deniedSeverities;
+
+	const HRESULT result = infoQueue_->PushStorageFilter(&filter);
+	KUJATA_ASSERT(SUCCEEDED(result));
 #endif
 }
 

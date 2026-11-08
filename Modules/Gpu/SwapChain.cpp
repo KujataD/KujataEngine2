@@ -9,6 +9,9 @@ namespace KujataEngine {
 // 画面に出す画像の形式で、RGBAが各8ビット。
 static const DXGI_FORMAT kBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
+// 描くときの形式で、シェーダーの出力をsRGBに変換して書き込む。
+static const DXGI_FORMAT kRenderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+
 void SwapChain::Initialize(IDXGIFactory7* factory, ID3D12Device* device, ID3D12CommandQueue* queue, IWindow* window) {
 	CreateSwapChain(factory, queue, window);
 	CreateRenderTargetViews(device);
@@ -26,6 +29,10 @@ D3D12_CPU_DESCRIPTOR_HANDLE SwapChain::GetCurrentRenderTargetView() {
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = renderTargetViewHeap_->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += static_cast<SIZE_T>(backBufferIndex_) * renderTargetViewSize_;
 	return handle;
+}
+
+DXGI_FORMAT SwapChain::GetRenderTargetFormat() {
+	return kRenderTargetFormat;
 }
 
 void SwapChain::Present() {
@@ -69,12 +76,16 @@ void SwapChain::CreateRenderTargetViews(ID3D12Device* device) {
 	// RTV1個の大きさはGPUによって違うので、聞いてからずらす。
 	renderTargetViewSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
+	D3D12_RENDER_TARGET_VIEW_DESC viewDescription = {};
+	viewDescription.Format = kRenderTargetFormat;
+	viewDescription.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = renderTargetViewHeap_->GetCPUDescriptorHandleForHeapStart();
 	for (UINT i = 0; i < kBackBufferCount; i++) {
 		result = swapChain_->GetBuffer(i, IID_PPV_ARGS(&backBuffers_[i]));
 		KUJATA_ASSERT(SUCCEEDED(result));
 
-		device->CreateRenderTargetView(backBuffers_[i].Get(), nullptr, handle);
+		device->CreateRenderTargetView(backBuffers_[i].Get(), &viewDescription, handle);
 		handle.ptr += renderTargetViewSize_;
 	}
 }

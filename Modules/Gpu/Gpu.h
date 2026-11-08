@@ -4,6 +4,7 @@
 #include "Core/IModule.h"
 #include "GpuDebugMessages.h"
 #include "GpuDevice.h"
+#include "Interface/IGpu.h"
 #include "SwapChain.h"
 
 namespace KujataEngine {
@@ -11,10 +12,14 @@ namespace KujataEngine {
 /// <summary>
 /// GPUの部品を順番に動かして、毎フレーム画面に出すモジュール。
 /// </summary>
-class Gpu : public IModule {
+class Gpu : public IModule, public IGpu {
 public:
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 	void Shutdown() override;
+
+	ID3D12Device* GetDevice() override;
+	ID3D12GraphicsCommandList* GetCommandList() override;
+	DXGI_FORMAT GetRenderTargetFormat() override;
 
 private:
 	void BeginFrame();

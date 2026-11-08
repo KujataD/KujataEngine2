@@ -34,6 +34,11 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentRenderTargetView();
 
 	/// <summary>
+	/// 描くときの形式を返す。
+	/// </summary>
+	DXGI_FORMAT GetRenderTargetFormat();
+
+	/// <summary>
 	/// 画面に出して次の画像へ切り替える。
 	/// </summary>
 	void Present();

@@ -10,6 +10,7 @@
     <ClInclude Include="GpuDebugMessages.h" />
     <ClInclude Include="GpuDevice.h" />
     <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="..\..\Interface\include\Interface\IGpu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommandContext.cpp" />

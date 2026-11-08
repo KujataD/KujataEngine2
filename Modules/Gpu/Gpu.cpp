@@ -20,6 +20,9 @@ void Gpu::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 
 	debugMessages_.AttachToDevice(device_.GetDevice());
 
+	// 受け取る側がIGpu*に戻せるように、void*にする前にIGpu*へ変換する。
+	services.Register("Gpu", static_cast<IGpu*>(this));
+
 	frameLoop.Register(kBeginFrame, [this]() {
 		BeginFrame();
 	});
@@ -30,6 +33,18 @@ void Gpu::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 
 void Gpu::Shutdown() {
 	debugMessages_.PrintProblems();
+}
+
+ID3D12Device* Gpu::GetDevice() {
+	return device_.GetDevice();
+}
+
+ID3D12GraphicsCommandList* Gpu::GetCommandList() {
+	return commandContext_.GetList();
+}
+
+DXGI_FORMAT Gpu::GetRenderTargetFormat() {
+	return swapChain_.GetRenderTargetFormat();
 }
 
 void Gpu::BeginFrame() {

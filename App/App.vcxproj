@@ -89,6 +89,9 @@
     <ProjectReference Include="..\Modules\Gpu\Gpu.vcxproj">
       <Project>{5EB96AA8-05B7-498E-9308-56773D669D47}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\Renderer\Renderer.vcxproj">
+      <Project>{D68DA75F-0278-454E-95AD-B75C8EE0217F}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
