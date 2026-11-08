@@ -1,0 +1,2 @@
+# テキストはリポジトリの中ではLF、作業フォルダではVisual Studioの標準のCRLFにする。
+* text=auto eol=crlf
