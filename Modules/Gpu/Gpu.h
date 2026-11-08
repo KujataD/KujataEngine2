@@ -14,6 +14,9 @@ namespace KujataEngine {
 /// </summary>
 class Gpu : public IModule, public IGpu {
 public:
+	std::vector<std::string> GetProvidedServices() override;
+	std::vector<std::string> GetRequiredServices() override;
+
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 	void Shutdown() override;
 

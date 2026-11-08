@@ -7,9 +7,16 @@ namespace KujataEngine {
 // 背景を塗る色で、RGBAを0から1で表す。
 static const float kClearColor[4] = { 0.392f, 0.584f, 0.929f, 1.0f };
 
+std::vector<std::string> Gpu::GetProvidedServices() {
+	return { kGpuServiceName };
+}
+
+std::vector<std::string> Gpu::GetRequiredServices() {
+	return { kWindowServiceName };
+}
+
 void Gpu::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
-	// Startupは追加した順に呼ばれるので、WindowはGpuより先にAddしておく。
-	IWindow* window = static_cast<IWindow*>(services.Get("Window"));
+	IWindow* window = static_cast<IWindow*>(services.Get(kWindowServiceName));
 	KUJATA_ASSERT(window != nullptr);
 
 	debugMessages_.EnableDebugLayer();
@@ -21,7 +28,7 @@ void Gpu::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	debugMessages_.AttachToDevice(device_.GetDevice());
 
 	// 受け取る側がIGpu*に戻せるように、void*にする前にIGpu*へ変換する。
-	services.Register("Gpu", static_cast<IGpu*>(this));
+	services.Register(kGpuServiceName, static_cast<IGpu*>(this));
 
 	frameLoop.Register(kBeginFrame, [this]() {
 		BeginFrame();

@@ -15,6 +15,8 @@ namespace KujataEngine {
 /// </summary>
 class Renderer : public IModule {
 public:
+	std::vector<std::string> GetRequiredServices() override;
+
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 
 private:

@@ -49,12 +49,15 @@ static std::filesystem::path GetShaderDirectory() {
 	return repositoryRoot / L"Modules" / L"Renderer" / L"Shaders";
 }
 
+std::vector<std::string> Renderer::GetRequiredServices() {
+	return { kGpuServiceName, kWindowServiceName };
+}
+
 void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
-	// Startupは追加した順に呼ばれるので、WindowとGpuはRendererより先にAddしておく。
-	gpu_ = static_cast<IGpu*>(services.Get("Gpu"));
+	gpu_ = static_cast<IGpu*>(services.Get(kGpuServiceName));
 	KUJATA_ASSERT(gpu_ != nullptr);
 
-	window_ = static_cast<IWindow*>(services.Get("Window"));
+	window_ = static_cast<IWindow*>(services.Get(kWindowServiceName));
 	KUJATA_ASSERT(window_ != nullptr);
 
 	shaderCompiler_.Initialize();

@@ -19,11 +19,13 @@ public:
 	void Add(IModule* addedModule);
 
 	/// <summary>
-	/// 追加した順に起動し、ループを抜けたら逆の順に終了する。
+	/// 依存の順に起動し、ループを抜けたら逆の順に終了する。
 	/// </summary>
 	void Run();
 
 private:
+	void SortModulesByDependency();
+
 	std::vector<IModule*> modules_;
 	ServiceRegistry services_;
 	FrameLoop frameLoop_;

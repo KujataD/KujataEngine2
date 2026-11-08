@@ -8,6 +8,9 @@ struct ID3D12GraphicsCommandList;
 
 namespace KujataEngine {
 
+// ServiceRegistryに登録するときの名前。
+const char* const kGpuServiceName = "Gpu";
+
 /// <summary>
 /// GPUを他のモジュールから使うための窓口。
 /// </summary>

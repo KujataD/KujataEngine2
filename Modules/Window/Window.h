@@ -12,6 +12,8 @@ class Window : public IModule, public IWindow {
 public:
 	Window(const wchar_t* title, int clientWidth, int clientHeight);
 
+	std::vector<std::string> GetProvidedServices() override;
+
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 	void Shutdown() override;
 

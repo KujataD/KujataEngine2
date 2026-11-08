@@ -32,6 +32,10 @@ Window::Window(const wchar_t* title, int clientWidth, int clientHeight) {
 	clientHeight_ = clientHeight;
 }
 
+std::vector<std::string> Window::GetProvidedServices() {
+	return { kWindowServiceName };
+}
+
 void Window::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	frameLoop_ = &frameLoop;
 
@@ -69,7 +73,7 @@ void Window::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	ShowWindow(hwnd, SW_SHOW);
 
 	// 受け取る側がIWindow*に戻せるように、void*にする前にIWindow*へ変換する。
-	services.Register("Window", static_cast<IWindow*>(this));
+	services.Register(kWindowServiceName, static_cast<IWindow*>(this));
 
 	frameLoop.Register(kBeginFrame, [this]() {
 		ProcessMessages();

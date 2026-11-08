@@ -2,6 +2,9 @@
 
 namespace KujataEngine {
 
+// ServiceRegistryに登録するときの名前。
+const char* const kWindowServiceName = "Window";
+
 /// <summary>
 /// OSのウィンドウを他のモジュールから使うための窓口。
 /// </summary>
