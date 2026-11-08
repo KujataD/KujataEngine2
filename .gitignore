@@ -9,3 +9,4 @@ ipch/
 # ビルドの生成物
 build/
 x64/
+externals/DirectXTex/Bin/
