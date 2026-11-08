@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{588E5C46-83DD-426C-909A-DF55529A0096}</ProjectGuid>
+    <RootNamespace>Audio</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="Audio.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Audio.cpp" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+</Project>

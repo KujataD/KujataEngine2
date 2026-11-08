@@ -78,6 +78,9 @@
     <ProjectReference Include="..\Modules\Scene\Scene.vcxproj">
       <Project>{098c7c72-a6f4-41d0-be65-c060d081b0ea}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\Audio\Audio.vcxproj">
+      <Project>{588E5C46-83DD-426C-909A-DF55529A0096}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
