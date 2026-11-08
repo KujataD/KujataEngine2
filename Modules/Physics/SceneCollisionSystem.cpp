@@ -40,13 +40,19 @@ void NotifyCollisionToComponents(GameObject* owner, ColliderComponent* self, Col
 			continue;
 		}
 
+		// 通知を受け取ると宣言したコンポーネントにだけ知らせる。
+		ICollisionListener* listener = dynamic_cast<ICollisionListener*>(component);
+		if (!listener) {
+			continue;
+		}
+
 		if (isTrigger) {
 			if (phase == CollisionEventPhase::Enter) {
-				component->OnTriggerEnter(other);
+				listener->OnTriggerEnter(other);
 			} else if (phase == CollisionEventPhase::Stay) {
-				component->OnTriggerStay(other);
+				listener->OnTriggerStay(other);
 			} else if (phase == CollisionEventPhase::Exit) {
-				component->OnTriggerExit(other);
+				listener->OnTriggerExit(other);
 			}
 			continue;
 		}
@@ -65,11 +71,11 @@ void NotifyCollisionToComponents(GameObject* owner, ColliderComponent* self, Col
 		}
 
 		if (phase == CollisionEventPhase::Enter) {
-			component->OnCollisionEnter(collision);
+			listener->OnCollisionEnter(collision);
 		} else if (phase == CollisionEventPhase::Stay) {
-			component->OnCollisionStay(collision);
+			listener->OnCollisionStay(collision);
 		} else if (phase == CollisionEventPhase::Exit) {
-			component->OnCollisionExit(collision);
+			listener->OnCollisionExit(collision);
 		}
 	}
 }
@@ -97,7 +103,7 @@ void CollectSceneColliders(Scene& scene, std::vector<ColliderComponent*>& outCol
 				continue;
 			}
 
-			ColliderComponent* collider = component->AsColliderComponent();
+			ColliderComponent* collider = dynamic_cast<ColliderComponent*>(component);
 			if (!collider) {
 				continue;
 			}

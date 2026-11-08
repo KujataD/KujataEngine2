@@ -2,6 +2,7 @@
 
 #include "Core/Math/Vector3.h"
 #include "Framework/Component.h"
+#include "Interface/ICollisionListener.h"
 #include "AABB.h"
 #include "ShapeUtil.h"
 #include <cstdint>
@@ -15,26 +16,11 @@ enum class ColliderShapeType {
 };
 
 /// <summary>
-/// Collisionイベントで渡す接触情報。
-/// </summary>
-struct Collision {
-	ColliderComponent* self = nullptr;
-	ColliderComponent* other = nullptr;
-	GameObject* selfObject = nullptr;
-	GameObject* otherObject = nullptr;
-	Vector3 point = {};
-	Vector3 normal = {};
-	float penetrationDepth = 0.0f;
-};
-
-/// <summary>
 /// GameObjectに付けるUnity風Colliderの基底Component。
 /// </summary>
 class ColliderComponent : public Component {
 public:
 	ColliderComponent();
-
-	ColliderComponent* AsColliderComponent() override { return this; }
 
 	virtual ColliderShapeType GetShapeType() const = 0;
 
