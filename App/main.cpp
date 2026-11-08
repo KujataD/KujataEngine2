@@ -1,12 +1,12 @@
 #include "Core/App.h"
-#include "QuitAfterFrames/QuitAfterFrames.h"
+#include "Window/Window.h"
 
 int main() {
 	KujataEngine::App app;
 
-	// 3フレーム動いたら終了するモジュールを作って、Appに入れる。
-	KujataEngine::QuitAfterFrames quitAfterFrames(3);
-	app.Add(&quitAfterFrames);
+	// ウィンドウを作ってAppに入れると、閉じたときにループが終わる。
+	KujataEngine::Window window(L"KujataEngine2", 1280, 720);
+	app.Add(&window);
 
 	app.Run();
 	return 0;

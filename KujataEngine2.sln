@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scene", "Modules\Scene\Scen
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio", "Modules\Audio\Audio.vcxproj", "{588E5C46-83DD-426C-909A-DF55529A0096}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Window", "Modules\Window\Window.vcxproj", "{3C6F2C0B-CC90-48EA-9980-9D3300195096}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -49,6 +51,12 @@ Global
 		{588E5C46-83DD-426C-909A-DF55529A0096}.Development|x64.Build.0 = Development|x64
 		{588E5C46-83DD-426C-909A-DF55529A0096}.Release|x64.ActiveCfg = Release|x64
 		{588E5C46-83DD-426C-909A-DF55529A0096}.Release|x64.Build.0 = Release|x64
+		{3C6F2C0B-CC90-48EA-9980-9D3300195096}.Debug|x64.ActiveCfg = Debug|x64
+		{3C6F2C0B-CC90-48EA-9980-9D3300195096}.Debug|x64.Build.0 = Debug|x64
+		{3C6F2C0B-CC90-48EA-9980-9D3300195096}.Development|x64.ActiveCfg = Development|x64
+		{3C6F2C0B-CC90-48EA-9980-9D3300195096}.Development|x64.Build.0 = Development|x64
+		{3C6F2C0B-CC90-48EA-9980-9D3300195096}.Release|x64.ActiveCfg = Release|x64
+		{3C6F2C0B-CC90-48EA-9980-9D3300195096}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

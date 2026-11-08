@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3C6F2C0B-CC90-48EA-9980-9D3300195096}</ProjectGuid>
+    <RootNamespace>Window</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="Window.h" />
+    <ClInclude Include="..\..\Interface\include\Interface\IWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Window.cpp" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+</Project>

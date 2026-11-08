@@ -52,7 +52,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Core\include;$(ProjectDir)..\Modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Core\include;$(ProjectDir)..\Interface\include;$(ProjectDir)..\Modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -80,6 +80,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Modules\Audio\Audio.vcxproj">
       <Project>{588E5C46-83DD-426C-909A-DF55529A0096}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Modules\Window\Window.vcxproj">
+      <Project>{3C6F2C0B-CC90-48EA-9980-9D3300195096}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
