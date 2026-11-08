@@ -10,6 +10,8 @@
     <ClInclude Include="PipelineState.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ShaderCompiler.h" />
+    <ClInclude Include="ShaderResourceHeap.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="UploadBuffer.h" />
     <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
@@ -19,12 +21,19 @@
     <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
+    <ClCompile Include="ShaderResourceHeap.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UploadBuffer.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Object3D.PS.hlsl" />
     <None Include="Shaders\Object3D.VS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
+      <Project>{371B9FA9-4C90-4AC6-A123-ACED756D6C77}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

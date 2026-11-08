@@ -59,6 +59,13 @@ DXGI_FORMAT Gpu::GetDepthFormat() {
 	return depthBuffer_.GetFormat();
 }
 
+void Gpu::ExecuteImmediately(std::function<void(ID3D12GraphicsCommandList*)> recordCommands) {
+	commandContext_.Begin();
+	recordCommands(commandContext_.GetList());
+	commandContext_.Execute();
+	commandContext_.WaitForGpu();
+}
+
 void Gpu::BeginFrame() {
 	commandContext_.Begin();
 

@@ -19,15 +19,41 @@ void PipelineState::Bind(ID3D12GraphicsCommandList* list) {
 }
 
 void PipelineState::CreateRootSignature(ID3D12Device* device) {
+	D3D12_DESCRIPTOR_RANGE textureRange = {};
+	textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	textureRange.NumDescriptors = 1;
+	textureRange.BaseShaderRegister = 0;
+	textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParameters[2] = {};
+
 	// 頂点シェーダーのb0で行列を受け取る。
-	D3D12_ROOT_PARAMETER transformParameter = {};
-	transformParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	transformParameter.Descriptor.ShaderRegister = 0;
-	transformParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[kTransformRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kTransformRootParameterIndex].Descriptor.ShaderRegister = 0;
+	rootParameters[kTransformRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
+	// ピクセルシェーダーのt0でテクスチャを受け取る。
+	rootParameters[kTextureRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[kTextureRootParameterIndex].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[kTextureRootParameterIndex].DescriptorTable.pDescriptorRanges = &textureRange;
+	rootParameters[kTextureRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// s0はバイリニアで読み、0から1の外は繰り返す。
+	D3D12_STATIC_SAMPLER_DESC sampler = {};
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	sampler.MaxLOD = D3D12_FLOAT32_MAX;
+	sampler.ShaderRegister = 0;
+	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_ROOT_SIGNATURE_DESC description = {};
-	description.NumParameters = 1;
-	description.pParameters = &transformParameter;
+	description.NumParameters = 2;
+	description.pParameters = rootParameters;
+	description.NumStaticSamplers = 1;
+	description.pStaticSamplers = &sampler;
 	description.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	ComPtr<ID3DBlob> serialized;
@@ -40,14 +66,14 @@ void PipelineState::CreateRootSignature(ID3D12Device* device) {
 }
 
 void PipelineState::CreatePipelineState(ID3D12Device* device, IDxcBlob* vertexShader, IDxcBlob* pixelShader, DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthFormat) {
-	// 頂点バッファの中身の並びをシェーダーのPOSITIONとCOLORに結びつける。
+	// 頂点バッファの中身の並びをシェーダーのPOSITIONとTEXCOORDに結びつける。
 	D3D12_INPUT_ELEMENT_DESC inputElements[2] = {};
 	inputElements[0].SemanticName = "POSITION";
 	inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElements[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElements[0].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	inputElements[1].SemanticName = "COLOR";
-	inputElements[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElements[1].SemanticName = "TEXCOORD";
+	inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
 	inputElements[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElements[1].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 

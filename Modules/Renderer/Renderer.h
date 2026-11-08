@@ -7,6 +7,8 @@
 #include "Interface/IWindow.h"
 #include "PipelineState.h"
 #include "ShaderCompiler.h"
+#include "ShaderResourceHeap.h"
+#include "Texture.h"
 #include "VertexBuffer.h"
 
 namespace KujataEngine {
@@ -19,6 +21,7 @@ public:
 	std::vector<std::string> GetRequiredServices() override;
 
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
+	void Shutdown() override;
 
 private:
 	void Update();
@@ -32,6 +35,8 @@ private:
 	VertexBuffer vertexBuffer_;
 	IndexBuffer indexBuffer_;
 	ConstantBuffer transformBuffer_;
+	ShaderResourceHeap shaderResourceHeap_;
+	Texture texture_;
 
 	float rotationYRadians_ = 0.0f;
 };

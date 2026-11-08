@@ -16,6 +16,9 @@ public:
 	// Root Signatureの中で、行列の定数バッファが何番目の入口か。
 	static const UINT kTransformRootParameterIndex = 0;
 
+	// Root Signatureの中で、テクスチャが何番目の入口か。
+	static const UINT kTextureRootParameterIndex = 1;
+
 	/// <summary>
 	/// Root SignatureとPSOを作る。
 	/// </summary>

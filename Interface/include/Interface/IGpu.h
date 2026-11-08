@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dxgiformat.h>
+#include <functional>
 
 // d3d12.hをこのヘッダーに持ち込まないように、型の名前だけを伝える。
 struct ID3D12Device;
@@ -37,6 +38,11 @@ public:
 	/// 深度の形式を返す。
 	/// </summary>
 	virtual DXGI_FORMAT GetDepthFormat() = 0;
+
+	/// <summary>
+	/// 渡された処理で命令を書いてGPUに実行させ、完了まで待つので、フレームの外で呼ぶ。
+	/// </summary>
+	virtual void ExecuteImmediately(std::function<void(ID3D12GraphicsCommandList*)> recordCommands) = 0;
 };
 
 } // namespace KujataEngine

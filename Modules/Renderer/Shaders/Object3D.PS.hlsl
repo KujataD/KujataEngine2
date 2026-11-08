@@ -1,8 +1,11 @@
+Texture2D<float4> gTexture : register(t0);
+SamplerState gSampler : register(s0);
+
 struct VertexOutput {
 	float4 position : SV_POSITION;
-	float3 color : COLOR;
+	float2 texcoord : TEXCOORD;
 };
 
 float4 main(VertexOutput input) : SV_TARGET {
-	return float4(input.color, 1.0f);
+	return gTexture.Sample(gSampler, input.texcoord);
 }
