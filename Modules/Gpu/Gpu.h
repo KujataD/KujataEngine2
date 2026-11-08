@@ -2,6 +2,7 @@
 
 #include "CommandContext.h"
 #include "Core/IModule.h"
+#include "DepthBuffer.h"
 #include "GpuDebugMessages.h"
 #include "GpuDevice.h"
 #include "Interface/IGpu.h"
@@ -23,6 +24,7 @@ public:
 	ID3D12Device* GetDevice() override;
 	ID3D12GraphicsCommandList* GetCommandList() override;
 	DXGI_FORMAT GetRenderTargetFormat() override;
+	DXGI_FORMAT GetDepthFormat() override;
 
 private:
 	void BeginFrame();
@@ -34,6 +36,7 @@ private:
 	GpuDevice device_;
 	CommandContext commandContext_;
 	SwapChain swapChain_;
+	DepthBuffer depthBuffer_;
 };
 
 } // namespace KujataEngine

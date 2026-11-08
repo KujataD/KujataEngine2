@@ -19,7 +19,7 @@ public:
 	/// <summary>
 	/// Root SignatureとPSOを作る。
 	/// </summary>
-	void Initialize(ID3D12Device* device, IDxcBlob* vertexShader, IDxcBlob* pixelShader, DXGI_FORMAT renderTargetFormat);
+	void Initialize(ID3D12Device* device, IDxcBlob* vertexShader, IDxcBlob* pixelShader, DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthFormat);
 
 	/// <summary>
 	/// このPSOで描く設定を命令書に書く。
@@ -28,7 +28,7 @@ public:
 
 private:
 	void CreateRootSignature(ID3D12Device* device);
-	void CreatePipelineState(ID3D12Device* device, IDxcBlob* vertexShader, IDxcBlob* pixelShader, DXGI_FORMAT renderTargetFormat);
+	void CreatePipelineState(ID3D12Device* device, IDxcBlob* vertexShader, IDxcBlob* pixelShader, DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthFormat);
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;

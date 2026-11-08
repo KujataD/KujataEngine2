@@ -2,6 +2,7 @@
 
 #include "ConstantBuffer.h"
 #include "Core/IModule.h"
+#include "IndexBuffer.h"
 #include "Interface/IGpu.h"
 #include "Interface/IWindow.h"
 #include "PipelineState.h"
@@ -29,6 +30,7 @@ private:
 	ShaderCompiler shaderCompiler_;
 	PipelineState pipelineState_;
 	VertexBuffer vertexBuffer_;
+	IndexBuffer indexBuffer_;
 	ConstantBuffer transformBuffer_;
 
 	float rotationYRadians_ = 0.0f;

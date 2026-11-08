@@ -24,6 +24,7 @@ void Gpu::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	device_.Initialize();
 	commandContext_.Initialize(device_.GetDevice());
 	swapChain_.Initialize(device_.GetFactory(), device_.GetDevice(), commandContext_.GetQueue(), window);
+	depthBuffer_.Initialize(device_.GetDevice(), window->GetClientWidth(), window->GetClientHeight());
 
 	debugMessages_.AttachToDevice(device_.GetDevice());
 
@@ -54,16 +55,22 @@ DXGI_FORMAT Gpu::GetRenderTargetFormat() {
 	return swapChain_.GetRenderTargetFormat();
 }
 
+DXGI_FORMAT Gpu::GetDepthFormat() {
+	return depthBuffer_.GetFormat();
+}
+
 void Gpu::BeginFrame() {
 	commandContext_.Begin();
 
 	ID3D12GraphicsCommandList* list = commandContext_.GetList();
 	swapChain_.TransitionToRenderTarget(list);
 
-	// 描き先を決めて背景を塗る。
+	// 描き先を決めて背景と深度を初期化する。
 	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = swapChain_.GetCurrentRenderTargetView();
-	list->OMSetRenderTargets(1, &renderTargetView, FALSE, nullptr);
+	D3D12_CPU_DESCRIPTOR_HANDLE depthView = depthBuffer_.GetView();
+	list->OMSetRenderTargets(1, &renderTargetView, FALSE, &depthView);
 	list->ClearRenderTargetView(renderTargetView, kClearColor, 0, nullptr);
+	depthBuffer_.Clear(list);
 }
 
 void Gpu::EndFrame() {

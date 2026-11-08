@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="CommandContext.h" />
+    <ClInclude Include="DepthBuffer.h" />
     <ClInclude Include="Gpu.h" />
     <ClInclude Include="GpuDebugMessages.h" />
     <ClInclude Include="GpuDevice.h" />
@@ -14,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommandContext.cpp" />
+    <ClCompile Include="DepthBuffer.cpp" />
     <ClCompile Include="Gpu.cpp" />
     <ClCompile Include="GpuDebugMessages.cpp" />
     <ClCompile Include="GpuDevice.cpp" />

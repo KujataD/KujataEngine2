@@ -32,6 +32,11 @@ public:
 	/// 描くときの形式を返す。
 	/// </summary>
 	virtual DXGI_FORMAT GetRenderTargetFormat() = 0;
+
+	/// <summary>
+	/// 深度の形式を返す。
+	/// </summary>
+	virtual DXGI_FORMAT GetDepthFormat() = 0;
 };
 
 } // namespace KujataEngine

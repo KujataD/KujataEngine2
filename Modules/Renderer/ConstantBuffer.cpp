@@ -1,6 +1,7 @@
 #include "ConstantBuffer.h"
 
 #include "Core/Assert.h"
+#include "UploadBuffer.h"
 
 #include <cstring>
 
@@ -13,23 +14,10 @@ void ConstantBuffer::Initialize(ID3D12Device* device, UINT dataSize) {
 	// 定数バッファの大きさは256バイト単位にする
 	const UINT bufferSize = (dataSize + D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1) & ~(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
 
-	D3D12_HEAP_PROPERTIES heapProperties = {};
-	heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-	D3D12_RESOURCE_DESC description = {};
-	description.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	description.Width = bufferSize;
-	description.Height = 1;
-	description.DepthOrArraySize = 1;
-	description.MipLevels = 1;
-	description.SampleDesc.Count = 1;
-	description.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-	HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &description, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&buffer_));
-	KUJATA_ASSERT(SUCCEEDED(result));
+	buffer_ = CreateUploadBuffer(device, bufferSize);
 
 	// 毎フレーム書くので、Unmapせずに開いたままにする。
-	result = buffer_->Map(0, nullptr, &mappedMemory_);
+	const HRESULT result = buffer_->Map(0, nullptr, &mappedMemory_);
 	KUJATA_ASSERT(SUCCEEDED(result));
 }
 

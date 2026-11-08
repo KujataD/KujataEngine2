@@ -15,12 +15,31 @@ struct Vertex {
 	float x;
 	float y;
 	float z;
+	float r;
+	float g;
+	float b;
 };
 
-static const Vertex kTriangleVertices[3] = {
-	{ 0.0f, 0.5f, 0.0f },
-	{ 0.5f, -0.5f, 0.0f },
-	{ -0.5f, -0.5f, 0.0f },
+// 立方体の8つの角で、面の違いが見えるように角ごとに色を変える。
+static const Vertex kCubeVertices[8] = {
+	{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f },
+	{ 0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f },
+	{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f },
+	{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f },
+	{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f },
+	{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f },
+	{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f },
+	{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f },
+};
+
+// 外から見て時計回りが表になるように、三角形12枚の頂点の番号を並べる。
+static const uint16_t kCubeIndices[36] = {
+	0, 3, 2, 0, 2, 1,
+	5, 6, 7, 5, 7, 4,
+	4, 7, 3, 4, 3, 0,
+	1, 2, 6, 1, 6, 5,
+	3, 7, 6, 3, 6, 2,
+	1, 5, 4, 1, 4, 0,
 };
 
 // シェーダーのTransformDataと並びを合わせる。
@@ -32,7 +51,8 @@ struct TransformData {
 static const float kRotationSpeedRadiansPerFrame = 0.02f;
 
 // カメラの設定で、距離の単位はワールド座標、視野角の単位はラジアン。
-static const float kCameraDistance = 2.0f;
+static const float kCameraDistance = 3.0f;
+static const float kTiltXRadians = 0.5f;
 static const float kFovYRadians = 0.7854f;
 static const float kNearZ = 0.1f;
 static const float kFarZ = 100.0f;
@@ -63,18 +83,19 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	shaderCompiler_.Initialize();
 
 	const std::filesystem::path shaderDirectory = GetShaderDirectory();
-	ComPtr<IDxcBlob> vertexShader = shaderCompiler_.Compile((shaderDirectory / L"Triangle.VS.hlsl").wstring(), L"vs_6_0");
-	ComPtr<IDxcBlob> pixelShader = shaderCompiler_.Compile((shaderDirectory / L"Triangle.PS.hlsl").wstring(), L"ps_6_0");
+	ComPtr<IDxcBlob> vertexShader = shaderCompiler_.Compile((shaderDirectory / L"Object3D.VS.hlsl").wstring(), L"vs_6_0");
+	ComPtr<IDxcBlob> pixelShader = shaderCompiler_.Compile((shaderDirectory / L"Object3D.PS.hlsl").wstring(), L"ps_6_0");
 
 	// シェーダーの書き間違いは普通に起きるので、止めずに描かないだけにする。
 	if (vertexShader == nullptr || pixelShader == nullptr) {
-		printf("シェーダーを準備できなかったので、三角形を描きません。\n");
+		printf("シェーダーを準備できなかったので、立方体を描きません。\n");
 		return;
 	}
 
 	ID3D12Device* device = gpu_->GetDevice();
-	pipelineState_.Initialize(device, vertexShader.Get(), pixelShader.Get(), gpu_->GetRenderTargetFormat());
-	vertexBuffer_.Initialize(device, kTriangleVertices, sizeof(Vertex), 3);
+	pipelineState_.Initialize(device, vertexShader.Get(), pixelShader.Get(), gpu_->GetRenderTargetFormat(), gpu_->GetDepthFormat());
+	vertexBuffer_.Initialize(device, kCubeVertices, sizeof(Vertex), 8);
+	indexBuffer_.Initialize(device, kCubeIndices, 36);
 	transformBuffer_.Initialize(device, sizeof(TransformData));
 
 	frameLoop.Register(kUpdate, [this]() {
@@ -90,7 +111,7 @@ void Renderer::Update() {
 
 	const float aspectRatio = static_cast<float>(window_->GetClientWidth()) / static_cast<float>(window_->GetClientHeight());
 
-	const Matrix4x4 world = MakeRotationYMatrix(rotationYRadians_);
+	const Matrix4x4 world = Multiply(MakeRotationYMatrix(rotationYRadians_), MakeRotationXMatrix(kTiltXRadians));
 	const Matrix4x4 view = MakeTranslateMatrix(0.0f, 0.0f, kCameraDistance);
 	const Matrix4x4 projection = MakePerspectiveFovMatrix(kFovYRadians, aspectRatio, kNearZ, kFarZ);
 
@@ -113,8 +134,9 @@ void Renderer::Draw() {
 	pipelineState_.Bind(list);
 	transformBuffer_.Bind(list, PipelineState::kTransformRootParameterIndex);
 	vertexBuffer_.Bind(list);
+	indexBuffer_.Bind(list);
 	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	list->DrawInstanced(3, 1, 0, 0);
+	list->DrawIndexedInstanced(indexBuffer_.GetIndexCount(), 1, 0, 0, 0);
 }
 
 } // namespace KujataEngine

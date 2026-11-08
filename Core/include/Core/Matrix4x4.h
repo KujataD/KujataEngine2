@@ -15,6 +15,11 @@ struct Matrix4x4 {
 Matrix4x4 Multiply(const Matrix4x4& left, const Matrix4x4& right);
 
 /// <summary>
+/// X軸まわりの回転行列を作り、角度はラジアンで指定する。
+/// </summary>
+Matrix4x4 MakeRotationXMatrix(float radians);
+
+/// <summary>
 /// Y軸まわりの回転行列を作り、角度はラジアンで指定する。
 /// </summary>
 Matrix4x4 MakeRotationYMatrix(float radians);
