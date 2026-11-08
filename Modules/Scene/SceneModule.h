@@ -2,12 +2,9 @@
 
 #include "Core/IModule.h"
 #include "Interface/IRenderQueue.h"
-#include "Scene.h"
+#include "Framework/Scene.h"
 
 namespace KujataEngine {
-
-// ServiceRegistryに登録するときの名前。
-const char* const kSceneServiceName = "Scene";
 
 /// <summary>
 /// Sceneを毎フレーム更新して、描きたい物を描画の担当へ渡すモジュール。

@@ -44,12 +44,15 @@
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\Core\include;$(MSBuildThisFileDirectory)..\Interface\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\Core\include;$(MSBuildThisFileDirectory)..\Interface\include;$(MSBuildThisFileDirectory)..\Framework\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Core.vcxproj">
       <Project>{2D9C4F16-7A3E-4B58-8E21-6C1F0A93D7B2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\Framework\Framework.vcxproj">
+      <Project>{1EC34E72-ADC4-401D-BD88-BC331E428EA9}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Math/Vector3.h"
-#include "../Scene/Component.h"
+#include "Framework/Component.h"
 
 namespace KujataEngine {
 

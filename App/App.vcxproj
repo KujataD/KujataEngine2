@@ -52,7 +52,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Core\include;$(ProjectDir)..\Interface\include;$(ProjectDir)..\Modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Core\include;$(ProjectDir)..\Interface\include;$(ProjectDir)..\Framework\include;$(ProjectDir)..\Modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -86,6 +86,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{2D9C4F16-7A3E-4B58-8E21-6C1F0A93D7B2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Framework\Framework.vcxproj">
+      <Project>{1EC34E72-ADC4-401D-BD88-BC331E428EA9}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Modules\QuitAfterFrames\QuitAfterFrames.vcxproj">
       <Project>{9F4A6E03-1B7D-4C92-A5E8-D30B7F2C6A15}</Project>

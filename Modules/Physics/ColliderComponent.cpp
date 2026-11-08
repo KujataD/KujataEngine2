@@ -1,6 +1,6 @@
 #include "ColliderComponent.h"
 #include "Core/Math/MathUtil.h"
-#include "../Scene/GameObject.h"
+#include "Framework/GameObject.h"
 #include "ShapeUtil.h"
 #include <algorithm>
 #include <atomic>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Component.h"
-#include "WorldTransform.h"
+#include "Framework/Component.h"
+#include "Framework/WorldTransform.h"
 
 #include <cstdint>
 

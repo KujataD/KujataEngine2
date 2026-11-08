@@ -1,6 +1,5 @@
 #include "Physics.h"
 
-#include "../Scene/SceneModule.h"
 #include "Core/Assert.h"
 #include "ScenePhysics.h"
 

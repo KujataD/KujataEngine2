@@ -1,10 +1,13 @@
 #pragma once
 
-#include "GameObject.h"
+#include "Framework/GameObject.h"
 
 #include <vector>
 
 namespace KujataEngine {
+
+// ServiceRegistryに登録するときの名前。
+const char* const kSceneServiceName = "Scene";
 
 /// <summary>
 /// GameObjectを集めて持ち、作った順に動かす入れ物。

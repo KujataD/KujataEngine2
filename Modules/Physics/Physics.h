@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Scene/Scene.h"
+#include "Framework/Scene.h"
 #include "Core/IModule.h"
 #include "SceneCollisionSystem.h"
 

@@ -21,10 +21,5 @@
     <ClCompile Include="ScenePhysics.cpp" />
     <ClCompile Include="ShapeUtil.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Scene\Scene.vcxproj">
-      <Project>{098C7C72-A6F4-41D0-BE65-C060D081B0EA}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

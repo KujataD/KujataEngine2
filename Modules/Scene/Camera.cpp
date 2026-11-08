@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-#include "GameObject.h"
+#include "Framework/GameObject.h"
 #include "Interface/IRenderQueue.h"
 
 namespace KujataEngine {
