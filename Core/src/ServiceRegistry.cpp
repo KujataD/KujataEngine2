@@ -1,14 +1,15 @@
 #include "Core/ServiceRegistry.h"
 
+#include "Core/Assert.h"
+
 #include <cstdio>
 
 namespace KujataEngine {
 
 void ServiceRegistry::Register(const std::string& name, void* service) {
-	if (services_.count(name) > 0) {
-		printf("サービスはすでに登録されています: %s\n", name.c_str());
-		return;
-	}
+	KUJATA_ASSERT(service != nullptr);
+	KUJATA_ASSERT(services_.count(name) == 0);
+
 	services_[name] = service;
 }
 

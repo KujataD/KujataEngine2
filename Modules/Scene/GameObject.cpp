@@ -1,5 +1,7 @@
 #include "GameObject.h"
 
+#include "Core/Assert.h"
+
 namespace KujataEngine {
 
 GameObject::~GameObject() {
@@ -9,6 +11,8 @@ GameObject::~GameObject() {
 }
 
 void GameObject::AddComponent(Component* component) {
+	KUJATA_ASSERT(component != nullptr);
+
 	component->SetOwner(this);
 	components_.push_back(component);
 }

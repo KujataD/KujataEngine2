@@ -1,8 +1,12 @@
 #include "Core/App.h"
 
+#include "Core/Assert.h"
+
 namespace KujataEngine {
 
 void App::Add(IModule* addedModule) {
+	KUJATA_ASSERT(addedModule != nullptr);
+
 	modules_.push_back(addedModule);
 }
 

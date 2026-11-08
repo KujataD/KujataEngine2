@@ -54,12 +54,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\App.h" />
+    <ClInclude Include="include\Core\Assert.h" />
     <ClInclude Include="include\Core\FrameLoop.h" />
     <ClInclude Include="include\Core\IModule.h" />
     <ClInclude Include="include\Core\ServiceRegistry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\Assert.cpp" />
     <ClCompile Include="src\FrameLoop.cpp" />
     <ClCompile Include="src\ServiceRegistry.cpp" />
   </ItemGroup>

@@ -1,8 +1,13 @@
 #include "Core/FrameLoop.h"
 
+#include "Core/Assert.h"
+
 namespace KujataEngine {
 
 void FrameLoop::Register(FramePhase phase, std::function<void()> callback) {
+	KUJATA_ASSERT(phase >= 0 && phase < kFramePhaseCount);
+	KUJATA_ASSERT(callback != nullptr);
+
 	callbacks_[phase].push_back(callback);
 }
 
