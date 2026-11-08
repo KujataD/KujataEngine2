@@ -25,6 +25,16 @@ Matrix4x4 MakeRotationXMatrix(float radians);
 Matrix4x4 MakeRotationYMatrix(float radians);
 
 /// <summary>
+/// Z軸まわりの回転行列を作り、角度はラジアンで指定する。
+/// </summary>
+Matrix4x4 MakeRotationZMatrix(float radians);
+
+/// <summary>
+/// 拡大縮小の行列を作る。
+/// </summary>
+Matrix4x4 MakeScaleMatrix(float x, float y, float z);
+
+/// <summary>
 /// 平行移動の行列を作る。
 /// </summary>
 Matrix4x4 MakeTranslateMatrix(float x, float y, float z);

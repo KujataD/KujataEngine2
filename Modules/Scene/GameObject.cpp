@@ -23,4 +23,14 @@ void GameObject::Update() {
 	}
 }
 
+void GameObject::SubmitRender(IRenderQueue* renderQueue) {
+	for (Component* component : components_) {
+		component->SubmitRender(renderQueue);
+	}
+}
+
+Transform& GameObject::GetTransform() {
+	return transform_;
+}
+
 } // namespace KujataEngine

@@ -59,6 +59,7 @@
     <ClInclude Include="include\Core\IModule.h" />
     <ClInclude Include="include\Core\Matrix4x4.h" />
     <ClInclude Include="include\Core\ServiceRegistry.h" />
+    <ClInclude Include="include\Core\Vector3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "Transform.h"
 
 #include <vector>
 
@@ -26,7 +27,18 @@ public:
 	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// 追加した順にComponentへ描画の依頼を出させる。
+	/// </summary>
+	void SubmitRender(IRenderQueue* renderQueue);
+
+	/// <summary>
+	/// このGameObjectの位置と回転と大きさを返す。
+	/// </summary>
+	Transform& GetTransform();
+
 private:
+	Transform transform_;
 	std::vector<Component*> components_;
 };
 

@@ -5,11 +5,22 @@
     <RootNamespace>Scene</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="MeshRenderer.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneModule.h" />
+    <ClInclude Include="Transform.h" />
+    <ClInclude Include="..\..\Interface\include\Interface\IRenderQueue.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="MeshRenderer.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneModule.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

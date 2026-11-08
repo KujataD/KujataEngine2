@@ -11,6 +11,7 @@ namespace KujataEngine {
 enum FramePhase {
 	kBeginFrame,
 	kUpdate,
+	kSubmitRender,
 	kRender,
 	kEndFrame,
 	kFramePhaseCount,

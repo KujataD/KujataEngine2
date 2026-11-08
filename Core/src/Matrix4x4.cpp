@@ -44,6 +44,29 @@ Matrix4x4 MakeRotationYMatrix(float radians) {
 	return result;
 }
 
+Matrix4x4 MakeRotationZMatrix(float radians) {
+	const float cosine = std::cos(radians);
+	const float sine = std::sin(radians);
+
+	Matrix4x4 result = {};
+	result.m[0][0] = cosine;
+	result.m[0][1] = sine;
+	result.m[1][0] = -sine;
+	result.m[1][1] = cosine;
+	result.m[2][2] = 1.0f;
+	result.m[3][3] = 1.0f;
+	return result;
+}
+
+Matrix4x4 MakeScaleMatrix(float x, float y, float z) {
+	Matrix4x4 result = {};
+	result.m[0][0] = x;
+	result.m[1][1] = y;
+	result.m[2][2] = z;
+	result.m[3][3] = 1.0f;
+	return result;
+}
+
 Matrix4x4 MakeTranslateMatrix(float x, float y, float z) {
 	Matrix4x4 result = {};
 	result.m[0][0] = 1.0f;

@@ -1,6 +1,8 @@
 #include "Core/App.h"
+#include "DemoScene.h"
 #include "Gpu/Gpu.h"
 #include "Renderer/Renderer.h"
+#include "Scene/SceneModule.h"
 #include "Window/Window.h"
 
 #include <Windows.h>
@@ -20,6 +22,10 @@ int main() {
 
 	KujataEngine::Renderer renderer;
 	app.Add(&renderer);
+
+	KujataEngine::SceneModule sceneModule;
+	app.Add(&sceneModule);
+	BuildDemoScene(sceneModule.GetScene());
 
 	app.Run();
 	return 0;
