@@ -6,7 +6,7 @@
 namespace KujataEngine {
 
 void MeshRenderer::SubmitRender(IRenderQueue* renderQueue) {
-	renderQueue->SubmitCube(GetOwner()->GetTransform().MakeWorldMatrix());
+	renderQueue->SubmitCube(GetOwner()->GetTransform().matWorld_);
 }
 
 } // namespace KujataEngine

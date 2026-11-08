@@ -4,6 +4,10 @@
 
 namespace KujataEngine {
 
+std::vector<std::string> SceneModule::GetProvidedServices() {
+	return { kSceneServiceName };
+}
+
 std::vector<std::string> SceneModule::GetRequiredServices() {
 	return { kRenderQueueServiceName };
 }
@@ -12,8 +16,11 @@ void SceneModule::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	renderQueue_ = static_cast<IRenderQueue*>(services.Get(kRenderQueueServiceName));
 	KUJATA_ASSERT(renderQueue_ != nullptr);
 
+	services.Register(kSceneServiceName, &scene_);
+
 	frameLoop.Register(kUpdate, [this]() {
 		scene_.Update();
+		scene_.UpdateWorldTransforms();
 	});
 	frameLoop.Register(kSubmitRender, [this]() {
 		scene_.SubmitRender(renderQueue_);

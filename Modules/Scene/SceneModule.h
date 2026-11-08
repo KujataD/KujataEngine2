@@ -6,11 +6,15 @@
 
 namespace KujataEngine {
 
+// ServiceRegistryに登録するときの名前。
+const char* const kSceneServiceName = "Scene";
+
 /// <summary>
 /// Sceneを毎フレーム更新して、描きたい物を描画の担当へ渡すモジュール。
 /// </summary>
 class SceneModule : public IModule {
 public:
+	std::vector<std::string> GetProvidedServices() override;
 	std::vector<std::string> GetRequiredServices() override;
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 

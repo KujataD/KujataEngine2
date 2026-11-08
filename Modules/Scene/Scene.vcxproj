@@ -11,7 +11,7 @@
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneModule.h" />
-    <ClInclude Include="Transform.h" />
+    <ClInclude Include="WorldTransform.h" />
     <ClInclude Include="..\..\Interface\include\Interface\IRenderQueue.h" />
   </ItemGroup>
   <ItemGroup>
@@ -20,7 +20,7 @@
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneModule.cpp" />
-    <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="WorldTransform.cpp" />
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

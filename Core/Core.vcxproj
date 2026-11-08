@@ -57,15 +57,30 @@
     <ClInclude Include="include\Core\Assert.h" />
     <ClInclude Include="include\Core\FrameLoop.h" />
     <ClInclude Include="include\Core\IModule.h" />
-    <ClInclude Include="include\Core\Matrix4x4.h" />
+    <ClInclude Include="include\Core\Math\Easing.h" />
+    <ClInclude Include="include\Core\Math\MathUtil.h" />
+    <ClInclude Include="include\Core\Math\Matrix3x3.h" />
+    <ClInclude Include="include\Core\Math\Matrix4x4.h" />
+    <ClInclude Include="include\Core\Math\Noise.h" />
+    <ClInclude Include="include\Core\Math\Quaternion.h" />
+    <ClInclude Include="include\Core\Math\Random.h" />
+    <ClInclude Include="include\Core\Math\Vector2.h" />
+    <ClInclude Include="include\Core\Math\Vector3.h" />
+    <ClInclude Include="include\Core\Math\Vector4.h" />
+    <ClInclude Include="include\Core\Math\Segment.h" />
     <ClInclude Include="include\Core\ServiceRegistry.h" />
-    <ClInclude Include="include\Core\Vector3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Assert.cpp" />
     <ClCompile Include="src\FrameLoop.cpp" />
-    <ClCompile Include="src\Matrix4x4.cpp" />
+    <ClCompile Include="src\Math\Easing.cpp" />
+    <ClCompile Include="src\Math\MathUtil.cpp" />
+    <ClCompile Include="src\Math\Matrix3x3.cpp" />
+    <ClCompile Include="src\Math\Matrix4x4.cpp" />
+    <ClCompile Include="src\Math\Noise.cpp" />
+    <ClCompile Include="src\Math\Random.cpp" />
+    <ClCompile Include="src\Math\Vector2.cpp" />
     <ClCompile Include="src\ServiceRegistry.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

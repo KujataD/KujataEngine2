@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Component.h"
-#include "Transform.h"
+#include "WorldTransform.h"
+
+#include <cstdint>
 
 #include <vector>
 
@@ -35,10 +37,40 @@ public:
 	/// <summary>
 	/// このGameObjectの位置と回転と大きさを返す。
 	/// </summary>
-	Transform& GetTransform();
+	WorldTransform& GetTransform();
+	const WorldTransform& GetTransform() const;
+
+	/// <summary>
+	/// 親をたどってワールド行列を今の位置に合わせる。
+	/// </summary>
+	void UpdateWorldTransformSelfAndAncestors();
+
+	/// <summary>
+	/// 指定の型のComponentを探し、なければnullptrを返す。
+	/// </summary>
+	template<typename T> T* GetComponent() {
+		for (Component* component : components_) {
+			T* found = dynamic_cast<T*>(component);
+			if (found != nullptr) {
+				return found;
+			}
+		}
+		return nullptr;
+	}
+
+	std::vector<Component*>& GetComponents() { return components_; }
+
+	void SetActive(bool isActive) { isActive_ = isActive; }
+	bool IsActive() const { return isActive_; }
+
+	// 衝突の絞り込みに使うLayerの番号。
+	void SetLayer(uint32_t layer) { layer_ = layer; }
+	uint32_t GetLayer() const { return layer_; }
 
 private:
-	Transform transform_;
+	WorldTransform transform_;
+	bool isActive_ = true;
+	uint32_t layer_ = 0;
 	std::vector<Component*> components_;
 };
 

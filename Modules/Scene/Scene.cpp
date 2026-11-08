@@ -20,6 +20,12 @@ void Scene::Update() {
 	}
 }
 
+void Scene::UpdateWorldTransforms() {
+	for (GameObject* gameObject : gameObjects_) {
+		gameObject->GetTransform().UpdateWorldMatrix();
+	}
+}
+
 void Scene::SubmitRender(IRenderQueue* renderQueue) {
 	for (GameObject* gameObject : gameObjects_) {
 		gameObject->SubmitRender(renderQueue);

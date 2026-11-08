@@ -29,8 +29,16 @@ void GameObject::SubmitRender(IRenderQueue* renderQueue) {
 	}
 }
 
-Transform& GameObject::GetTransform() {
+WorldTransform& GameObject::GetTransform() {
 	return transform_;
+}
+
+const WorldTransform& GameObject::GetTransform() const {
+	return transform_;
+}
+
+void GameObject::UpdateWorldTransformSelfAndAncestors() {
+	transform_.UpdateWorldMatrix();
 }
 
 } // namespace KujataEngine

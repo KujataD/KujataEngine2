@@ -22,7 +22,15 @@ public:
 	GameObject* CreateGameObject();
 
 	void Update();
+
+	/// <summary>
+	/// 全GameObjectのワールド行列を今の位置に合わせる。
+	/// </summary>
+	void UpdateWorldTransforms();
+
 	void SubmitRender(IRenderQueue* renderQueue);
+
+	const std::vector<GameObject*>& GetGameObjects() const { return gameObjects_; }
 
 private:
 	std::vector<GameObject*> gameObjects_;

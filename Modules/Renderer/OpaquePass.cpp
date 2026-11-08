@@ -1,7 +1,7 @@
 #include "OpaquePass.h"
 
 #include "Core/Assert.h"
-#include "Core/Matrix4x4.h"
+#include "Core/Math/MathUtil.h"
 
 #include <cstdio>
 
@@ -110,14 +110,14 @@ void OpaquePass::Execute(const RenderContext& context) {
 	const CameraData& camera = context.renderQueue->GetCamera();
 	const float aspectRatio = context.targetWidth / context.targetHeight;
 	const Matrix4x4 projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
-	const Matrix4x4 viewProjection = Multiply(camera.view, projection);
+	const Matrix4x4 viewProjection = camera.view * projection;
 
 	const std::vector<Matrix4x4>& cubeWorlds = context.renderQueue->GetCubeWorlds();
 	KUJATA_ASSERT(cubeWorlds.size() <= kMaxDrawCount);
 
 	for (UINT drawIndex = 0; drawIndex < cubeWorlds.size() && drawIndex < kMaxDrawCount; drawIndex++) {
 		TransformData transformData = {};
-		transformData.worldViewProjection = Multiply(cubeWorlds[drawIndex], viewProjection);
+		transformData.worldViewProjection = cubeWorlds[drawIndex] * viewProjection;
 		transformBuffer_.Write(drawIndex, &transformData);
 
 		transformBuffer_.Bind(list, PipelineState::kTransformRootParameterIndex, drawIndex);

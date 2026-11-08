@@ -15,7 +15,7 @@ public:
 	}
 
 	void Update() override {
-		GetOwner()->GetTransform().rotation.y += radiansPerFrame_;
+		GetOwner()->GetTransform().rotation_.y += radiansPerFrame_;
 	}
 
 private:
@@ -27,16 +27,16 @@ private:
 /// </summary>
 static void CreateCube(Scene* scene, float x, float size, float radiansPerFrame) {
 	GameObject* cube = scene->CreateGameObject();
-	cube->GetTransform().position = { x, 0.0f, 0.0f };
-	cube->GetTransform().scale = { size, size, size };
+	cube->GetTransform().translation_ = { x, 0.0f, 0.0f };
+	cube->GetTransform().scale_ = { size, size, size };
 	cube->AddComponent(new MeshRenderer());
 	cube->AddComponent(new Rotator(radiansPerFrame));
 }
 
 void BuildDemoScene(Scene* scene) {
 	GameObject* camera = scene->CreateGameObject();
-	camera->GetTransform().position = { 0.0f, 2.0f, -6.0f };
-	camera->GetTransform().rotation = { 0.3f, 0.0f, 0.0f };
+	camera->GetTransform().translation_ = { 0.0f, 2.0f, -6.0f };
+	camera->GetTransform().rotation_ = { 0.3f, 0.0f, 0.0f };
 	camera->AddComponent(new Camera());
 
 	CreateCube(scene, -2.2f, 1.0f, 0.02f);
