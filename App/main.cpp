@@ -1,6 +1,7 @@
 #include "Core/App.h"
 #include "DemoScene.h"
 #include "Gpu/Gpu.h"
+#include "Physics/Physics.h"
 #include "Renderer/Renderer.h"
 #include "Scene/SceneModule.h"
 #include "Window/Window.h"
@@ -26,6 +27,9 @@ int main() {
 	KujataEngine::SceneModule sceneModule;
 	app.Add(&sceneModule);
 	BuildDemoScene(sceneModule.GetScene());
+
+	KujataEngine::Physics physics;
+	app.Add(&physics);
 
 	app.Run();
 	return 0;

@@ -105,6 +105,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ProjectReference Include="..\Modules\Renderer\Renderer.vcxproj">
       <Project>{D68DA75F-0278-454E-95AD-B75C8EE0217F}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\Physics\Physics.vcxproj">
+      <Project>{A97CAF68-3020-40E3-A3B5-326FFBDC217A}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
