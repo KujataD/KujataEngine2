@@ -1,5 +1,7 @@
 #pragma once
 
+namespace KujataEngine {
+
 // GameObject.hをincludeするとお互いを読み合ってしまうので、クラスの名前だけを伝える。
 class GameObject;
 
@@ -32,3 +34,5 @@ public:
 private:
 	GameObject* owner_ = nullptr;
 };
+
+} // namespace KujataEngine

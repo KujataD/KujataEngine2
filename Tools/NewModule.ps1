@@ -114,6 +114,8 @@ Write-TextFile (Join-Path $moduleDir "$Name.h") @"
 
 #include "Core/IModule.h"
 
+namespace KujataEngine {
+
 /// <summary>
 /// ${Name}の機能をAppに組み込むモジュール。
 /// </summary>
@@ -122,13 +124,19 @@ public:
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 };
 
+} // namespace KujataEngine
+
 "@
 
 Write-TextFile (Join-Path $moduleDir "$Name.cpp") @"
 #include "$Name.h"
 
+namespace KujataEngine {
+
 void ${Name}::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 }
+
+} // namespace KujataEngine
 
 "@
 

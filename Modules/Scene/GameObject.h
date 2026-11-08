@@ -4,6 +4,8 @@
 
 #include <vector>
 
+namespace KujataEngine {
+
 /// <summary>
 /// Componentを集めて持ち、毎フレームまとめて更新する入れ物。
 /// </summary>
@@ -27,3 +29,5 @@ public:
 private:
 	std::vector<Component*> components_;
 };
+
+} // namespace KujataEngine

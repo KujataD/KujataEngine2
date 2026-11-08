@@ -2,6 +2,8 @@
 
 #include "Core/IModule.h"
 
+namespace KujataEngine {
+
 /// <summary>
 /// 指定のフレーム数を実行したらAppを終了させる、動作確認用のモジュール。
 /// </summary>
@@ -17,3 +19,5 @@ private:
 	int remainingFrames_;
 	FrameLoop* frameLoop_ = nullptr;
 };
+
+} // namespace KujataEngine

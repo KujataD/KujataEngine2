@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 
+namespace KujataEngine {
+
 /// <summary>
 /// モジュールが他のモジュールを名前で受け取るための登録簿。
 /// </summary>
@@ -22,3 +24,5 @@ private:
 	// void*はどの型のポインタでも入る。受け取る側で元の型に戻して使う。
 	std::map<std::string, void*> services_;
 };
+
+} // namespace KujataEngine

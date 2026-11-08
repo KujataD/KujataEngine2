@@ -6,6 +6,8 @@
 
 #include <vector>
 
+namespace KujataEngine {
+
 /// <summary>
 /// モジュールを集めて、起動とフレームの実行と終了を順番に進める。
 /// </summary>
@@ -26,3 +28,5 @@ private:
 	ServiceRegistry services_;
 	FrameLoop frameLoop_;
 };
+
+} // namespace KujataEngine

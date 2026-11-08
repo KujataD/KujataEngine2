@@ -3,6 +3,8 @@
 #include <functional>
 #include <vector>
 
+namespace KujataEngine {
+
 /// <summary>
 /// 1フレームの中の段階で、上から順に実行される。
 /// </summary>
@@ -42,3 +44,5 @@ private:
 	std::vector<std::function<void()>> callbacks_[kFramePhaseCount];
 	bool isQuitRequested_ = false;
 };
+
+} // namespace KujataEngine

@@ -1,5 +1,7 @@
 #include "GameObject.h"
 
+namespace KujataEngine {
+
 GameObject::~GameObject() {
 	for (Component* component : components_) {
 		delete component;
@@ -16,3 +18,5 @@ void GameObject::Update() {
 		component->Update();
 	}
 }
+
+} // namespace KujataEngine

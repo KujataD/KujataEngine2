@@ -1,5 +1,7 @@
 #include "QuitAfterFrames.h"
 
+namespace KujataEngine {
+
 QuitAfterFrames::QuitAfterFrames(int frameCount) {
 	remainingFrames_ = frameCount;
 }
@@ -17,3 +19,5 @@ void QuitAfterFrames::Update() {
 		frameLoop_->RequestQuit();
 	}
 }
+
+} // namespace KujataEngine

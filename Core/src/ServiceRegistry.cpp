@@ -2,6 +2,8 @@
 
 #include <cstdio>
 
+namespace KujataEngine {
+
 void ServiceRegistry::Register(const std::string& name, void* service) {
 	if (services_.count(name) > 0) {
 		printf("Service already registered: %s\n", name.c_str());
@@ -17,3 +19,5 @@ void* ServiceRegistry::Get(const std::string& name) {
 	}
 	return services_[name];
 }
+
+} // namespace KujataEngine

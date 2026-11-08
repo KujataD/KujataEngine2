@@ -3,6 +3,8 @@
 #include "Core/FrameLoop.h"
 #include "Core/ServiceRegistry.h"
 
+namespace KujataEngine {
+
 /// <summary>
 /// Appに組み込める機能のまとまりで、各モジュールはこれを継承する。
 /// </summary>
@@ -20,3 +22,5 @@ public:
 	/// </summary>
 	virtual void Shutdown() {}
 };
+
+} // namespace KujataEngine

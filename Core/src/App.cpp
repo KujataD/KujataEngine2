@@ -1,5 +1,7 @@
 #include "Core/App.h"
 
+namespace KujataEngine {
+
 void App::Add(IModule* addedModule) {
 	modules_.push_back(addedModule);
 }
@@ -16,3 +18,5 @@ void App::Run() {
 		modules_[i]->Shutdown();
 	}
 }
+
+} // namespace KujataEngine

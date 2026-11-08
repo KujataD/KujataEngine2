@@ -1,5 +1,7 @@
 #include "Core/FrameLoop.h"
 
+namespace KujataEngine {
+
 void FrameLoop::Register(FramePhase phase, std::function<void()> callback) {
 	callbacks_[phase].push_back(callback);
 }
@@ -34,3 +36,5 @@ void FrameLoop::RunFrame() {
 		}
 	}
 }
+
+} // namespace KujataEngine
