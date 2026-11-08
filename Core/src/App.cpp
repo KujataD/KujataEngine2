@@ -7,10 +7,12 @@ void App::Add(IModule* addedModule) {
 }
 
 void App::Run() {
+	// 全モジュールの初期化
 	for (IModule* addedModule : modules_) {
 		addedModule->Startup(services_, frameLoop_);
 	}
 
+	// メインループ
 	frameLoop_.Run();
 
 	// 後から起動したモジュールほど他に頼っているので、先に終了する。
