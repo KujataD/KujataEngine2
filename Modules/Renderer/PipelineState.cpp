@@ -19,8 +19,15 @@ void PipelineState::Bind(ID3D12GraphicsCommandList* list) {
 }
 
 void PipelineState::CreateRootSignature(ID3D12Device* device) {
-	// 今のシェーダーは外から値を受け取らないので、入口の一覧は空でよい。
+	// 頂点シェーダーのb0で行列を受け取る。
+	D3D12_ROOT_PARAMETER transformParameter = {};
+	transformParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	transformParameter.Descriptor.ShaderRegister = 0;
+	transformParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
 	D3D12_ROOT_SIGNATURE_DESC description = {};
+	description.NumParameters = 1;
+	description.pParameters = &transformParameter;
 	description.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	ComPtr<ID3DBlob> serialized;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ConstantBuffer.h"
 #include "Core/IModule.h"
 #include "Interface/IGpu.h"
 #include "Interface/IWindow.h"
@@ -17,6 +18,7 @@ public:
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 
 private:
+	void Update();
 	void Draw();
 
 	IGpu* gpu_ = nullptr;
@@ -25,6 +27,9 @@ private:
 	ShaderCompiler shaderCompiler_;
 	PipelineState pipelineState_;
 	VertexBuffer vertexBuffer_;
+	ConstantBuffer transformBuffer_;
+
+	float rotationYRadians_ = 0.0f;
 };
 
 } // namespace KujataEngine

@@ -13,6 +13,9 @@ namespace KujataEngine {
 /// </summary>
 class PipelineState {
 public:
+	// Root Signatureの中で、行列の定数バッファが何番目の入口か。
+	static const UINT kTransformRootParameterIndex = 0;
+
 	/// <summary>
 	/// Root SignatureとPSOを作る。
 	/// </summary>
