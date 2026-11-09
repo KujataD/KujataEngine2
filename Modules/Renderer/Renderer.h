@@ -46,7 +46,6 @@ private:
 	StandardRenderPipeline standardRenderPipeline_;
 	IRenderPipeline* renderPipeline_ = &standardRenderPipeline_;
 
-	bool isReady_ = false;
 	bool hasWarnedNoCamera_ = false;
 };
 

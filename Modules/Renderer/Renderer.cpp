@@ -48,7 +48,7 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	shaderCompiler_.Initialize();
 	shaderResourceHeap_.Initialize(gpu_->GetDevice(), kShaderResourceHeapCapacity);
 
-	isReady_ = opaquePass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, GetRendererDataDirectory());
+	opaquePass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, GetRendererDataDirectory());
 	standardRenderPipeline_.AddPass(&opaquePass_);
 
 	frameLoop.Register(kRender, [this]() {
@@ -71,7 +71,7 @@ OpaquePass* Renderer::GetOpaquePass() {
 }
 
 void Renderer::Draw() {
-	if (isReady_ && renderQueue_.HasCamera()) {
+	if (renderQueue_.HasCamera()) {
 		RenderContext context = {};
 		context.commandList = gpu_->GetCommandList();
 		context.renderQueue = &renderQueue_;
@@ -81,7 +81,7 @@ void Renderer::Draw() {
 	}
 
 	// カメラがないのは作る人の間違いなので、止めずに毎フレームは出さない。
-	if (isReady_ && !renderQueue_.HasCamera() && !hasWarnedNoCamera_) {
+	if (!renderQueue_.HasCamera() && !hasWarnedNoCamera_) {
 		printf("カメラがないので、シーンを描きません。\n");
 		hasWarnedNoCamera_ = true;
 	}

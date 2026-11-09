@@ -20,13 +20,14 @@ namespace KujataEngine {
 class OpaquePass : public IRenderPass {
 public:
 	/// <summary>
-	/// シェーダーやバッファを準備し、用意できなければログを出してfalseを返す。
+	/// シェーダーやバッファを準備し、用意できなければログを出して、この工程だけ描かない。
 	/// </summary>
-	bool Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory);
+	void Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory);
 
 	void Execute(const RenderContext& context) override;
 
 private:
+	bool isReady_ = false;
 	ShaderResourceHeap* shaderResourceHeap_ = nullptr;
 
 	PipelineState pipelineState_;

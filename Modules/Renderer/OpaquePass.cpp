@@ -64,7 +64,7 @@ struct TransformData {
 // 1フレームに描ける物の数。
 static const UINT kMaxDrawCount = 1024;
 
-bool OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory) {
+void OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory) {
 	shaderResourceHeap_ = shaderResourceHeap;
 
 	const std::filesystem::path shaderDirectory = dataDirectory / L"Shaders";
@@ -74,13 +74,13 @@ bool OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderRes
 	// シェーダーの書き間違いは普通に起きるので、止めずに描かないだけにする。
 	if (vertexShader == nullptr || pixelShader == nullptr) {
 		printf("シェーダーを準備できなかったので、不透明な物を描きません。\n");
-		return false;
+		return;
 	}
 
 	// 画像がないのは作る人の間違いなので、止めずに描かないだけにする。
 	if (!texture_.Load(gpu, shaderResourceHeap, (dataDirectory / L"Textures" / L"uvChecker.png").wstring())) {
 		printf("テクスチャを準備できなかったので、不透明な物を描きません。\n");
-		return false;
+		return;
 	}
 
 	ID3D12Device* device = gpu->GetDevice();
@@ -88,10 +88,14 @@ bool OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderRes
 	vertexBuffer_.Initialize(device, kCubeVertices, sizeof(Vertex), 24);
 	indexBuffer_.Initialize(device, kCubeIndices, 36);
 	transformBuffer_.Initialize(device, sizeof(TransformData), kMaxDrawCount);
-	return true;
+	isReady_ = true;
 }
 
 void OpaquePass::Execute(const RenderContext& context) {
+	if (!isReady_) {
+		return;
+	}
+
 	ID3D12GraphicsCommandList* list = context.commandList;
 
 	// 描く範囲の設定で、忘れてもエラーにならず何も映らないだけになる。
