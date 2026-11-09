@@ -62,7 +62,7 @@ struct TransformData {
 };
 
 // 1フレームに描ける物の数。
-static const UINT kMaxDrawCount = 256;
+static const UINT kMaxDrawCount = 1024;
 
 bool OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory) {
 	shaderResourceHeap_ = shaderResourceHeap;
