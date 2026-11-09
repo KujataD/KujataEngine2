@@ -54,6 +54,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Framework\Component.h" />
+    <ClInclude Include="include\Framework\ComponentStorage.h" />
     <ClInclude Include="include\Framework\Entity.h" />
     <ClInclude Include="include\Framework\EntityAllocator.h" />
     <ClInclude Include="include\Framework\GameObject.h" />
