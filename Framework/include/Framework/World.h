@@ -41,7 +41,33 @@ public:
 		GetStorage<T>().Remove(entity);
 	}
 
+	/// <summary>
+	/// 指定した型をすべて持つEntityごとに、関数を1回ずつ呼ぶ。
+	/// </summary>
+	template<typename... Components, typename Function> void Each(Function function) {
+		EachInStorages(function, GetStorage<Components>()...);
+	}
+
 private:
+	/// <summary>
+	/// 一番少ない入れ物を順に見て、他の入れ物にも行があるEntityだけを処理する。
+	/// </summary>
+	template<typename Function, typename... Storages> void EachInStorages(Function& function, Storages&... storages) {
+		const std::vector<Entity>* smallest = nullptr;
+		for (const std::vector<Entity>* entities : { &storages.Entities()... }) {
+			if (smallest == nullptr || entities->size() < smallest->size()) {
+				smallest = entities;
+			}
+		}
+
+		for (size_t i = 0; i < smallest->size(); i++) {
+			const Entity entity = (*smallest)[i];
+			if ((storages.Has(entity) && ...)) {
+				function(storages.Get(entity)...);
+			}
+		}
+	}
+
 	static size_t NextTypeId();
 
 	/// <summary>

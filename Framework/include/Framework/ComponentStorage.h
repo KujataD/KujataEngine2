@@ -93,6 +93,7 @@ public:
 		}
 	}
 
+	const std::vector<Entity>& Entities() const { return entities_; }
 	size_t Size() const { return entities_.size(); }
 	Entity EntityAt(size_t denseIndex) const { return entities_[denseIndex]; }
 	T& ComponentAt(size_t denseIndex) { return components_[denseIndex]; }
