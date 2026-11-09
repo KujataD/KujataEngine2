@@ -723,18 +723,14 @@ Vector3 CatmullRomPosition(const std::vector<Vector3>& points, float t) {
 
 	// 区間数は制御点の数-1
 	size_t division = points.size() - 1;
-	// 1区間の長さ(全体を1.0とした割合)
-	float areaWidth = 1.0f / division;
+	// 全体を区間数ぶんに伸ばした位置(整数部が区間番号になる)
+	float scaledT = std::clamp(t, 0.0f, 1.0f) * division;
+
+	// 区間番号が上限を超えないように収める
+	size_t index = std::min<size_t>(static_cast<size_t>(scaledT), division - 1);
 
 	// 区間内の始点を0.0f、終点を1.0fとしたときの現在位置
-	float t_2 = std::fmod(t, areaWidth) * division;
-	// 下限(0.0f)と上限(1.0f)の範囲に収める
-	t_2 = std::clamp(t_2, 0.0f, 1.0f);
-
-	// 区間番号
-	size_t index = static_cast<size_t>(t / areaWidth);
-	// 区間番号が上限を超えないように収める
-	index = std::min<size_t>(index, division - 1);
+	float t_2 = scaledT - static_cast<float>(index);
 
 	// 4点分のインデックス
 	size_t index0 = index - 1;
