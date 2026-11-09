@@ -10,10 +10,23 @@
 namespace KujataEngine {
 
 /// <summary>
+/// 中身の型を知らなくてもEntityの行を消せるようにする窓口。
+/// </summary>
+class IComponentStorage {
+public:
+	virtual ~IComponentStorage() = default;
+
+	/// <summary>
+	/// このEntityの行があれば消す。
+	/// </summary>
+	virtual void RemoveIfExists(Entity entity) = 0;
+};
+
+/// <summary>
 /// 1種類のコンポーネントを、隙間のない配列になれべ手持つコンテナ。
 /// </summary>
 /// <typeparam name="T">コンポーネント</typeparam>
-template<typename T> class ComponentStorage {
+template<typename T> class ComponentStorage : public IComponentStorage {
 public:
 	ComponentStorage() = default;
 	~ComponentStorage() = default;
@@ -72,6 +85,12 @@ public:
 
 		entities_.pop_back();
 		components_.pop_back();
+	}
+
+	void RemoveIfExists(Entity entity) override {
+		if (Has(entity)) {
+			Remove(entity);
+		}
 	}
 
 	size_t Size() const { return entities_.size(); }

@@ -59,12 +59,14 @@
     <ClInclude Include="include\Framework\EntityAllocator.h" />
     <ClInclude Include="include\Framework\GameObject.h" />
     <ClInclude Include="include\Framework\Scene.h" />
+    <ClInclude Include="include\Framework\World.h" />
     <ClInclude Include="include\Framework\WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EntityAllocator.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\World.cpp" />
     <ClCompile Include="src\WorldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
