@@ -772,7 +772,7 @@ Segment MakeLimitedSegment(const Vector3& start, const Vector3& end, float maxDi
 		segment.diff = toEnd;
 	} else {
 		Vector3 direction = Normalize(toEnd);
-		segment.diff = direction * (maxDistance / (Length(toEnd))) * maxDistance;
+		segment.diff = direction * maxDistance;
 	}
 
 	return segment;
