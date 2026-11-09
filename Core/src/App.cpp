@@ -55,8 +55,11 @@ void App::SortModulesByDependency() {
 
 		if (readyIndex < 0) {
 			PrintMissingServices(waitingModules, availableServices);
+			KUJATA_ASSERT(readyIndex >= 0);
+
+			// アサートが消えるReleaseでも、配列の外を読まずに終了する。
+			ExitAfterAssertFailure();
 		}
-		KUJATA_ASSERT(readyIndex >= 0);
 
 		IModule* readyModule = waitingModules[readyIndex];
 		sortedModules.push_back(readyModule);
