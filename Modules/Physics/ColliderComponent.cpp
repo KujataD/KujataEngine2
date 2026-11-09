@@ -17,10 +17,6 @@ uint64_t GenerateColliderRuntimeId() {
 	return ++counter;
 }
 
-Vector3 AbsoluteVector(const Vector3& value) {
-	return {std::fabs(value.x), std::fabs(value.y), std::fabs(value.z)};
-}
-
 Vector3 MaxVector(const Vector3& a, const Vector3& b) {
 	return {
 	    (std::max)(a.x, b.x),
@@ -236,8 +232,10 @@ Sphere SphereColliderComponent::GetWorldSphere() const {
 	float maxScale = 1.0f;
 	GameObject* owner = GetOwner();
 	if (owner) {
-		Vector3 scale = AbsoluteVector(owner->GetTransform().scale_);
-		maxScale = (std::max)(scale.x, (std::max)(scale.y, scale.z));
+		// 親のスケールも含めるので、ワールド行列から大きさを取る。
+		owner->UpdateWorldTransformSelfAndAncestors();
+		const Matrix4x4& matrix = owner->GetTransform().matWorld_;
+		maxScale = (std::max)(GetWorldAxisScale(matrix, 0), (std::max)(GetWorldAxisScale(matrix, 1), GetWorldAxisScale(matrix, 2)));
 	}
 
 	return {GetWorldCenter(), radius_ * maxScale};
@@ -261,8 +259,8 @@ Sphere BoxColliderComponent::GetWorldSphere() const {
 }
 
 AABB BoxColliderComponent::GetWorldAABB() const {
+	OBB obb = GetWorldOBB();
 	if (UsesWorldOBB()) {
-		OBB obb = GetWorldOBB();
 		Vector3 corners[8] = {
 		    obb.center - obb.orientations[0] * obb.size.x - obb.orientations[1] * obb.size.y - obb.orientations[2] * obb.size.z,
 		    obb.center + obb.orientations[0] * obb.size.x - obb.orientations[1] * obb.size.y - obb.orientations[2] * obb.size.z,
@@ -286,20 +284,8 @@ AABB BoxColliderComponent::GetWorldAABB() const {
 		return aabb;
 	}
 
-	Vector3 center = GetWorldCenter();
-	Vector3 size = size_;
-	GameObject* owner = GetOwner();
-	if (owner) {
-		Vector3 scale = AbsoluteVector(owner->GetTransform().scale_);
-		size.x *= scale.x;
-		size.y *= scale.y;
-		size.z *= scale.z;
-	}
-
-	Vector3 halfSize = size * 0.5f;
-	AABB aabb{center - halfSize, center + halfSize};
-	aabb.SwapMinMax();
-	return aabb;
+	// 回転がないので、OBBの半分の大きさがそのままAABBの半分の大きさになる。
+	return {obb.center - obb.size, obb.center + obb.size};
 }
 
 bool BoxColliderComponent::UsesWorldOBB() const {
