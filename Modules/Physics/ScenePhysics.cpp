@@ -47,6 +47,11 @@ Vector3 ApplyPositionFreeze(const RigidbodyComponent* rigidbody, Vector3 value) 
 	return value;
 }
 
+// 反発は法線方向の成分にだけ掛け、それ以外の成分は変えない。
+Vector3 ApplyRestitution(const Vector3& relative, const Vector3& normal, float bounciness) {
+	return relative - normal * ((1.0f + bounciness) * Dot(relative, normal));
+}
+
 } // namespace
 
 // 非トリガーの交差ペアに剛体反発(押し出し+速度反射)を適用する。
@@ -98,13 +103,13 @@ void ScenePhysics::ResolveCollisionResponse(ColliderComponent* colliderA, Collid
 	if (movableA) {
 		Vector3 relative = physVelocityA - physVelocityB;
 		if (Dot(relative, normal) > 0.0f) { // AがBへ接近
-			rigidbodyA->SetVelocity(ApplyPositionFreeze(rigidbodyA, physVelocityB + ShapeUtil::Reflect(relative, normal) * rigidbodyA->GetBounciness()));
+			rigidbodyA->SetVelocity(ApplyPositionFreeze(rigidbodyA, physVelocityB + ApplyRestitution(relative, normal, rigidbodyA->GetBounciness())));
 		}
 	}
 	if (movableB) {
 		Vector3 relative = physVelocityB - physVelocityA;
 		if (Dot(relative, normal) < 0.0f) { // BがAへ接近
-			rigidbodyB->SetVelocity(ApplyPositionFreeze(rigidbodyB, physVelocityA + ShapeUtil::Reflect(relative, normal) * rigidbodyB->GetBounciness()));
+			rigidbodyB->SetVelocity(ApplyPositionFreeze(rigidbodyB, physVelocityA + ApplyRestitution(relative, normal, rigidbodyB->GetBounciness())));
 		}
 	}
 }
