@@ -16,7 +16,9 @@ GameObject* Scene::CreateGameObject() {
 
 void Scene::Update() {
 	for (GameObject* gameObject : gameObjects_) {
-		gameObject->Update();
+		if (gameObject->IsActive()) {
+			gameObject->Update();
+		}
 	}
 }
 
@@ -28,7 +30,9 @@ void Scene::UpdateWorldTransforms() {
 
 void Scene::SubmitRender(IRenderQueue* renderQueue) {
 	for (GameObject* gameObject : gameObjects_) {
-		gameObject->SubmitRender(renderQueue);
+		if (gameObject->IsActive()) {
+			gameObject->SubmitRender(renderQueue);
+		}
 	}
 }
 

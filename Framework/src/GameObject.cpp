@@ -19,13 +19,17 @@ void GameObject::AddComponent(Component* component) {
 
 void GameObject::Update() {
 	for (Component* component : components_) {
-		component->Update();
+		if (component->IsEnabled()) {
+			component->Update();
+		}
 	}
 }
 
 void GameObject::SubmitRender(IRenderQueue* renderQueue) {
 	for (Component* component : components_) {
-		component->SubmitRender(renderQueue);
+		if (component->IsEnabled()) {
+			component->SubmitRender(renderQueue);
+		}
 	}
 }
 
