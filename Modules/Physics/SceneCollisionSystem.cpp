@@ -4,7 +4,6 @@
 #include "ColliderComponent.h"
 #include <algorithm>
 #include <cstdint>
-#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -119,11 +118,6 @@ void SceneCollisionSystem::Update(Scene& scene) {
 	std::vector<ColliderComponent*> colliders;
 	CollectSceneColliders(scene, colliders);
 
-	std::unordered_set<ColliderComponent*> activeColliders;
-	for (ColliderComponent* collider : colliders) {
-		activeColliders.insert(collider);
-	}
-
 	// ブロードフェーズ(Sweep and Prune): X軸のAABB minでソートし、Xレンジが重ならない組は
 	// 候補から外す。真に交差するペアは全軸でAABBが重なっているはずなので、X軸だけ見ても
 	// 取りこぼしは起きない(候補が減るだけで、絞り込みすぎることはない)。
@@ -205,10 +199,8 @@ void SceneCollisionSystem::Update(Scene& scene) {
 		if (currentPairStates.contains(pairKey)) {
 			continue;
 		}
-		if (!activeColliders.contains(previousState.colliderA) || !activeColliders.contains(previousState.colliderB)) {
-			continue;
-		}
 
+		// 無効にされた相手とのペアもここに来るので、EnterとExitの数がそろう。
 		NotifyCollisionPair(previousState.colliderA, previousState.colliderB, previousState.isTrigger, CollisionEventPhase::Exit);
 	}
 
