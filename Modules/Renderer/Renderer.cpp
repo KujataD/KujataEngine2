@@ -18,8 +18,16 @@ static std::filesystem::path GetRendererDataDirectory() {
 	wchar_t exePath[MAX_PATH] = {};
 	GetModuleFileNameW(nullptr, exePath, MAX_PATH);
 
-	// exeはbuild\bin\構成名にあるので、3つ上がリポジトリの一番上になる。
-	const std::filesystem::path repositoryRoot = std::filesystem::path(exePath).parent_path().parent_path().parent_path().parent_path();
+	const std::filesystem::path exeDirectory = std::filesystem::path(exePath).parent_path();
+
+	// 配布したexeは、隣のDataを使う。
+	const std::filesystem::path packagedDirectory = exeDirectory / L"Data" / L"Renderer";
+	if (std::filesystem::exists(packagedDirectory)) {
+		return packagedDirectory;
+	}
+
+	// 開発中のexeはbuild\bin\構成名にあるので、3つ上がリポジトリの一番上になる。
+	const std::filesystem::path repositoryRoot = exeDirectory.parent_path().parent_path().parent_path();
 	return repositoryRoot / L"Modules" / L"Renderer";
 }
 
