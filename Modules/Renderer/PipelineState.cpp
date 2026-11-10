@@ -27,7 +27,7 @@ void PipelineState::CreateRootSignature(ID3D12Device* device) {
 	textureRange.BaseShaderRegister = 0;
 	textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER rootParameters[2] = {};
+	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 
 	// 頂点シェーダーのb0で行列を受け取る。
 	rootParameters[kTransformRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -39,6 +39,11 @@ void PipelineState::CreateRootSignature(ID3D12Device* device) {
 	rootParameters[kTextureRootParameterIndex].DescriptorTable.NumDescriptorRanges = 1;
 	rootParameters[kTextureRootParameterIndex].DescriptorTable.pDescriptorRanges = &textureRange;
 	rootParameters[kTextureRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// ピクセルシェーダーのb1で光を受け取る。
+	rootParameters[kLightRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kLightRootParameterIndex].Descriptor.ShaderRegister = 1;
+	rootParameters[kLightRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	// s0はミップの間も補間するトライリニアで読み、0から1の外は繰り返す。
 	D3D12_STATIC_SAMPLER_DESC sampler = {};
@@ -52,7 +57,7 @@ void PipelineState::CreateRootSignature(ID3D12Device* device) {
 	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_ROOT_SIGNATURE_DESC description = {};
-	description.NumParameters = 2;
+	description.NumParameters = _countof(rootParameters);
 	description.pParameters = rootParameters;
 	description.NumStaticSamplers = 1;
 	description.pStaticSamplers = &sampler;

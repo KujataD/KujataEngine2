@@ -1,6 +1,7 @@
 #include "DemoScene.h"
 
 #include "Scene/Camera.h"
+#include "Scene/DirectionalLight.h"
 #include "Scene/MeshRenderer.h"
 
 using namespace KujataEngine;
@@ -38,6 +39,11 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets) {
 	camera->GetTransform().translation_ = { 0.0f, 2.0f, -6.0f };
 	camera->GetTransform().rotation_ = { 0.3f, 0.0f, 0.0f };
 	camera->AddComponent(new Camera());
+
+	GameObject* light = scene->CreateGameObject();
+	// 右上の手前から斜めに当たるように傾ける。
+	light->GetTransform().rotation_ = { 0.9f, -0.5f, 0.0f };
+	light->AddComponent(new DirectionalLight());
 
 	const MeshHandle cubeMesh = assets->GetCubeMesh();
 	const TextureHandle uvChecker = assets->LoadTexture("Textures/uvChecker.png");

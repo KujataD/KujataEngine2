@@ -6,11 +6,13 @@
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="SceneModule.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="SceneModule.cpp" />
   </ItemGroup>

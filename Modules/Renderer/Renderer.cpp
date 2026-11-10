@@ -114,6 +114,12 @@ void Renderer::Draw() {
 		hasWarnedNoCamera_ = true;
 	}
 
+	// 光がないのも作る人の間違いなので、止めずにログを1回だけ出す。
+	if (!renderQueue_.HasDirectionalLight() && !hasWarnedNoLight_) {
+		printf("平行光源がないので、環境光だけで描きます。\n");
+		hasWarnedNoLight_ = true;
+	}
+
 	// 描かなかったフレームでも依頼が溜まらないように、必ず空にする。
 	renderQueue_.Clear();
 }

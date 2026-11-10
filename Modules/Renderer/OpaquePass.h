@@ -29,6 +29,7 @@ private:
 
 	PipelineState pipelineState_;
 	ConstantBuffer transformBuffer_;
+	ConstantBuffer lightBuffer_;
 };
 
 } // namespace KujataEngine

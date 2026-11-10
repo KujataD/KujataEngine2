@@ -21,10 +21,13 @@ struct DrawRequest {
 class RenderQueue : public IRenderQueue {
 public:
 	void SetCamera(const CameraData& camera) override;
+	void SetDirectionalLight(const DirectionalLightData& light) override;
 	void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) override;
 
 	bool HasCamera() const;
 	const CameraData& GetCamera() const;
+	bool HasDirectionalLight() const;
+	const DirectionalLightData& GetDirectionalLight() const;
 	const std::vector<DrawRequest>& GetDrawRequests() const;
 
 	/// <summary>
@@ -35,6 +38,8 @@ public:
 private:
 	CameraData camera_ = {};
 	bool hasCamera_ = false;
+	DirectionalLightData directionalLight_ = {};
+	bool hasDirectionalLight_ = false;
 	std::vector<DrawRequest> drawRequests_;
 };
 

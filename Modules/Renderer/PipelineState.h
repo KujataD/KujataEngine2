@@ -19,6 +19,9 @@ public:
 	// Root Signatureの中で、テクスチャが何番目の入口か。
 	static const UINT kTextureRootParameterIndex = 1;
 
+	// Root Signatureの中で、光の定数バッファが何番目の入口か。
+	static const UINT kLightRootParameterIndex = 2;
+
 	/// <summary>
 	/// Root SignatureとPSOを作る。
 	/// </summary>

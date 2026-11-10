@@ -9,10 +9,25 @@ using Microsoft::WRL::ComPtr;
 
 namespace KujataEngine {
 
-// シェーダーのTransformDataと並びを合わせる。
+// Object3D.VS.hlslのTransformDataと並びを合わせる。
 struct TransformData {
 	Matrix4x4 worldViewProjection;
+	Matrix4x4 worldInverseTranspose;
 };
+
+// Object3D.PS.hlslのLightDataと並びを合わせ、HLSLの16バイトの区切りに合うように詰め物を入れる。
+struct LightData {
+	Vector3 direction;
+	float intensity;
+	Vector3 color;
+	float padding1;
+	Vector3 ambientColor;
+	float padding2;
+};
+static_assert(sizeof(LightData) == 48, "LightDataの大きさが変わったらObject3D.PS.hlslも直す。");
+
+// 光が当たらない面にも足す明るさ。
+static const Vector3 kAmbientColor = { 0.3f, 0.3f, 0.3f };
 
 // 1フレームに描ける物の数。
 static const UINT kMaxDrawCount = 1024;
@@ -33,6 +48,7 @@ void OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderRes
 	ID3D12Device* device = gpu->GetDevice();
 	pipelineState_.Initialize(device, vertexShader.Get(), pixelShader.Get(), gpu->GetRenderTargetFormat(), gpu->GetDepthFormat());
 	transformBuffer_.Initialize(device, sizeof(TransformData), kMaxDrawCount);
+	lightBuffer_.Initialize(device, sizeof(LightData), 1);
 	isReady_ = true;
 }
 
@@ -58,6 +74,18 @@ void OpaquePass::Execute(const RenderContext& context) {
 	const Matrix4x4 projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
 	const Matrix4x4 viewProjection = camera.view * projection;
 
+	// 光がないフレームは強さを0のまま書くので、環境光だけで描かれる。
+	LightData lightData = {};
+	if (context.renderQueue->HasDirectionalLight()) {
+		const DirectionalLightData& light = context.renderQueue->GetDirectionalLight();
+		lightData.direction = light.direction;
+		lightData.color = light.color;
+		lightData.intensity = light.intensity;
+	}
+	lightData.ambientColor = kAmbientColor;
+	lightBuffer_.Write(0, &lightData);
+	lightBuffer_.Bind(list, PipelineState::kLightRootParameterIndex, 0);
+
 	const std::vector<DrawRequest>& drawRequests = context.renderQueue->GetDrawRequests();
 	KUJATA_ASSERT(drawRequests.size() <= kMaxDrawCount);
 
@@ -66,6 +94,7 @@ void OpaquePass::Execute(const RenderContext& context) {
 
 		TransformData transformData = {};
 		transformData.worldViewProjection = request.world * viewProjection;
+		transformData.worldInverseTranspose = Transpose(Inverse(request.world));
 		transformBuffer_.Write(drawIndex, &transformData);
 		transformBuffer_.Bind(list, PipelineState::kTransformRootParameterIndex, drawIndex);
 

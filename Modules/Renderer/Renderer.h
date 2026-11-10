@@ -56,6 +56,7 @@ private:
 	IRenderPipeline* renderPipeline_ = &standardRenderPipeline_;
 
 	bool hasWarnedNoCamera_ = false;
+	bool hasWarnedNoLight_ = false;
 };
 
 } // namespace KujataEngine
