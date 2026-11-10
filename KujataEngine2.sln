@@ -28,6 +28,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "Interface\Inte
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Asset", "Modules\Asset\Asset.vcxproj", "{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Input", "Modules\Input\Input.vcxproj", "{45EC7784-E1C0-43B0-B225-437921D7AD07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -113,6 +115,12 @@ Global
 		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Development|x64.Build.0 = Development|x64
 		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Release|x64.ActiveCfg = Release|x64
 		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Release|x64.Build.0 = Release|x64
+		{45EC7784-E1C0-43B0-B225-437921D7AD07}.Debug|x64.ActiveCfg = Debug|x64
+		{45EC7784-E1C0-43B0-B225-437921D7AD07}.Debug|x64.Build.0 = Debug|x64
+		{45EC7784-E1C0-43B0-B225-437921D7AD07}.Development|x64.ActiveCfg = Development|x64
+		{45EC7784-E1C0-43B0-B225-437921D7AD07}.Development|x64.Build.0 = Development|x64
+		{45EC7784-E1C0-43B0-B225-437921D7AD07}.Release|x64.ActiveCfg = Release|x64
+		{45EC7784-E1C0-43B0-B225-437921D7AD07}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{45EC7784-E1C0-43B0-B225-437921D7AD07}</ProjectGuid>
+    <RootNamespace>Input</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="InputActions.h" />
+    <ClInclude Include="InputDevices.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="InputActions.cpp" />
+    <ClCompile Include="InputDevices.cpp" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+</Project>

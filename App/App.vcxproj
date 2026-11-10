@@ -116,6 +116,9 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     <ProjectReference Include="..\Modules\Asset\Asset.vcxproj">
       <Project>{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\Input\Input.vcxproj">
+      <Project>{45EC7784-E1C0-43B0-B225-437921D7AD07}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

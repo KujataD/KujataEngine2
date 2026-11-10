@@ -38,6 +38,8 @@
     <ClInclude Include="include\Interface\IAssetLibrary.h" />
     <ClInclude Include="include\Interface\ICollisionListener.h" />
     <ClInclude Include="include\Interface\IGpu.h" />
+    <ClInclude Include="include\Interface\IInputActions.h" />
+    <ClInclude Include="include\Interface\InputCodes.h" />
     <ClInclude Include="include\Interface\IRenderable.h" />
     <ClInclude Include="include\Interface\IRenderQueue.h" />
     <ClInclude Include="include\Interface\IWindow.h" />

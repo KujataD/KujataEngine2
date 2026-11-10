@@ -2,6 +2,7 @@
 #include "Core/App.h"
 #include "DemoScene.h"
 #include "Gpu/Gpu.h"
+#include "Input/Input.h"
 #include "Physics/Physics.h"
 #include "Renderer/Renderer.h"
 #include "Scene/SceneModule.h"
@@ -18,6 +19,9 @@ int main() {
 	// ウィンドウを作ってAppに入れると、閉じたときにループが終わる。
 	KujataEngine::Window window(L"KujataEngine2", 1280, 720);
 	app.Add(&window);
+
+	KujataEngine::Input input;
+	app.Add(&input);
 
 	KujataEngine::Gpu gpu;
 	app.Add(&gpu);
@@ -37,7 +41,8 @@ int main() {
 	// Assetなどの起動が終わってからシーンを作る。
 	app.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
 		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets);
+		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
+		BuildDemoScene(sceneModule.GetScene(), assets, inputActions);
 	});
 
 	app.Run();
