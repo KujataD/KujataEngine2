@@ -30,11 +30,6 @@ public:
 	void Update();
 
 	/// <summary>
-	/// 追加した順にComponentへ描画の依頼を出させる。
-	/// </summary>
-	void SubmitRender(IRenderQueue* renderQueue);
-
-	/// <summary>
 	/// このGameObjectの位置と回転と大きさを返す。
 	/// </summary>
 	WorldTransform& GetTransform();

@@ -5,17 +5,14 @@
 namespace KujataEngine {
 
 // ポインタで持つだけなので、クラスの名前だけを伝える。
-class ColliderComponent;
 class GameObject;
 
 /// <summary>
 /// Collisionイベントで渡す接触情報。
 /// </summary>
 struct Collision {
-	ColliderComponent* self = nullptr;
-	ColliderComponent* other = nullptr;
-	GameObject* selfObject = nullptr;
-	GameObject* otherObject = nullptr;
+	GameObject* self = nullptr;
+	GameObject* other = nullptr;
 	Vector3 point = {};
 	Vector3 normal = {};
 	float penetrationDepth = 0.0f;
@@ -34,9 +31,9 @@ public:
 	virtual void OnCollisionExit(const Collision& collision) {}
 
 	// トリガーのColliderと重なったときに呼ばれる。
-	virtual void OnTriggerEnter(ColliderComponent* other) {}
-	virtual void OnTriggerStay(ColliderComponent* other) {}
-	virtual void OnTriggerExit(ColliderComponent* other) {}
+	virtual void OnTriggerEnter(GameObject* other) {}
+	virtual void OnTriggerStay(GameObject* other) {}
+	virtual void OnTriggerExit(GameObject* other) {}
 };
 
 } // namespace KujataEngine

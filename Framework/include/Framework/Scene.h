@@ -31,8 +31,6 @@ public:
 	/// </summary>
 	void UpdateWorldTransforms();
 
-	void SubmitRender(IRenderQueue* renderQueue);
-
 	const std::vector<GameObject*>& GetGameObjects() const { return gameObjects_; }
 
 private:

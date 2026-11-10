@@ -35,6 +35,7 @@
   <ItemGroup>
     <ClInclude Include="include\Interface\ICollisionListener.h" />
     <ClInclude Include="include\Interface\IGpu.h" />
+    <ClInclude Include="include\Interface\IRenderable.h" />
     <ClInclude Include="include\Interface\IRenderQueue.h" />
     <ClInclude Include="include\Interface\IWindow.h" />
   </ItemGroup>

@@ -28,12 +28,4 @@ void Scene::UpdateWorldTransforms() {
 	}
 }
 
-void Scene::SubmitRender(IRenderQueue* renderQueue) {
-	for (GameObject* gameObject : gameObjects_) {
-		if (gameObject->IsActive()) {
-			gameObject->SubmitRender(renderQueue);
-		}
-	}
-}
-
 } // namespace KujataEngine

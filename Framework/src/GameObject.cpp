@@ -25,14 +25,6 @@ void GameObject::Update() {
 	}
 }
 
-void GameObject::SubmitRender(IRenderQueue* renderQueue) {
-	for (Component* component : components_) {
-		if (component->IsEnabled()) {
-			component->SubmitRender(renderQueue);
-		}
-	}
-}
-
 WorldTransform& GameObject::GetTransform() {
 	return transform_;
 }

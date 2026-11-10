@@ -34,6 +34,8 @@ void NotifyCollisionToComponents(GameObject* owner, ColliderComponent* self, Col
 		return;
 	}
 
+	GameObject* otherOwner = other->GetOwner();
+
 	for (Component* component : owner->GetComponents()) {
 		if (!component || !component->IsEnabled()) {
 			continue;
@@ -47,20 +49,18 @@ void NotifyCollisionToComponents(GameObject* owner, ColliderComponent* self, Col
 
 		if (isTrigger) {
 			if (phase == CollisionEventPhase::Enter) {
-				listener->OnTriggerEnter(other);
+				listener->OnTriggerEnter(otherOwner);
 			} else if (phase == CollisionEventPhase::Stay) {
-				listener->OnTriggerStay(other);
+				listener->OnTriggerStay(otherOwner);
 			} else if (phase == CollisionEventPhase::Exit) {
-				listener->OnTriggerExit(other);
+				listener->OnTriggerExit(otherOwner);
 			}
 			continue;
 		}
 
 		Collision collision{};
-		collision.self = self;
-		collision.other = other;
-		collision.selfObject = owner;
-		collision.otherObject = other->GetOwner();
+		collision.self = owner;
+		collision.other = otherOwner;
 		if (contact) {
 			collision.normal = flipNormal ? contact->normal * -1.0f : contact->normal;
 			collision.penetrationDepth = contact->depth;

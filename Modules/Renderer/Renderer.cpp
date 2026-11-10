@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "Core/Assert.h"
+#include "Interface/IRenderable.h"
 
 #include <Windows.h>
 #include <cstdio>
@@ -56,7 +57,7 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	standardRenderPipeline_.AddPass(&opaquePass_);
 
 	frameLoop.Register(kSubmitRender, [this]() {
-		scene_->SubmitRender(&renderQueue_);
+		CollectRenderRequests();
 	});
 	frameLoop.Register(kRender, [this]() {
 		Draw();
@@ -75,6 +76,26 @@ void Renderer::SetRenderPipeline(IRenderPipeline* renderPipeline) {
 
 OpaquePass* Renderer::GetOpaquePass() {
 	return &opaquePass_;
+}
+
+void Renderer::CollectRenderRequests() {
+	for (GameObject* gameObject : scene_->GetGameObjects()) {
+		if (!gameObject->IsActive()) {
+			continue;
+		}
+
+		for (Component* component : gameObject->GetComponents()) {
+			if (!component->IsEnabled()) {
+				continue;
+			}
+
+			// 描きたいと宣言したコンポーネントにだけ頼む。
+			IRenderable* renderable = dynamic_cast<IRenderable*>(component);
+			if (renderable != nullptr) {
+				renderable->SubmitRender(&renderQueue_);
+			}
+		}
+	}
 }
 
 void Renderer::Draw() {

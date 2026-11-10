@@ -33,6 +33,11 @@ public:
 	OpaquePass* GetOpaquePass();
 
 private:
+	/// <summary>
+	/// 有効なコンポーネントから、このフレームの描画の依頼を集める。
+	/// </summary>
+	void CollectRenderRequests();
+
 	void Draw();
 
 	IGpu* gpu_ = nullptr;
