@@ -121,8 +121,7 @@ void SceneCollisionSystem::Update(Scene& scene) {
 	// ブロードフェーズ(Sweep and Prune): X軸のAABB minでソートし、Xレンジが重ならない組は
 	// 候補から外す。真に交差するペアは全軸でAABBが重なっているはずなので、X軸だけ見ても
 	// 取りこぼしは起きない(候補が減るだけで、絞り込みすぎることはない)。
-	// コライダー数がN個ある今の規模(ガーディアン等ボーンだらけの敵込みで100前後)では、
-	// 総当たり(N^2)よりペア数を大きく減らせる。
+	// コライダーが多いほど、総当たりよりペアの数を大きく減らせる。
 	struct BroadPhaseEntry {
 		size_t originalIndex;
 		AABB aabb;
@@ -144,8 +143,7 @@ void SceneCollisionSystem::Update(Scene& scene) {
 		    active.end());
 
 		for (const BroadPhaseEntry& other : active) {
-			// 元のcolliders配列でのindexが小さい方をA、大きい方をBに揃える
-			// (Sweep順ではなく元の並びで固定し、接触法線の向き等の既存挙動を変えない)。
+			// ソートした順ではなく元の並びで番号が小さい方をAにして、接触法線の向きを毎回同じにする。
 			size_t indexA = (std::min)(entry.originalIndex, other.originalIndex);
 			size_t indexB = (std::max)(entry.originalIndex, other.originalIndex);
 			ColliderComponent* colliderA = colliders[indexA];

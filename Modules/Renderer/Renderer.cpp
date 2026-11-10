@@ -108,7 +108,7 @@ void Renderer::Draw() {
 		renderPipeline_->Render(context);
 	}
 
-	// カメラがないのは作る人の間違いなので、止めずに毎フレームは出さない。
+	// カメラがないのは作る人の間違いなので、止めずにログを1回だけ出す。
 	if (!renderQueue_.HasCamera() && !hasWarnedNoCamera_) {
 		printf("カメラがないので、シーンを描きません。\n");
 		hasWarnedNoCamera_ = true;

@@ -16,7 +16,7 @@ struct CameraData {
 };
 
 /// <summary>
-/// Sceneが描きたい物を描画の担当に頼むための窓口。
+/// 描きたい物があるコンポーネントが、描画の担当に描く物を頼むための窓口。
 /// </summary>
 class IRenderQueue {
 public:

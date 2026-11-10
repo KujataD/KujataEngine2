@@ -40,7 +40,7 @@ void PipelineState::CreateRootSignature(ID3D12Device* device) {
 	rootParameters[kTextureRootParameterIndex].DescriptorTable.pDescriptorRanges = &textureRange;
 	rootParameters[kTextureRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	// s0はバイリニアで読み、0から1の外は繰り返す。
+	// s0はミップの間も補間するトライリニアで読み、0から1の外は繰り返す。
 	D3D12_STATIC_SAMPLER_DESC sampler = {};
 	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;

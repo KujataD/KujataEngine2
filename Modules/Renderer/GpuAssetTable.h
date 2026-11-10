@@ -25,7 +25,7 @@ struct GpuMesh {
 class GpuAssetTable {
 public:
 	/// <summary>
-	/// 読み込み済みの全メッシュと全画像をGPUへ転送し、フレームの外で呼ぶ。
+	/// 読み込み済みの全メッシュと全画像を、フレームの外でまとめてGPUへ転送する。
 	/// </summary>
 	void UploadAll(IGpu* gpu, ShaderResourceHeap* heap, IAssetLibrary* assets);
 

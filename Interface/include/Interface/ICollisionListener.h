@@ -25,14 +25,34 @@ class ICollisionListener {
 public:
 	virtual ~ICollisionListener() = default;
 
-	// 非トリガーのColliderと接触したときに呼ばれる。
+	/// <summary>
+	/// 非トリガーのColliderと触れ始めたときに呼ばれる。
+	/// </summary>
 	virtual void OnCollisionEnter(const Collision& collision) {}
+
+	/// <summary>
+	/// 非トリガーのColliderと触れている間、当たり判定のたびに呼ばれる。
+	/// </summary>
 	virtual void OnCollisionStay(const Collision& collision) {}
+
+	/// <summary>
+	/// 非トリガーのColliderから離れたときに呼ばれる。
+	/// </summary>
 	virtual void OnCollisionExit(const Collision& collision) {}
 
-	// トリガーのColliderと重なったときに呼ばれる。
+	/// <summary>
+	/// トリガーのColliderと重なり始めたときに呼ばれる。
+	/// </summary>
 	virtual void OnTriggerEnter(GameObject* other) {}
+
+	/// <summary>
+	/// トリガーのColliderと重なっている間、当たり判定のたびに呼ばれる。
+	/// </summary>
 	virtual void OnTriggerStay(GameObject* other) {}
+
+	/// <summary>
+	/// トリガーのColliderから離れたときに呼ばれる。
+	/// </summary>
 	virtual void OnTriggerExit(GameObject* other) {}
 };
 

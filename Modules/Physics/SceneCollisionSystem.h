@@ -21,7 +21,7 @@ public:
 	void Update(Scene& scene);
 
 	/// <summary>
-	/// 接触ペアの記憶を捨てる(Play終了やScene破棄時)。Exitイベントは送らない。
+	/// 接触ペアの記憶を、Exitイベントを送らずに捨てる。
 	/// </summary>
 	void Clear() { pairStates_.clear(); }
 

@@ -16,7 +16,7 @@ struct DrawRequest {
 };
 
 /// <summary>
-/// Sceneから届いた描画の依頼を、描くまで預かるクラス。
+/// コンポーネントから届いた描画の依頼を、描くまで預かるクラス。
 /// </summary>
 class RenderQueue : public IRenderQueue {
 public:
