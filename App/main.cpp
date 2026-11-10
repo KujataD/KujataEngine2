@@ -1,3 +1,4 @@
+#include "Asset/Asset.h"
 #include "Core/App.h"
 #include "DemoScene.h"
 #include "Gpu/Gpu.h"
@@ -20,6 +21,9 @@ int main() {
 
 	KujataEngine::Gpu gpu;
 	app.Add(&gpu);
+
+	KujataEngine::Asset asset;
+	app.Add(&asset);
 
 	KujataEngine::Renderer renderer;
 	app.Add(&renderer);

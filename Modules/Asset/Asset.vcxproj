@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}</ProjectGuid>
+    <RootNamespace>Asset</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="Asset.h" />
+    <ClInclude Include="AssetLibrary.h" />
+    <ClInclude Include="AssetPath.h" />
+    <ClInclude Include="CubeMesh.h" />
+    <ClInclude Include="IMeshFileLoader.h" />
+    <ClInclude Include="ITextureFileLoader.h" />
+    <ClInclude Include="WicTextureLoader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Asset.cpp" />
+    <ClCompile Include="AssetLibrary.cpp" />
+    <ClCompile Include="AssetPath.cpp" />
+    <ClCompile Include="CubeMesh.cpp" />
+    <ClCompile Include="WicTextureLoader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
+      <Project>{371B9FA9-4C90-4AC6-A123-ACED756D6C77}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+</Project>

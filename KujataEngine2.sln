@@ -26,6 +26,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "Framework\Fram
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "Interface\Interface.vcxproj", "{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Asset", "Modules\Asset\Asset.vcxproj", "{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -105,6 +107,12 @@ Global
 		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Development|x64.Build.0 = Development|x64
 		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Release|x64.ActiveCfg = Release|x64
 		{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}.Release|x64.Build.0 = Release|x64
+		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Debug|x64.ActiveCfg = Debug|x64
+		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Debug|x64.Build.0 = Debug|x64
+		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Development|x64.ActiveCfg = Development|x64
+		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Development|x64.Build.0 = Development|x64
+		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Release|x64.ActiveCfg = Release|x64
+		{CD95C28F-4A10-4201-9A26-E2E3ADE327F1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,6 +33,9 @@
     <Import Project="..\Common.props" />
   </ImportGroup>
   <ItemGroup>
+    <ClInclude Include="include\Interface\AssetData.h" />
+    <ClInclude Include="include\Interface\AssetHandle.h" />
+    <ClInclude Include="include\Interface\IAssetLibrary.h" />
     <ClInclude Include="include\Interface\ICollisionListener.h" />
     <ClInclude Include="include\Interface\IGpu.h" />
     <ClInclude Include="include\Interface\IRenderable.h" />
