@@ -17,7 +17,7 @@ namespace KujataEngine {
 class AssetLibrary : public IAssetLibrary {
 public:
 	/// <summary>
-	/// データのフォルダを覚えて、0番の代わりの物を作る。
+	/// データのフォルダを覚えて、0番の代わりの物と1番の白い画像を作る。
 	/// </summary>
 	void Initialize(const std::filesystem::path& dataDirectory);
 
@@ -34,6 +34,7 @@ public:
 	ModelHandles LoadModel(const std::string& utf8Path) override;
 	TextureHandle LoadTexture(const std::string& utf8Path) override;
 	MeshHandle GetCubeMesh() override;
+	TextureHandle GetWhiteTexture() override;
 	MeshHandle AddMesh(const MeshData& mesh) override;
 
 	uint32_t GetMeshCount() override;

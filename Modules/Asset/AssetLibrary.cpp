@@ -20,15 +20,18 @@ static std::wstring GetLowerExtension(const std::filesystem::path& filePath) {
 	return extension;
 }
 
+// 画像の指定がない物に使う白い画像の番号。
+static const uint32_t kWhiteTextureId = 1;
+
 /// <summary>
-/// 読み込みに失敗したときに使う1x1のピンクの画像を作る。
+/// 1x1の単色の画像を作る。
 /// </summary>
-static ImageData CreatePinkImage() {
+static ImageData CreateOnePixelImage(uint8_t red, uint8_t green, uint8_t blue) {
 	ImageMip mip;
 	mip.width = 1;
 	mip.height = 1;
 	mip.rowPitch = 4;
-	mip.pixels = { 255, 0, 255, 255 };
+	mip.pixels = { red, green, blue, 255 };
 
 	ImageData image;
 	image.mips.push_back(mip);
@@ -40,7 +43,9 @@ void AssetLibrary::Initialize(const std::filesystem::path& dataDirectory) {
 
 	// 0番は失敗したときの代わりなので、最初に作る。
 	meshes_.push_back(CreateCubeMesh());
-	images_.push_back(CreatePinkImage());
+	images_.push_back(CreateOnePixelImage(255, 0, 255));
+
+	images_.push_back(CreateOnePixelImage(255, 255, 255));
 }
 
 void AssetLibrary::AddMeshLoader(const std::wstring& extension, IMeshFileLoader* loader) {
@@ -68,6 +73,12 @@ TextureHandle AssetLibrary::LoadTexture(const std::string& utf8Path) {
 
 MeshHandle AssetLibrary::GetCubeMesh() {
 	return MeshHandle();
+}
+
+TextureHandle AssetLibrary::GetWhiteTexture() {
+	TextureHandle handle;
+	handle.id = kWhiteTextureId;
+	return handle;
 }
 
 MeshHandle AssetLibrary::AddMesh(const MeshData& mesh) {
@@ -126,9 +137,14 @@ ModelHandles AssetLibrary::ReadModelFile(const std::filesystem::path& filePath) 
 
 	ModelHandles handles;
 	handles.mesh = AddMesh(loaded.mesh);
-	if (!loaded.texturePath.empty()) {
-		handles.texture = LoadTextureFile(loaded.texturePath);
+
+	// 画像の指定がないのは失敗ではないので、ピンクではなく白で描く。
+	if (loaded.texturePath.empty()) {
+		handles.texture = GetWhiteTexture();
+		return handles;
 	}
+
+	handles.texture = LoadTextureFile(loaded.texturePath);
 	return handles;
 }
 
