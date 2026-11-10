@@ -26,7 +26,7 @@ public:
 	GameObject* CreateGameObject();
 
 	/// <summary>
-	/// 作った順にGameObjectを更新し、途中で作った物は次のフレームから動く。
+	/// 新しいComponentのStartを全部済ませてから作った順に更新し、途中で作った物は次のフレームから動く。
 	/// </summary>
 	void Update();
 

@@ -28,6 +28,11 @@ public:
 	virtual void OnDestroy() {}
 
 	/// <summary>
+	/// Startが済んでいればtrueを返す。
+	/// </summary>
+	bool HasStarted() const { return hasStarted_; }
+
+	/// <summary>
 	/// まだStartを呼んでいなければ呼ぶ。
 	/// </summary>
 	void StartIfNeeded() {

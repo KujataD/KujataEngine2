@@ -17,16 +17,27 @@ void GameObject::AddComponent(Component* component) {
 	components_.push_back(component);
 }
 
+void GameObject::StartComponents() {
+	// Startの中で足されたComponentで一覧が伸びても壊れないように、始めた時点の数だけを番号で回す。
+	const size_t componentCount = components_.size();
+	for (size_t i = 0; i < componentCount; i++) {
+		Component* component = components_[i];
+		if (component->IsEnabled()) {
+			component->StartIfNeeded();
+		}
+	}
+}
+
 void GameObject::Update() {
 	// 途中で足されたComponentで一覧が伸びても壊れないように、始めた時点の数だけを番号で回す。
 	const size_t componentCount = components_.size();
 	for (size_t i = 0; i < componentCount; i++) {
 		Component* component = components_[i];
-		if (!component->IsEnabled()) {
+
+		// Startの後に足された物は、次のフレームのStartを待つ。
+		if (!component->IsEnabled() || !component->HasStarted()) {
 			continue;
 		}
-
-		component->StartIfNeeded();
 		component->Update();
 	}
 }

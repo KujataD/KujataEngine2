@@ -37,7 +37,11 @@ void NotifyCollisionToComponents(GameObject* owner, ColliderComponent* self, Col
 
 	GameObject* otherOwner = other->GetOwner();
 
-	for (Component* component : owner->GetComponents()) {
+	// 通知の中でComponentが足されて一覧が伸びても壊れないように、始めた時点の数だけを番号で回す。
+	std::vector<Component*>& components = owner->GetComponents();
+	const size_t componentCount = components.size();
+	for (size_t i = 0; i < componentCount; i++) {
+		Component* component = components[i];
 		if (!component || !component->IsEnabled()) {
 			continue;
 		}

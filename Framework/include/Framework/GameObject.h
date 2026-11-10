@@ -25,7 +25,12 @@ public:
 	void AddComponent(Component* component);
 
 	/// <summary>
-	/// 追加した順にComponentを更新し、途中で足されたComponentは次のフレームから動く。
+	/// 有効で、まだStartしていないComponentのStartを呼ぶ。
+	/// </summary>
+	void StartComponents();
+
+	/// <summary>
+	/// Startが済んだComponentを追加した順に更新し、途中で足されたComponentは次のフレームから動く。
 	/// </summary>
 	void Update();
 

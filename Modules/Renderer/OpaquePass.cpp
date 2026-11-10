@@ -1,6 +1,5 @@
 ﻿#include "OpaquePass.h"
 
-#include "Core/Assert.h"
 #include "Core/Math/MathUtil.h"
 
 #include <cstdio>
@@ -87,7 +86,11 @@ void OpaquePass::Execute(const RenderContext& context) {
 	lightBuffer_.Bind(list, PipelineState::kLightRootParameterIndex, 0);
 
 	const std::vector<DrawRequest>& drawRequests = context.renderQueue->GetDrawRequests();
-	KUJATA_ASSERT(drawRequests.size() <= kMaxDrawCount);
+	// 物の数はゲームしだいで増えるので、止めずに上限までだけを描く。
+	if (drawRequests.size() > kMaxDrawCount && !hasWarnedTooManyDraws_) {
+		printf("描く物が%u個を超えたので、超えた分は描きません。\n", kMaxDrawCount);
+		hasWarnedTooManyDraws_ = true;
+	}
 
 	for (UINT drawIndex = 0; drawIndex < drawRequests.size() && drawIndex < kMaxDrawCount; drawIndex++) {
 		const DrawRequest& request = drawRequests[drawIndex];

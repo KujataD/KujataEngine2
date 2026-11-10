@@ -25,6 +25,7 @@ public:
 
 private:
 	bool isReady_ = false;
+	bool hasWarnedTooManyDraws_ = false;
 	ShaderResourceHeap* shaderResourceHeap_ = nullptr;
 
 	PipelineState pipelineState_;

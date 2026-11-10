@@ -19,6 +19,15 @@ GameObject* Scene::CreateGameObject() {
 void Scene::Update() {
 	// 途中で作った物で一覧が伸びても壊れないように、始めた時点の数だけを番号で回す。
 	const size_t objectCount = gameObjects_.size();
+
+	// どの物のUpdateよりも前に、新しいComponentのStartを全部済ませる。
+	for (size_t i = 0; i < objectCount; i++) {
+		GameObject* gameObject = gameObjects_[i];
+		if (gameObject->IsActive() && !gameObject->IsDestroyed()) {
+			gameObject->StartComponents();
+		}
+	}
+
 	for (size_t i = 0; i < objectCount; i++) {
 		GameObject* gameObject = gameObjects_[i];
 		if (gameObject->IsActive() && !gameObject->IsDestroyed()) {
