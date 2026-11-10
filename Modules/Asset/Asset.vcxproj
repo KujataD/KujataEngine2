@@ -11,6 +11,7 @@
     <ClInclude Include="CubeMesh.h" />
     <ClInclude Include="IMeshFileLoader.h" />
     <ClInclude Include="ITextureFileLoader.h" />
+    <ClInclude Include="ObjMeshLoader.h" />
     <ClInclude Include="WicTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -18,6 +19,7 @@
     <ClCompile Include="AssetLibrary.cpp" />
     <ClCompile Include="AssetPath.cpp" />
     <ClCompile Include="CubeMesh.cpp" />
+    <ClCompile Include="ObjMeshLoader.cpp" />
     <ClCompile Include="WicTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>

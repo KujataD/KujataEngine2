@@ -21,7 +21,7 @@ static std::filesystem::path GetAssetDataDirectory() {
 		return packagedDirectory;
 	}
 
-	// 開発中のexeはbuild\\bin\\構成名にあるので、3つ上がリポジトリの一番上になる。
+	// 開発中のexeはbuild\bin\構成名にあるので、3つ上がリポジトリの一番上になる。
 	const std::filesystem::path repositoryRoot = exeDirectory.parent_path().parent_path().parent_path();
 	return repositoryRoot / L"App" / L"Data";
 }
@@ -38,6 +38,7 @@ void Asset::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	}
 
 	library_.Initialize(GetAssetDataDirectory());
+	library_.AddMeshLoader(L".obj", &objMeshLoader_);
 	library_.AddTextureLoader(L".png", &wicTextureLoader_);
 	library_.AddTextureLoader(L".jpg", &wicTextureLoader_);
 	library_.AddTextureLoader(L".jpeg", &wicTextureLoader_);

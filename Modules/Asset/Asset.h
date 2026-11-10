@@ -2,6 +2,7 @@
 
 #include "AssetLibrary.h"
 #include "Core/IModule.h"
+#include "ObjMeshLoader.h"
 #include "WicTextureLoader.h"
 
 namespace KujataEngine {
@@ -17,6 +18,7 @@ public:
 
 private:
 	AssetLibrary library_;
+	ObjMeshLoader objMeshLoader_;
 	WicTextureLoader wicTextureLoader_;
 	bool hasInitializedCom_ = false;
 };
