@@ -26,6 +26,10 @@ UINT ShaderResourceHeap::Allocate() {
 	return index;
 }
 
+bool ShaderResourceHeap::HasFreeSlot() {
+	return allocatedCount_ < capacity_;
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE ShaderResourceHeap::GetCpuHandle(UINT index) {
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = heap_->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += static_cast<SIZE_T>(index) * descriptorSize_;

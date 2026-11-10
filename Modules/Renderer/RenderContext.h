@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GpuAssetTable.h"
 #include "RenderQueue.h"
 
 #include <d3d12.h>
@@ -12,6 +13,7 @@ namespace KujataEngine {
 struct RenderContext {
 	ID3D12GraphicsCommandList* commandList;
 	const RenderQueue* renderQueue;
+	GpuAssetTable* gpuAssets;
 	float targetWidth;
 	float targetHeight;
 };

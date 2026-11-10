@@ -10,7 +10,7 @@
 namespace KujataEngine {
 
 // テクスチャの棚に置ける数。
-static const UINT kShaderResourceHeapCapacity = 64;
+static const UINT kShaderResourceHeapCapacity = 4096;
 
 /// <summary>
 /// exeの場所から、Rendererのデータがあるフォルダを求める。
@@ -33,7 +33,7 @@ static std::filesystem::path GetRendererDataDirectory() {
 }
 
 std::vector<std::string> Renderer::GetRequiredServices() {
-	return { kGpuServiceName, kWindowServiceName, kSceneServiceName };
+	return { kGpuServiceName, kWindowServiceName, kSceneServiceName, kAssetLibraryServiceName };
 }
 
 void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
@@ -46,9 +46,8 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	scene_ = static_cast<Scene*>(services.Get(kSceneServiceName));
 	KUJATA_ASSERT(scene_ != nullptr);
 
-	// DirectXTexが画像を読むのにCOMを使う。
-	const HRESULT comResult = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	KUJATA_ASSERT(SUCCEEDED(comResult));
+	assets_ = static_cast<IAssetLibrary*>(services.Get(kAssetLibraryServiceName));
+	KUJATA_ASSERT(assets_ != nullptr);
 
 	shaderCompiler_.Initialize();
 	shaderResourceHeap_.Initialize(gpu_->GetDevice(), kShaderResourceHeapCapacity);
@@ -64,8 +63,8 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	});
 }
 
-void Renderer::Shutdown() {
-	CoUninitialize();
+void Renderer::Prepare() {
+	gpuAssets_.UploadAll(gpu_, &shaderResourceHeap_, assets_);
 }
 
 void Renderer::SetRenderPipeline(IRenderPipeline* renderPipeline) {
@@ -103,6 +102,7 @@ void Renderer::Draw() {
 		RenderContext context = {};
 		context.commandList = gpu_->GetCommandList();
 		context.renderQueue = &renderQueue_;
+		context.gpuAssets = &gpuAssets_;
 		context.targetWidth = static_cast<float>(window_->GetClientWidth());
 		context.targetHeight = static_cast<float>(window_->GetClientHeight());
 		renderPipeline_->Render(context);

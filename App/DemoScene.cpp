@@ -25,21 +25,30 @@ private:
 /// <summary>
 /// 指定の位置と大きさで回る立方体を置く。
 /// </summary>
-static void CreateCube(Scene* scene, float x, float size, float radiansPerFrame) {
+static void CreateCube(Scene* scene, MeshHandle mesh, TextureHandle texture, float x, float size, float radiansPerFrame) {
 	GameObject* cube = scene->CreateGameObject();
 	cube->GetTransform().translation_ = { x, 0.0f, 0.0f };
 	cube->GetTransform().scale_ = { size, size, size };
-	cube->AddComponent(new MeshRenderer());
+	cube->AddComponent(new MeshRenderer(mesh, texture));
 	cube->AddComponent(new Rotator(radiansPerFrame));
 }
 
-void BuildDemoScene(Scene* scene) {
+void BuildDemoScene(Scene* scene, IAssetLibrary* assets) {
 	GameObject* camera = scene->CreateGameObject();
 	camera->GetTransform().translation_ = { 0.0f, 2.0f, -6.0f };
 	camera->GetTransform().rotation_ = { 0.3f, 0.0f, 0.0f };
 	camera->AddComponent(new Camera());
 
-	CreateCube(scene, -2.2f, 1.0f, 0.02f);
-	CreateCube(scene, 0.0f, 1.5f, -0.01f);
-	CreateCube(scene, 2.2f, 0.7f, 0.04f);
+	const MeshHandle cubeMesh = assets->GetCubeMesh();
+	const TextureHandle uvChecker = assets->LoadTexture("Textures/uvChecker.png");
+	CreateCube(scene, cubeMesh, uvChecker, -2.2f, 1.0f, 0.02f);
+	CreateCube(scene, cubeMesh, uvChecker, 0.0f, 1.5f, -0.01f);
+	CreateCube(scene, cubeMesh, uvChecker, 2.2f, 0.7f, 0.04f);
+
+	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
+	GameObject* toriObject = scene->CreateGameObject();
+	toriObject->GetTransform().translation_ = { 0.0f, 1.5f, 1.0f };
+	toriObject->GetTransform().scale_ = { 0.4f, 0.4f, 0.4f };
+	toriObject->AddComponent(new MeshRenderer(tori.mesh, tori.texture));
+	toriObject->AddComponent(new Rotator(0.015f));
 }

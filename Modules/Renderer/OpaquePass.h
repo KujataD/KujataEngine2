@@ -2,20 +2,17 @@
 
 #include "ConstantBuffer.h"
 #include "IRenderPass.h"
-#include "IndexBuffer.h"
 #include "Interface/IGpu.h"
 #include "PipelineState.h"
 #include "ShaderCompiler.h"
 #include "ShaderResourceHeap.h"
-#include "Texture.h"
-#include "VertexBuffer.h"
 
 #include <filesystem>
 
 namespace KujataEngine {
 
 /// <summary>
-/// 不透明な物を描く工程で、今は立方体を描く。
+/// 不透明な物を、依頼ごとにメッシュと画像を切り替えて描く工程。
 /// </summary>
 class OpaquePass : public IRenderPass {
 public:
@@ -31,10 +28,7 @@ private:
 	ShaderResourceHeap* shaderResourceHeap_ = nullptr;
 
 	PipelineState pipelineState_;
-	VertexBuffer vertexBuffer_;
-	IndexBuffer indexBuffer_;
 	ConstantBuffer transformBuffer_;
-	Texture texture_;
 };
 
 } // namespace KujataEngine

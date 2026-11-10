@@ -78,7 +78,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"
 xcopy /E /I /Y "$(ProjectDir)..\Modules\Renderer\Shaders" "$(TargetDir)Data\Renderer\Shaders"
-xcopy /E /I /Y "$(ProjectDir)..\Modules\Renderer\Textures" "$(TargetDir)Data\Renderer\Textures"
 xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

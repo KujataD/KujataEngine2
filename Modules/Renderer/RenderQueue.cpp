@@ -7,8 +7,12 @@ void RenderQueue::SetCamera(const CameraData& camera) {
 	hasCamera_ = true;
 }
 
-void RenderQueue::SubmitCube(const Matrix4x4& world) {
-	cubeWorlds_.push_back(world);
+void RenderQueue::Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) {
+	DrawRequest request;
+	request.mesh = mesh;
+	request.texture = texture;
+	request.world = world;
+	drawRequests_.push_back(request);
 }
 
 bool RenderQueue::HasCamera() const {
@@ -19,13 +23,13 @@ const CameraData& RenderQueue::GetCamera() const {
 	return camera_;
 }
 
-const std::vector<Matrix4x4>& RenderQueue::GetCubeWorlds() const {
-	return cubeWorlds_;
+const std::vector<DrawRequest>& RenderQueue::GetDrawRequests() const {
+	return drawRequests_;
 }
 
 void RenderQueue::Clear() {
 	hasCamera_ = false;
-	cubeWorlds_.clear();
+	drawRequests_.clear();
 }
 
 } // namespace KujataEngine

@@ -2,6 +2,7 @@
 
 #include "Core/IModule.h"
 #include "Framework/Scene.h"
+#include "GpuAssetTable.h"
 #include "IRenderPipeline.h"
 #include "Interface/IGpu.h"
 #include "Interface/IWindow.h"
@@ -20,7 +21,7 @@ class Renderer : public IModule {
 public:
 	std::vector<std::string> GetRequiredServices() override;
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
-	void Shutdown() override;
+	void Prepare() override;
 
 	/// <summary>
 	/// 描画の手順を差し替え、手順の持ち主は呼び出し側のままにする。
@@ -43,10 +44,12 @@ private:
 	IGpu* gpu_ = nullptr;
 	IWindow* window_ = nullptr;
 	Scene* scene_ = nullptr;
+	IAssetLibrary* assets_ = nullptr;
 
 	ShaderCompiler shaderCompiler_;
 	ShaderResourceHeap shaderResourceHeap_;
 	RenderQueue renderQueue_;
+	GpuAssetTable gpuAssets_;
 
 	OpaquePass opaquePass_;
 	StandardRenderPipeline standardRenderPipeline_;

@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="GpuAssetTable.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="IRenderPass.h" />
     <ClInclude Include="IRenderPipeline.h" />
@@ -23,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="GpuAssetTable.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="OpaquePass.cpp" />
     <ClCompile Include="PipelineState.cpp" />
@@ -38,11 +40,6 @@
   <ItemGroup>
     <None Include="Shaders\Object3D.PS.hlsl" />
     <None Include="Shaders\Object3D.VS.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
-      <Project>{371B9FA9-4C90-4AC6-A123-ACED756D6C77}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

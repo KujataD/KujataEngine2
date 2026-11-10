@@ -1,4 +1,4 @@
-#include "OpaquePass.h"
+﻿#include "OpaquePass.h"
 
 #include "Core/Assert.h"
 #include "Core/Math/MathUtil.h"
@@ -8,53 +8,6 @@
 using Microsoft::WRL::ComPtr;
 
 namespace KujataEngine {
-
-// 頂点のデータで、シェーダーのVertexInputと並びを合わせる。
-struct Vertex {
-	float x;
-	float y;
-	float z;
-	float u;
-	float v;
-};
-
-// 立方体の頂点で、面ごとにUVが違うので1面に4つずつ持つ。
-static const Vertex kCubeVertices[24] = {
-	{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
-	{ -0.5f, 0.5f, -0.5f, 0.0f, 0.0f },
-	{ 0.5f, 0.5f, -0.5f, 1.0f, 0.0f },
-	{ 0.5f, -0.5f, -0.5f, 1.0f, 1.0f },
-	{ 0.5f, -0.5f, 0.5f, 0.0f, 1.0f },
-	{ 0.5f, 0.5f, 0.5f, 0.0f, 0.0f },
-	{ -0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
-	{ -0.5f, -0.5f, 0.5f, 1.0f, 1.0f },
-	{ -0.5f, -0.5f, 0.5f, 0.0f, 1.0f },
-	{ -0.5f, 0.5f, 0.5f, 0.0f, 0.0f },
-	{ -0.5f, 0.5f, -0.5f, 1.0f, 0.0f },
-	{ -0.5f, -0.5f, -0.5f, 1.0f, 1.0f },
-	{ 0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
-	{ 0.5f, 0.5f, -0.5f, 0.0f, 0.0f },
-	{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
-	{ 0.5f, -0.5f, 0.5f, 1.0f, 1.0f },
-	{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f },
-	{ -0.5f, 0.5f, 0.5f, 0.0f, 0.0f },
-	{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
-	{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f },
-	{ 0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
-	{ 0.5f, -0.5f, 0.5f, 0.0f, 0.0f },
-	{ -0.5f, -0.5f, 0.5f, 1.0f, 0.0f },
-	{ -0.5f, -0.5f, -0.5f, 1.0f, 1.0f },
-};
-
-// 外から見て時計回りが表になるように、三角形12枚の頂点の番号を並べる。
-static const uint16_t kCubeIndices[36] = {
-	0, 1, 2, 0, 2, 3,
-	4, 5, 6, 4, 6, 7,
-	8, 9, 10, 8, 10, 11,
-	12, 13, 14, 12, 14, 15,
-	16, 17, 18, 16, 18, 19,
-	20, 21, 22, 20, 22, 23,
-};
 
 // シェーダーのTransformDataと並びを合わせる。
 struct TransformData {
@@ -77,16 +30,8 @@ void OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderRes
 		return;
 	}
 
-	// 画像がないのは作る人の間違いなので、止めずに描かないだけにする。
-	if (!texture_.Load(gpu, shaderResourceHeap, (dataDirectory / L"Textures" / L"uvChecker.png").wstring())) {
-		printf("テクスチャを準備できなかったので、不透明な物を描きません。\n");
-		return;
-	}
-
 	ID3D12Device* device = gpu->GetDevice();
 	pipelineState_.Initialize(device, vertexShader.Get(), pixelShader.Get(), gpu->GetRenderTargetFormat(), gpu->GetDepthFormat());
-	vertexBuffer_.Initialize(device, kCubeVertices, sizeof(Vertex), 24);
-	indexBuffer_.Initialize(device, kCubeIndices, 36);
 	transformBuffer_.Initialize(device, sizeof(TransformData), kMaxDrawCount);
 	isReady_ = true;
 }
@@ -106,26 +51,30 @@ void OpaquePass::Execute(const RenderContext& context) {
 
 	pipelineState_.Bind(list);
 	shaderResourceHeap_->Bind(list);
-	vertexBuffer_.Bind(list);
-	indexBuffer_.Bind(list);
 	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	texture_.Bind(list, PipelineState::kTextureRootParameterIndex);
 
 	const CameraData& camera = context.renderQueue->GetCamera();
 	const float aspectRatio = context.targetWidth / context.targetHeight;
 	const Matrix4x4 projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
 	const Matrix4x4 viewProjection = camera.view * projection;
 
-	const std::vector<Matrix4x4>& cubeWorlds = context.renderQueue->GetCubeWorlds();
-	KUJATA_ASSERT(cubeWorlds.size() <= kMaxDrawCount);
+	const std::vector<DrawRequest>& drawRequests = context.renderQueue->GetDrawRequests();
+	KUJATA_ASSERT(drawRequests.size() <= kMaxDrawCount);
 
-	for (UINT drawIndex = 0; drawIndex < cubeWorlds.size() && drawIndex < kMaxDrawCount; drawIndex++) {
+	for (UINT drawIndex = 0; drawIndex < drawRequests.size() && drawIndex < kMaxDrawCount; drawIndex++) {
+		const DrawRequest& request = drawRequests[drawIndex];
+
 		TransformData transformData = {};
-		transformData.worldViewProjection = cubeWorlds[drawIndex] * viewProjection;
+		transformData.worldViewProjection = request.world * viewProjection;
 		transformBuffer_.Write(drawIndex, &transformData);
-
 		transformBuffer_.Bind(list, PipelineState::kTransformRootParameterIndex, drawIndex);
-		list->DrawIndexedInstanced(indexBuffer_.GetIndexCount(), 1, 0, 0, 0);
+
+		GpuMesh& mesh = context.gpuAssets->GetMesh(request.mesh);
+		mesh.vertexBuffer.Bind(list);
+		mesh.indexBuffer.Bind(list);
+		context.gpuAssets->GetTexture(request.texture).Bind(list, PipelineState::kTextureRootParameterIndex);
+
+		list->DrawIndexedInstanced(mesh.indexBuffer.GetIndexCount(), 1, 0, 0, 0);
 	}
 }
 

@@ -36,7 +36,8 @@ int main() {
 
 	// Assetなどの起動が終わってからシーンを作る。
 	app.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
-		BuildDemoScene(sceneModule.GetScene());
+		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
+		BuildDemoScene(sceneModule.GetScene(), assets);
 	});
 
 	app.Run();

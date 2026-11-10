@@ -14,7 +14,7 @@ public:
 	/// <summary>
 	/// バッファを作って順番のデータを書き込む。
 	/// </summary>
-	void Initialize(ID3D12Device* device, const uint16_t* indices, UINT indexCount);
+	void Initialize(ID3D12Device* device, const uint32_t* indices, UINT indexCount);
 
 	/// <summary>
 	/// この順番を使う設定を命令書に書く。

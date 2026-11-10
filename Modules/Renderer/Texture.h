@@ -1,23 +1,32 @@
-#pragma once
+﻿#pragma once
 
-#include "Interface/IGpu.h"
+#include "Interface/AssetData.h"
 #include "ShaderResourceHeap.h"
 
 #include <d3d12.h>
-#include <string>
 #include <wrl/client.h>
 
 namespace KujataEngine {
 
 /// <summary>
-/// 画像ファイルを読み込んで、シェーダーから使えるようにしたテクスチャ。
+/// 画像のデータをGPUへ転送して、シェーダーから使えるようにしたテクスチャ。
 /// </summary>
 class Texture {
 public:
 	/// <summary>
-	/// 画像を読み込んでGPUへ転送し、読めなければログを出してfalseを返す。
+	/// GPUのメモリと転送用の一時バッファと名札を作る。
 	/// </summary>
-	bool Load(IGpu* gpu, ShaderResourceHeap* heap, const std::wstring& filePath);
+	void Initialize(ID3D12Device* device, ShaderResourceHeap* heap, const ImageData& image);
+
+	/// <summary>
+	/// 画像をGPUのメモリへコピーする命令を書く。
+	/// </summary>
+	void RecordUpload(ID3D12GraphicsCommandList* list, const ImageData& image);
+
+	/// <summary>
+	/// コピーが終わった後に一時バッファを捨てる。
+	/// </summary>
+	void ReleaseUploadBuffer();
 
 	/// <summary>
 	/// このテクスチャを使う設定を命令書に書く。
@@ -26,6 +35,7 @@ public:
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer_;
 	D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle_ = {};
 };
 

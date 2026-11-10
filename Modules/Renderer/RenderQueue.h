@@ -7,16 +7,25 @@
 namespace KujataEngine {
 
 /// <summary>
+/// 1回分の描画の依頼。
+/// </summary>
+struct DrawRequest {
+	MeshHandle mesh;
+	TextureHandle texture;
+	Matrix4x4 world;
+};
+
+/// <summary>
 /// Sceneから届いた描画の依頼を、描くまで預かるクラス。
 /// </summary>
 class RenderQueue : public IRenderQueue {
 public:
 	void SetCamera(const CameraData& camera) override;
-	void SubmitCube(const Matrix4x4& world) override;
+	void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) override;
 
 	bool HasCamera() const;
 	const CameraData& GetCamera() const;
-	const std::vector<Matrix4x4>& GetCubeWorlds() const;
+	const std::vector<DrawRequest>& GetDrawRequests() const;
 
 	/// <summary>
 	/// 次のフレームのために預かった依頼を空にする。
@@ -26,7 +35,7 @@ public:
 private:
 	CameraData camera_ = {};
 	bool hasCamera_ = false;
-	std::vector<Matrix4x4> cubeWorlds_;
+	std::vector<DrawRequest> drawRequests_;
 };
 
 } // namespace KujataEngine

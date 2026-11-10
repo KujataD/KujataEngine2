@@ -1,7 +1,9 @@
 #include "PipelineState.h"
 
 #include "Core/Assert.h"
+#include "Interface/AssetData.h"
 
+#include <cstddef>
 #include <cstdint>
 
 using Microsoft::WRL::ComPtr;
@@ -66,22 +68,28 @@ void PipelineState::CreateRootSignature(ID3D12Device* device) {
 }
 
 void PipelineState::CreatePipelineState(ID3D12Device* device, IDxcBlob* vertexShader, IDxcBlob* pixelShader, DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthFormat) {
-	// 頂点バッファの中身の並びをシェーダーのPOSITIONとTEXCOORDに結びつける。
-	D3D12_INPUT_ELEMENT_DESC inputElements[2] = {};
+	// AssetData.hのMeshVertexとObject3D.VS.hlslのVertexInputと並びを合わせる。
+	static_assert(sizeof(MeshVertex) == 32, "MeshVertexの大きさが変わったら入力の設定も直す。");
+
+	D3D12_INPUT_ELEMENT_DESC inputElements[3] = {};
 	inputElements[0].SemanticName = "POSITION";
 	inputElements[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElements[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElements[0].AlignedByteOffset = offsetof(MeshVertex, position);
 	inputElements[0].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 	inputElements[1].SemanticName = "TEXCOORD";
 	inputElements[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElements[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElements[1].AlignedByteOffset = offsetof(MeshVertex, uv);
 	inputElements[1].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	inputElements[2].SemanticName = "NORMAL";
+	inputElements[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElements[2].AlignedByteOffset = offsetof(MeshVertex, normal);
+	inputElements[2].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC description = {};
 	description.pRootSignature = rootSignature_.Get();
 	description.VS = { vertexShader->GetBufferPointer(), vertexShader->GetBufferSize() };
 	description.PS = { pixelShader->GetBufferPointer(), pixelShader->GetBufferSize() };
-	description.InputLayout = { inputElements, 2 };
+	description.InputLayout = { inputElements, 3 };
 	description.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	description.SampleMask = UINT32_MAX;
 	description.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;

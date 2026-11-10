@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Math/Matrix4x4.h"
+#include "Interface/AssetHandle.h"
 
 namespace KujataEngine {
 
@@ -27,9 +28,9 @@ public:
 	virtual void SetCamera(const CameraData& camera) = 0;
 
 	/// <summary>
-	/// 立方体を指定のワールド行列で描くように頼む。
+	/// メッシュを指定の画像とワールド行列で描くように頼む。
 	/// </summary>
-	virtual void SubmitCube(const Matrix4x4& world) = 0;
+	virtual void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) = 0;
 };
 
 } // namespace KujataEngine
