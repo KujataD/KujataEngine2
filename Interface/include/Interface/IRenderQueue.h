@@ -4,9 +4,6 @@
 
 namespace KujataEngine {
 
-// ServiceRegistryに登録するときの名前。
-const char* const kRenderQueueServiceName = "RenderQueue";
-
 /// <summary>
 /// 描くときのカメラの情報で、画面の縦横比は描く側が決める。
 /// </summary>

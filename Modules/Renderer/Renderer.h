@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/IModule.h"
+#include "Framework/Scene.h"
 #include "IRenderPipeline.h"
 #include "Interface/IGpu.h"
 #include "Interface/IWindow.h"
@@ -13,11 +14,10 @@
 namespace KujataEngine {
 
 /// <summary>
-/// Sceneから描画の依頼を受けて、描画の手順を毎フレーム実行するモジュール。
+/// Sceneから描画の依頼を集めて、描画の手順を毎フレーム実行するモジュール。
 /// </summary>
 class Renderer : public IModule {
 public:
-	std::vector<std::string> GetProvidedServices() override;
 	std::vector<std::string> GetRequiredServices() override;
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 	void Shutdown() override;
@@ -37,6 +37,7 @@ private:
 
 	IGpu* gpu_ = nullptr;
 	IWindow* window_ = nullptr;
+	Scene* scene_ = nullptr;
 
 	ShaderCompiler shaderCompiler_;
 	ShaderResourceHeap shaderResourceHeap_;

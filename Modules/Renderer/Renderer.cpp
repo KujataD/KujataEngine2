@@ -31,12 +31,8 @@ static std::filesystem::path GetRendererDataDirectory() {
 	return repositoryRoot / L"Modules" / L"Renderer";
 }
 
-std::vector<std::string> Renderer::GetProvidedServices() {
-	return { kRenderQueueServiceName };
-}
-
 std::vector<std::string> Renderer::GetRequiredServices() {
-	return { kGpuServiceName, kWindowServiceName };
+	return { kGpuServiceName, kWindowServiceName, kSceneServiceName };
 }
 
 void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
@@ -46,8 +42,8 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	window_ = static_cast<IWindow*>(services.Get(kWindowServiceName));
 	KUJATA_ASSERT(window_ != nullptr);
 
-	// 受け取る側がIRenderQueue*に戻せるように、void*にする前にIRenderQueue*へ変換する。
-	services.Register(kRenderQueueServiceName, static_cast<IRenderQueue*>(&renderQueue_));
+	scene_ = static_cast<Scene*>(services.Get(kSceneServiceName));
+	KUJATA_ASSERT(scene_ != nullptr);
 
 	// DirectXTexが画像を読むのにCOMを使う。
 	const HRESULT comResult = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -59,6 +55,9 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	opaquePass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, GetRendererDataDirectory());
 	standardRenderPipeline_.AddPass(&opaquePass_);
 
+	frameLoop.Register(kSubmitRender, [this]() {
+		scene_->SubmitRender(&renderQueue_);
+	});
 	frameLoop.Register(kRender, [this]() {
 		Draw();
 	});
