@@ -35,6 +35,11 @@ public:
 	virtual void Startup(ServiceRegistry& services, FrameLoop& frameLoop) = 0;
 
 	/// <summary>
+	/// 全モジュールの起動とゲームの準備が終わった後に1回呼ばれる。
+	/// </summary>
+	virtual void Prepare() {}
+
+	/// <summary>
 	/// 終了時に1回呼ばれる。
 	/// </summary>
 	virtual void Shutdown() {}

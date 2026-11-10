@@ -4,6 +4,7 @@
 #include "Core/IModule.h"
 #include "Core/ServiceRegistry.h"
 
+#include <functional>
 #include <vector>
 
 namespace KujataEngine {
@@ -19,6 +20,11 @@ public:
 	void Add(IModule* addedModule);
 
 	/// <summary>
+	/// 全モジュールの起動の後に1回呼ぶ処理を決める。
+	/// </summary>
+	void SetSetup(std::function<void(ServiceRegistry&)> setup);
+
+	/// <summary>
 	/// 依存の順に起動し、ループを抜けたら逆の順に終了する。
 	/// </summary>
 	void Run();
@@ -29,6 +35,7 @@ private:
 	std::vector<IModule*> modules_;
 	ServiceRegistry services_;
 	FrameLoop frameLoop_;
+	std::function<void(ServiceRegistry&)> setup_;
 };
 
 } // namespace KujataEngine

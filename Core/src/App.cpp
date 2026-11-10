@@ -38,6 +38,10 @@ void App::Add(IModule* addedModule) {
 	modules_.push_back(addedModule);
 }
 
+void App::SetSetup(std::function<void(ServiceRegistry&)> setup) {
+	setup_ = setup;
+}
+
 void App::SortModulesByDependency() {
 	std::vector<IModule*> sortedModules;
 	std::vector<IModule*> waitingModules = modules_;
@@ -79,6 +83,16 @@ void App::Run() {
 	// 全モジュールの初期化
 	for (IModule* addedModule : modules_) {
 		addedModule->Startup(services_, frameLoop_);
+	}
+
+	// ゲームの準備
+	if (setup_) {
+		setup_(services_);
+	}
+
+	// モジュールごとの最後の準備
+	for (IModule* addedModule : modules_) {
+		addedModule->Prepare();
 	}
 
 	// メインループ

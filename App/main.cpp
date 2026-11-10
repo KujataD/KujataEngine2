@@ -26,10 +26,14 @@ int main() {
 
 	KujataEngine::SceneModule sceneModule;
 	app.Add(&sceneModule);
-	BuildDemoScene(sceneModule.GetScene());
 
 	KujataEngine::Physics physics;
 	app.Add(&physics);
+
+	// Assetなどの起動が終わってからシーンを作る。
+	app.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
+		BuildDemoScene(sceneModule.GetScene());
+	});
 
 	app.Run();
 	return 0;
