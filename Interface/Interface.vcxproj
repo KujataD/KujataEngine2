@@ -42,6 +42,7 @@
     <ClInclude Include="include\Interface\InputCodes.h" />
     <ClInclude Include="include\Interface\IRenderable.h" />
     <ClInclude Include="include\Interface\IRenderQueue.h" />
+    <ClInclude Include="include\Interface\ITime.h" />
     <ClInclude Include="include\Interface\IWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -6,6 +6,7 @@
 namespace KujataEngine {
 
 class Scene;
+class GameObject;
 class ColliderComponent;
 
 /// <summary>
@@ -17,6 +18,11 @@ public:
 	/// 全Colliderの交差を調べ、剛体応答とイベント通知を行う。ワールド行列を更新してから呼ぶこと。
 	/// </summary>
 	void Update(Scene& scene);
+
+	/// <summary>
+	/// 消える物のColliderが入った組にExitを送り、その組を忘れる。
+	/// </summary>
+	void ForgetGameObject(GameObject* gameObject);
 
 	/// <summary>
 	/// 接触ペアの記憶を、Exitイベントを送らずに捨てる。

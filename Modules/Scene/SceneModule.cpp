@@ -11,6 +11,11 @@ void SceneModule::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 
 	frameLoop.Register(kUpdate, [this]() {
 		scene_.Update();
+	});
+
+	// 物理が終わった後に消す物を消し、描画の前に行列を今の位置に合わせる。
+	frameLoop.Register(kLateUpdate, [this]() {
+		scene_.FlushDestroyed();
 		scene_.UpdateWorldTransforms();
 	});
 }

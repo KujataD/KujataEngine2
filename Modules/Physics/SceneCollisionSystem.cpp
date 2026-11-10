@@ -204,4 +204,21 @@ void SceneCollisionSystem::Update(Scene& scene) {
 	pairStates_ = std::move(currentPairStates);
 }
 
+void SceneCollisionSystem::ForgetGameObject(GameObject* gameObject) {
+	// 通知の途中で記憶が変わらないように、先に忘れる組を集める。
+	std::vector<std::string> forgottenKeys;
+	for (const std::pair<const std::string, PairState>& entry : pairStates_) {
+		const PairState& pair = entry.second;
+		if (pair.colliderA->GetOwner() == gameObject || pair.colliderB->GetOwner() == gameObject) {
+			forgottenKeys.push_back(entry.first);
+		}
+	}
+
+	for (const std::string& key : forgottenKeys) {
+		const PairState pair = pairStates_[key];
+		pairStates_.erase(key);
+		NotifyCollisionPair(pair.colliderA, pair.colliderB, pair.isTrigger, CollisionEventPhase::Exit);
+	}
+}
+
 } // namespace KujataEngine

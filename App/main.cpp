@@ -6,6 +6,7 @@
 #include "Physics/Physics.h"
 #include "Renderer/Renderer.h"
 #include "Scene/SceneModule.h"
+#include "Time/Time.h"
 #include "Window/Window.h"
 
 #include <Windows.h>
@@ -15,6 +16,10 @@ int main() {
 	SetConsoleOutputCP(CP_UTF8);
 
 	KujataEngine::App app;
+
+	// ほかのモジュールより先に、今のフレームの秒数を測る。
+	KujataEngine::Time timeModule;
+	app.Add(&timeModule);
 
 	// ウィンドウを作ってAppに入れると、閉じたときにループが終わる。
 	KujataEngine::Window window(L"KujataEngine2", 1280, 720);
@@ -42,7 +47,8 @@ int main() {
 	app.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
 		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets, inputActions);
+		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
+		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time);
 	});
 
 	app.Run();

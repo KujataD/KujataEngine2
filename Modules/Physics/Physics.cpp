@@ -11,28 +11,32 @@ namespace KujataEngine {
 static const float kFixedDeltaTime = 1.0f / 60.0f;
 
 // 処理が詰まった後に追いつこうとして、さらに遅くなるのを防ぐ上限で、単位は秒。
-static const double kMaxAccumulatedTime = kFixedDeltaTime * 5.0;
+static const float kMaxAccumulatedTime = kFixedDeltaTime * 5.0f;
 
 std::vector<std::string> Physics::GetRequiredServices() {
-	return { kSceneServiceName };
+	return { kSceneServiceName, kTimeServiceName };
 }
 
 void Physics::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	scene_ = static_cast<Scene*>(services.Get(kSceneServiceName));
 	KUJATA_ASSERT(scene_ != nullptr);
 
-	previousTime_ = std::chrono::steady_clock::now();
+	time_ = static_cast<ITime*>(services.Get(kTimeServiceName));
+	KUJATA_ASSERT(time_ != nullptr);
+
+	// 消える物と触れていた相手にExitを送り、消えた物を指したままにしない。
+	scene_->AddDestroyListener([this](GameObject* gameObject) {
+		collisionSystem_.ForgetGameObject(gameObject);
+	});
+
 	frameLoop.Register(kUpdate, [this]() {
 		Advance();
 	});
 }
 
 void Physics::Advance() {
-	const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-	const double elapsedTime = std::chrono::duration<double>(now - previousTime_).count();
-	previousTime_ = now;
-
-	accumulatedTime_ = (std::min)(accumulatedTime_ + elapsedTime, kMaxAccumulatedTime);
+	// 時間の速さを掛けた秒数を貯めるので、ゆっくりや停止も物理に効く。
+	accumulatedTime_ = (std::min)(accumulatedTime_ + time_->GetDeltaTime(), kMaxAccumulatedTime);
 	while (accumulatedTime_ >= kFixedDeltaTime) {
 		Step();
 		accumulatedTime_ -= kFixedDeltaTime;

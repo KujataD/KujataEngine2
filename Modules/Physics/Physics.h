@@ -2,9 +2,8 @@
 
 #include "Framework/Scene.h"
 #include "Core/IModule.h"
+#include "Interface/ITime.h"
 #include "SceneCollisionSystem.h"
-
-#include <chrono>
 
 namespace KujataEngine {
 
@@ -25,9 +24,9 @@ private:
 	void Step();
 
 	Scene* scene_ = nullptr;
+	ITime* time_ = nullptr;
 	SceneCollisionSystem collisionSystem_;
-	std::chrono::steady_clock::time_point previousTime_;
-	double accumulatedTime_ = 0.0;
+	float accumulatedTime_ = 0.0f;
 };
 
 } // namespace KujataEngine

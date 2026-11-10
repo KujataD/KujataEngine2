@@ -11,6 +11,8 @@ namespace KujataEngine {
 enum FramePhase {
 	kBeginFrame,
 	kUpdate,
+	// ゲームの更新と物理がすべて終わった後で、描画の依頼の前。
+	kLateUpdate,
 	kSubmitRender,
 	kRender,
 	kEndFrame,

@@ -12,8 +12,8 @@ static const char* const kResetPositionAction = "ResetPosition";
 static const char* const kLookAction = "Look";
 static const char* const kLookEnabledAction = "LookEnabled";
 
-// 1フレームに進む距離で、秒あたりにするのはゲームの時間を作るときに行う。
-static const float kMoveDistancePerFrame = 0.03f;
+// 1秒に進む距離。
+static const float kMoveSpeed = 1.8f;
 
 // マウスを1ピクセル動かしたときに回る角度で、単位はラジアン。
 static const float kTurnRadiansPerPixel = 0.01f;
@@ -23,16 +23,18 @@ static const float kTurnRadiansPerPixel = 0.01f;
 /// </summary>
 class Rotator : public Component {
 public:
-	Rotator(float radiansPerFrame) {
-		radiansPerFrame_ = radiansPerFrame;
+	Rotator(ITime* time, float radiansPerSecond) {
+		time_ = time;
+		radiansPerSecond_ = radiansPerSecond;
 	}
 
 	void Update() override {
-		GetOwner()->GetTransform().rotation_.y += radiansPerFrame_;
+		GetOwner()->GetTransform().rotation_.y += radiansPerSecond_ * time_->GetDeltaTime();
 	}
 
 private:
-	float radiansPerFrame_;
+	ITime* time_;
+	float radiansPerSecond_;
 };
 
 /// <summary>
@@ -40,8 +42,9 @@ private:
 /// </summary>
 class ToriController : public Component {
 public:
-	ToriController(IInputActions* inputActions, const Vector3& startPosition) {
+	ToriController(IInputActions* inputActions, ITime* time, const Vector3& startPosition) {
 		inputActions_ = inputActions;
+		time_ = time;
 		startPosition_ = startPosition;
 	}
 
@@ -50,8 +53,9 @@ public:
 
 		// 2軸の上を奥の向きにして、床の上を動かす。
 		const Vector2 move = inputActions_->GetAxis2D(kMoveAction);
-		transform.translation_.x += move.x * kMoveDistancePerFrame;
-		transform.translation_.z += move.y * kMoveDistancePerFrame;
+		const float distance = kMoveSpeed * time_->GetDeltaTime();
+		transform.translation_.x += move.x * distance;
+		transform.translation_.z += move.y * distance;
 
 		if (inputActions_->IsPressed(kResetPositionAction)) {
 			transform.translation_ = startPosition_;
@@ -65,6 +69,7 @@ public:
 
 private:
 	IInputActions* inputActions_;
+	ITime* time_;
 	Vector3 startPosition_;
 };
 
@@ -92,15 +97,15 @@ static void RegisterDemoActions(IInputActions* inputActions) {
 /// <summary>
 /// 指定の位置と大きさで回る立方体を置く。
 /// </summary>
-static void CreateCube(Scene* scene, MeshHandle mesh, TextureHandle texture, float x, float size, float radiansPerFrame) {
+static void CreateCube(Scene* scene, ITime* time, MeshHandle mesh, TextureHandle texture, float x, float size, float radiansPerSecond) {
 	GameObject* cube = scene->CreateGameObject();
 	cube->GetTransform().translation_ = { x, 0.0f, 0.0f };
 	cube->GetTransform().scale_ = { size, size, size };
 	cube->AddComponent(new MeshRenderer(mesh, texture));
-	cube->AddComponent(new Rotator(radiansPerFrame));
+	cube->AddComponent(new Rotator(time, radiansPerSecond));
 }
 
-void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions) {
+void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time) {
 	RegisterDemoActions(inputActions);
 
 	GameObject* camera = scene->CreateGameObject();
@@ -115,9 +120,9 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 
 	const MeshHandle cubeMesh = assets->GetCubeMesh();
 	const TextureHandle uvChecker = assets->LoadTexture("Textures/uvChecker.png");
-	CreateCube(scene, cubeMesh, uvChecker, -2.2f, 1.0f, 0.02f);
-	CreateCube(scene, cubeMesh, uvChecker, 0.0f, 1.5f, -0.01f);
-	CreateCube(scene, cubeMesh, uvChecker, 2.2f, 0.7f, 0.04f);
+	CreateCube(scene, time, cubeMesh, uvChecker, -2.2f, 1.0f, 1.2f);
+	CreateCube(scene, time, cubeMesh, uvChecker, 0.0f, 1.5f, -0.6f);
+	CreateCube(scene, time, cubeMesh, uvChecker, 2.2f, 0.7f, 2.4f);
 
 	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
 	const Vector3 toriStartPosition = { 0.0f, 1.5f, 1.0f };
@@ -125,5 +130,5 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	toriObject->GetTransform().translation_ = toriStartPosition;
 	toriObject->GetTransform().scale_ = { 0.4f, 0.4f, 0.4f };
 	toriObject->AddComponent(new MeshRenderer(tori.mesh, tori.texture));
-	toriObject->AddComponent(new ToriController(inputActions, toriStartPosition));
+	toriObject->AddComponent(new ToriController(inputActions, time, toriStartPosition));
 }

@@ -18,10 +18,23 @@ void GameObject::AddComponent(Component* component) {
 }
 
 void GameObject::Update() {
-	for (Component* component : components_) {
-		if (component->IsEnabled()) {
-			component->Update();
+	// 途中で足されたComponentで一覧が伸びても壊れないように、始めた時点の数だけを番号で回す。
+	const size_t componentCount = components_.size();
+	for (size_t i = 0; i < componentCount; i++) {
+		Component* component = components_[i];
+		if (!component->IsEnabled()) {
+			continue;
 		}
+
+		component->StartIfNeeded();
+		component->Update();
+	}
+}
+
+void GameObject::CallOnDestroy() {
+	const size_t componentCount = components_.size();
+	for (size_t i = 0; i < componentCount; i++) {
+		components_[i]->OnDestroy();
 	}
 }
 

@@ -25,9 +25,20 @@ public:
 	void AddComponent(Component* component);
 
 	/// <summary>
-	/// 追加した順にComponentを更新する。
+	/// 追加した順にComponentを更新し、途中で足されたComponentは次のフレームから動く。
 	/// </summary>
 	void Update();
+
+	/// <summary>
+	/// 全Componentの消える直前の処理を呼ぶ。
+	/// </summary>
+	void CallOnDestroy();
+
+	/// <summary>
+	/// 消す印を付け、実際に消すのはそのフレームの更新と物理が終わった後になる。
+	/// </summary>
+	void Destroy() { isDestroyed_ = true; }
+	bool IsDestroyed() const { return isDestroyed_; }
 
 	/// <summary>
 	/// このGameObjectの位置と回転と大きさを返す。
@@ -65,6 +76,7 @@ public:
 private:
 	WorldTransform transform_;
 	bool isActive_ = true;
+	bool isDestroyed_ = false;
 	uint32_t layer_ = 0;
 	std::vector<Component*> components_;
 };

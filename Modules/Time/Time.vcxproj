@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{25899933-0153-46DF-8C60-3C7BB55256D5}</ProjectGuid>
+    <RootNamespace>Time</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="Time.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Time.cpp" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+</Project>
