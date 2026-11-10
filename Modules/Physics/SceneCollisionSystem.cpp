@@ -27,8 +27,9 @@ std::string MakeCollisionPairKey(const ColliderComponent& colliderA, const Colli
 	return std::to_string(idA) + ":" + std::to_string(idB);
 }
 
-// contact は colliderA→colliderB の接触情報(非トリガーで交差中のみ非null)。
-// flipNormal=true のとき normal を反転して self 視点(self→other)に揃える。
+/// <summary>
+/// ownerの通知を受けるコンポーネントへ衝突を知らせ、flipNormalがtrueなら法線を反転して自分から相手への向きにする。
+/// </summary>
 void NotifyCollisionToComponents(GameObject* owner, ColliderComponent* self, ColliderComponent* other, bool isTrigger, CollisionEventPhase phase, const Contact* contact, bool flipNormal) {
 	if (!owner || !self || !other) {
 		return;
@@ -61,6 +62,7 @@ void NotifyCollisionToComponents(GameObject* owner, ColliderComponent* self, Col
 		Collision collision{};
 		collision.self = owner;
 		collision.other = otherOwner;
+		// 接触情報は、非トリガーで交差しているときだけある。
 		if (contact) {
 			collision.normal = flipNormal ? contact->normal * -1.0f : contact->normal;
 			collision.penetrationDepth = contact->depth;
@@ -118,10 +120,7 @@ void SceneCollisionSystem::Update(Scene& scene) {
 	std::vector<ColliderComponent*> colliders;
 	CollectSceneColliders(scene, colliders);
 
-	// ブロードフェーズ(Sweep and Prune): X軸のAABB minでソートし、Xレンジが重ならない組は
-	// 候補から外す。真に交差するペアは全軸でAABBが重なっているはずなので、X軸だけ見ても
-	// 取りこぼしは起きない(候補が減るだけで、絞り込みすぎることはない)。
-	// コライダーが多いほど、総当たりよりペアの数を大きく減らせる。
+	// ブロードフェーズとしてXの範囲が重ならない組を先に外し、総当たりより調べるペアを減らす。
 	struct BroadPhaseEntry {
 		size_t originalIndex;
 		AABB aabb;
@@ -131,6 +130,7 @@ void SceneCollisionSystem::Update(Scene& scene) {
 	for (size_t index = 0; index < colliders.size(); ++index) {
 		entries.push_back({index, colliders[index]->GetWorldAABB()});
 	}
+	// 本当に交差する組はXの範囲も必ず重なるので、Xの最小値で並べて調べても取りこぼさない。
 	std::stable_sort(entries.begin(), entries.end(), [](const BroadPhaseEntry& lhs, const BroadPhaseEntry& rhs) { return lhs.aabb.min.x < rhs.aabb.min.x; });
 
 	std::map<std::string, PairState> currentPairStates;
@@ -160,8 +160,7 @@ void SceneCollisionSystem::Update(Scene& scene) {
 
 			bool isTrigger = colliderA->IsTrigger() || colliderB->IsTrigger();
 
-			// 非トリガーは接触情報(A→B)を計算し、物理応答(押し出し+速度反射)を適用する。
-			// 同じ接触情報をCollisionイベントのnormal/penetration充填にも使う。
+			// 非トリガーだけ接触情報を求めて押し出しと反射を行い、同じ情報をイベントにも渡す。
 			Contact contact{};
 			bool hasContact = false;
 			if (!isTrigger) {

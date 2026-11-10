@@ -9,9 +9,7 @@ class Scene;
 class ColliderComponent;
 
 /// <summary>
-/// Scene内Colliderの衝突検出(Sweep and Prune)と、Enter/Stay/Exitイベントの通知。
-/// 非トリガーの交差にはScenePhysicsで剛体応答を適用する。
-/// 前フレームの接触ペアを覚えておき、今フレームとの差分でEnter/Exitを決める。
+/// 前回の接触ペアとの差から、衝突のEnterとStayとExitを決めて知らせるクラス。
 /// </summary>
 class SceneCollisionSystem {
 public:

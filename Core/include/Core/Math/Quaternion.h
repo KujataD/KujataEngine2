@@ -8,15 +8,7 @@
 namespace KujataEngine {
 
 /// <summary>
-/// 回転を表すクオータニオン。
-///
-/// 規約(エンジン全体の行ベクトル規約 v * M に合わせる):
-/// - operator* は数学標準のHamilton積。
-/// - 行列との対応は M(b * a) == M(a) * M(b)。
-///   つまり「aを適用してからbを適用」する合成は b * a と書く(行列の積順と逆になる点に注意)。
-/// - FromEuler / ToEuler は既存の MakeRotateMatrix(euler) = Mx * My * Mz (X→Y→Z適用) と厳密に一致する。
-///
-/// DLL境界を跨いでも安全なよう、全関数をヘッダ内inlineで実装している。
+/// エンジン全体の行ベクトルの規約に合わせた、回転を表すクオータニオン。
 /// </summary>
 struct Quaternion {
 	float x = 0.0f;
@@ -68,8 +60,7 @@ struct Quaternion {
 	}
 
 	/// <summary>
-	/// Euler角(radian, X→Y→Z適用)からクオータニオンを作る。
-	/// MakeRotateMatrix(euler) = Mx*My*Mz と同じ回転になる。
+	/// XとYとZの順に回すラジアンのオイラー角から、MakeRotateMatrixと同じ回転を作る。
 	/// </summary>
 	static Quaternion FromEuler(const Vector3& euler) {
 		Quaternion qx = MakeRotateAxisAngle({1.0f, 0.0f, 0.0f}, euler.x);
@@ -112,12 +103,10 @@ struct Quaternion {
 	}
 
 	/// <summary>
-	/// Euler角(radian, X→Y→Z適用)へ変換する。FromEulerとの往復で同じ回転を保つ。
-	/// ジンバルロック近傍のasin/atan2はfloatだと精度が大きく落ちるため、内部はdoubleで計算する。
-	/// ジンバルロック時(cos(y)≈0)はz=0とみなして分解する。
+	/// FromEulerと往復しても同じ回転になるように、XとYとZの順に回すラジアンのオイラー角へ変換する。
 	/// </summary>
 	Vector3 ToEuler() const {
-		// 必要な回転行列成分だけをdoubleで組み立てる(ToMatrixのdouble版)。
+		// ジンバルロックの近くではfloatだと精度が大きく落ちるので、必要な行列の成分だけをdoubleで組み立てる。
 		double dx = x;
 		double dy = y;
 		double dz = z;
@@ -135,10 +124,9 @@ struct Quaternion {
 		double sinY = std::clamp(-m02, -1.0, 1.0);
 		euler.y = static_cast<float>(std::asin(sinY));
 
-		// cos(y)が0近傍ではx/zが縮退するため、z=0としてxへ寄せる。
-		// floatのquaternion成分誤差(~1e-7)がcos(y)<1e-3の領域で通常分岐を不安定にするため、
-		// しきい値はcos(y)≈1.4e-3相当(角度誤差の上限≈0.08°)に設定している。
+		// floatの誤差で通常の計算が不安定になる、cos yがおよそ1.4e-3より小さい範囲をジンバルロックとして扱う。
 		if (std::abs(sinY) > 0.999999) {
+			// ジンバルロックではxとzを分けられないので、zを0としてxに寄せる。
 			euler.x = static_cast<float>(std::atan2(sinY * m10, m11));
 			euler.z = 0.0f;
 			return euler;
@@ -211,8 +199,7 @@ struct Quaternion {
 	}
 
 	/// <summary>
-	/// forward方向(+Z)をforwardへ、上方向をupへ寄せた姿勢を作る(UnityのLookRotation相当)。
-	/// forwardとupが平行な場合はIdentityを返す。
+	/// +Zをforwardへ、上をupへ向けた姿勢を作り、forwardとupが平行なら回転なしを返す。
 	/// </summary>
 	static Quaternion LookRotation(const Vector3& forward, const Vector3& up = {0.0f, 1.0f, 0.0f}) {
 		auto lengthOf = [](const Vector3& v) { return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z); };

@@ -27,13 +27,7 @@ public:
 	bool IsTrigger() const { return isTrigger_; }
 
 	/// <summary>
-	/// **このコライダーは動くか。** 地面・足場として扱ってよいかを見る側が参照する
-	/// (歩行の接地点、デカールの貼り付け先など)。
-	///
-	/// Rigidbodyの有無から推測しないのは、**推測が当たらない構成が普通にあるため**。
-	/// 例: 脚の当たり判定を部位ごとに分けた敵では、部位側がRigidbodyを持たない。
-	/// ルートのRigidbodyはコードで動かす都合でIs Staticなので、遡って見ても「動かない地面」と出る。
-	/// 動くかどうかは置いた本人にしか分からないので、明示して持たせる。
+	/// 地面や足場として扱ってよいかを調べる側のために、このコライダーが動くかを返す。
 	/// </summary>
 	bool IsMovingCollider() const { return movingCollider_; }
 	void SetMovingCollider(bool moving) { movingCollider_ = moving; }
@@ -84,15 +78,13 @@ public:
 	bool Intersects(const ColliderComponent& other) const;
 
 	/// <summary>
-	/// 指定Colliderとの接触情報(法線・めり込み量・接触点)を計算します。
-	/// 交差していれば true を返し out を埋めます。normal は自分→otherへの分離方向。
-	/// レイヤーマスクは判定しません(呼び出し側の責務)。
+	/// 交差していれば自分から相手へ向かう法線で接触情報を埋めてtrueを返し、レイヤーの判定は呼び出す側が行う。
 	/// </summary>
 	bool ComputeContact(const ColliderComponent& other, Contact& out) const;
 
 protected:
 	bool isTrigger_ = false;
-	// 動くコライダーか(地面/足場として扱わせない印)。Rigidbodyの有無とは独立に指定する。
+	// 部位ごとに分けた当たり判定のようにRigidbodyの有無からは推測できない構成があるので、置いた人が決める。
 	bool movingCollider_ = false;
 	Vector3 center_ = {0.0f, 0.0f, 0.0f};
 	uint32_t collisionMask_ = 0xffffffff;
@@ -140,8 +132,7 @@ private:
 };
 
 /// <summary>
-/// カプセルCollider。Unity準拠でradius/height/direction(0=X,1=Y,2=Z)を持ちます。
-/// heightは両端の半球を含む全長で、cylinder部分の長さは height - 2*radius です。
+/// 半径と全長と軸の向きで形を決める、カプセルのCollider。
 /// </summary>
 class CapsuleColliderComponent : public ColliderComponent {
 public:
@@ -169,6 +160,7 @@ public:
 
 private:
 	float radius_ = 0.5f;
+	// 両端の半球を含む全長で、円柱の部分はここから半径の2倍を引いた長さになる。
 	float height_ = 2.0f;
 	int direction_ = 1; // 既定はY軸(Unity準拠)
 };

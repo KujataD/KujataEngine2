@@ -54,14 +54,11 @@ Vector3 ApplyRestitution(const Vector3& relative, const Vector3& normal, float b
 
 } // namespace
 
-// 非トリガーの交差ペアに剛体反発(押し出し+速度反射)を適用する。
-// 動的(Rigidbody有・非Static)のみ押し出し/速度変化の対象。キネマティック(Is Static)と
-// Rigidbody無しは無限質量として不動だが、キネマティックは自身の速度を相手へ与える。
-// contact は colliderA→colliderB 基準(呼び出し側で計算済み)。
 void ScenePhysics::ResolveCollisionResponse(ColliderComponent* colliderA, ColliderComponent* colliderB, const Contact& contact) {
 	RigidbodyComponent* rigidbodyA = FindRigidbody(colliderA);
 	RigidbodyComponent* rigidbodyB = FindRigidbody(colliderB);
 
+	// キネマティックとRigidbodyなしは重さが無限として動かさないが、キネマティックの速度は相手に伝える。
 	bool movableA = IsMovable(rigidbodyA);
 	bool movableB = IsMovable(rigidbodyB);
 	if (!movableA && !movableB) {
@@ -94,9 +91,7 @@ void ScenePhysics::ResolveCollisionResponse(ColliderComponent* colliderA, Collid
 		transformB.translation_ = transformB.translation_ + ApplyPositionFreeze(rigidbodyB, normal * moveB);
 	}
 
-	// --- 速度反射(相対速度ベース): 動的ボディのみ、相手へ接近している場合に相対速度を反射する。---
-	// 相手の物理速度(キネマティックの移動速度含む)を加え戻すことで運動量が伝わる。
-	// 相手が静的(velocity 0)のときは従来の絶対速度反射に一致する。Freeze軸の速度は0に固定。
+	// 近づいている相対速度を反射してから相手の速度を足し戻すので、キネマティックの動きも運動量として伝わる。
 	Vector3 physVelocityA = PhysicsVelocity(rigidbodyA);
 	Vector3 physVelocityB = PhysicsVelocity(rigidbodyB);
 
@@ -114,8 +109,6 @@ void ScenePhysics::ResolveCollisionResponse(ColliderComponent* colliderA, Collid
 	}
 }
 
-// Rigidbodyの速度を位置へ積分する。動的ボディには重力(gravityScale倍)を加え、Freeze Position軸を固定する。
-// キネマティック(Is Static)は重力・拘束を受けず、自身の速度でそのまま移動する。
 void ScenePhysics::IntegrateRigidbodies(Scene& scene, float deltaTime) {
 	if (deltaTime <= 0.0f) {
 		return;

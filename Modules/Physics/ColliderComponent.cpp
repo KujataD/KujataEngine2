@@ -116,8 +116,9 @@ OBB MakeWorldOBB(const ColliderComponent& collider) {
 	return obb;
 }
 
-// a→b への接触情報を計算する(normal は a から b へ向かう分離方向)。
-// Sphere/Capsuleはカプセル(球は退化カプセル)、BoxはOBBへ統一して扱う。
+/// <summary>
+/// aからbへ向かう法線で接触情報を求め、球とカプセルはカプセル、箱はOBBにそろえて計算する。
+/// </summary>
 bool ComputeContactByShape(const ColliderComponent& a, const ColliderComponent& b, Contact& out) {
 	const bool aBox = a.GetShapeType() == ColliderShapeType::Box;
 	const bool bBox = b.GetShapeType() == ColliderShapeType::Box;

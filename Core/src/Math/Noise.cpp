@@ -26,8 +26,7 @@ constexpr int kPermutation[256] = {
 inline int Hash(int index) { return kPermutation[index & 255]; }
 
 /// <summary>
-/// 補間カーブ 6t^5-15t^4+10t^3。両端で1次・2次微分が0になるため、
-/// 格子をまたぐ場所に継ぎ目(マッハバンド)が出ない。改良版パーリンの肝。
+/// 両端で1次と2次の微分が0になる補間の曲線で、格子の境目に継ぎ目が出ない。
 /// </summary>
 inline float Fade(float t) { return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f); }
 
@@ -99,8 +98,7 @@ float Fractal(float x, float y, float z, int octaves, float lacunarity, float ga
 
 } // namespace
 
-// zに半端な値を入れて格子面を外す。z=0(整数)のスライスでは勾配の半分が消えてしまい、
-// 振幅が痩せる(実測で±0.50止まり)うえ、yを変えただけのレーン同士が似た波形になる。
+// 整数のzの断面では勾配の半分が消えて振幅が痩せ、yだけ違う揺れも似てしまうので、半端なzで切り出す。
 constexpr float kSliceZ = 0.31f;
 
 float PerlinNoise(float x, float y) { return Noise3(x, y, kSliceZ); }

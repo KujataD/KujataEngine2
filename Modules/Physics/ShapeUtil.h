@@ -71,13 +71,17 @@ struct Plane {
 	float distance;
 };
 
-// 接触情報。反発応答(押し出し+速度反射)のための最小データ。
-//   normal : 第1引数から第2引数へ向かう単位分離ベクトル。第1形状は -normal、第2形状は +normal 方向へ押し出す。
-//   depth  : めり込み量(>=0)。
-//   point  : おおよその接触点(ワールド座標)。
+/// <summary>
+/// 押し出しと速度の反射に使う接触の情報。
+/// </summary>
 struct Contact {
+	// 第1引数から第2引数へ向かう長さ1の向きで、第1の形は逆向きに、第2の形はこの向きに押し出す。
 	Vector3 normal{};
+
+	// 0以上のめり込みの量。
 	float depth = 0.0f;
+
+	// ワールド座標でのおおよその接触点。
 	Vector3 point{};
 };
 
@@ -124,15 +128,17 @@ bool IsCollision(const Capsule& capsule, const OBB& obb);
 /// </summary>
 bool IsOverlappingOnAxis(const OBB& A, const OBB& B, const Vector3& axis);
 
-// 線分(origin〜origin+diff)と形状の交差を調べ、最初のヒット位置の割合t[0,1]を返す。
-// 始点が形状内部の場合は t=0 でヒット扱い。カメラの遮蔽判定などに使う。
+/// <summary>
+/// 線分の始点から最初に当たる位置の割合を0から1で返し、始点が形の中なら0で当たったとする。
+/// </summary>
 bool RaycastSegment(const Segment& segment, const Sphere& sphere, float& outT);
 bool RaycastSegment(const Segment& segment, const AABB& aabb, float& outT);
 bool RaycastSegment(const Segment& segment, const OBB& obb, float& outT);
 bool RaycastSegment(const Segment& segment, const Capsule& capsule, float& outT);
 
-// 接触情報(法線・めり込み量・接触点)を計算する。交差していれば true。
-// normal は第1引数から第2引数へ向かう分離方向(単位)。詳細は Contact を参照。
+/// <summary>
+/// 交差していれば、第1引数から第2引数へ向かう法線で接触情報を埋めてtrueを返す。
+/// </summary>
 bool ComputeContact(const Sphere& a, const Sphere& b, Contact& out);
 bool ComputeContact(const Sphere& sphere, const OBB& obb, Contact& out);
 bool ComputeContact(const OBB& a, const OBB& b, Contact& out);
@@ -143,23 +149,14 @@ bool ComputeContact(const Capsule& capsule, const OBB& obb, Contact& out);
 
 Vector3 Reflect(const Vector3& input, const Vector3& normal);
 
-///< summary>
-/// CatmullRom補間
-///</summary>
-///< param name="po">点0の座標</param>
-///< param name="p1">点1の座標</param>
-///< param name="p2">点2の座標</param>
-///< param name="p3">点3の座標</param>
-///< param name="t">点1を0.0f、点2を1.0fとした割合指定</param>
-///< returns>点1と点2の間で指定された座標</returns>
+/// <summary>
+/// p1を0、p2を1とした割合tで、p1とp2の間にあるCatmull-Romの曲線上の点を返す。
+/// </summary>
 Vector3 CatmullRomInterpolation(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, float t);
 
-///< summary>
-/// CatmullRomスプライン曲線上の座標を得る
-///  </summary>
-///< param name="points">制御点の集合</param>
-/// <param name="t">スプラインの全区間の中での割合指定[0,1]</param>
-///< returns>座標</returns>
+/// <summary>
+/// 全区間を0から1とした割合tで、制御点を通るCatmull-Romの曲線上の点を返す。
+/// </summary>
 Vector3 CatmullRomPosition(const std::vector<Vector3>& points, float t);
 
 Segment MakeLimitedSegment(const Vector3& start, const Vector3& end, float maxDistance);

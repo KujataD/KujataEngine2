@@ -341,8 +341,9 @@ Vector3 ClosestPointOnSegment(const Vector3& p0, const Vector3& p1, const Vector
 	return p0 + ab * t;
 }
 
-// 2線分間の最近点対を求める(Ericson, Real-Time Collision Detection)。
-// c1: 線分[p1,q1]上、c2: 線分[p2,q2]上。
+/// <summary>
+/// Real-Time Collision Detectionの方法で、線分p1q1上のc1と線分p2q2上のc2のうち最も近い組を求める。
+/// </summary>
 void ClosestPointsBetweenSegments(const Vector3& p1, const Vector3& q1, const Vector3& p2, const Vector3& q2, Vector3& c1, Vector3& c2) {
 	Vector3 d1 = q1 - p1;
 	Vector3 d2 = q2 - p2;
@@ -489,8 +490,7 @@ bool RaycastSegment(const Segment& segment, const OBB& obb, float& outT) {
 }
 
 bool RaycastSegment(const Segment& segment, const Capsule& capsule, float& outT) {
-	// カプセル = spine線分[p0,p1]から半径radius膨らませた形状。
-	// 「無限円柱の側面(spine範囲内)」と「両端の球」の最も手前のヒットを採用する。
+	// カプセルは線分を半径だけ膨らませた形なので、円柱の側面と両端の球のうち最も手前のヒットを使う。
 	const float radius = capsule.radius;
 
 	// 始点がカプセル内部なら即ヒット(めり込み扱い)。
@@ -577,8 +577,7 @@ bool ComputeContact(const Capsule& a, const Capsule& b, Contact& out) {
 }
 
 bool ComputeContact(const Capsule& capsule, const OBB& obb, Contact& out) {
-	// 近似: OBB中心にもっとも近いspine上の点を球とみなしてOBBと接触計算する。
-	// ComputeContact(Sphere,OBB) の normal は sphere→obb = capsule→obb。
+	// OBBの中心に最も近い軸上の点を球とみなす近似で、法線はカプセルからOBBへ向く。
 	Vector3 closest = ClosestPointOnSegment(capsule.p0, capsule.p1, obb.center);
 	return ComputeContact(Sphere{closest, capsule.radius}, obb, out);
 }

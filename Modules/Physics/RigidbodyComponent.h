@@ -6,22 +6,11 @@
 namespace KujataEngine {
 
 /// <summary>
-/// 剛体反発(押し出し+速度反射)のためのRigidbody。形状を持つColliderとは分離する。
-/// 速度はゲームコードがSetVelocityで与えるか、重力・反射で変化する。摩擦・力(AddForce)は未対応。
-///
-/// gravityScale: 重力の影響度(Unity Rigidbody2D準拠)。適用される重力 = グローバル重力(0,-9.81,0)×gravityScale。
-///   1=通常、0=無重力、負値=反重力。キネマティック(Is Static)には適用されない。
-/// Freeze Position X/Y/Z: そのワールド軸の移動を固定(速度成分を0にし、押し出しでも動かさない)。Unity Constraints準拠。
-/// Freeze Rotation X/Y/Z: そのワールド軸の回転を固定(現状は角速度物理が無いため保持のみ・将来用)。
-///
-/// Is Static:
-///   OFF(動的) = 通常の剛体。重力・衝突で押し出され、速度が反射される。
-///   ON(キネマティック) = 無限質量。押し出されず速度も変化せず重力も受けないが、velocityで移動し
-///     接触した動的ボディへ運動量を与える。
-/// Rigidbodyを持たないCollider = 動かない純粋な静的壁(velocity 0、運動量なし)。
+/// 押し出しと速度の反射で衝突に応える剛体で、これを持たないColliderは動かない壁になる。
 /// </summary>
 class RigidbodyComponent : public Component {
 public:
+	// 速度はゲームが与えるか重力と反射で変わり、摩擦や力を加える仕組みはまだない。
 	const Vector3& GetVelocity() const { return velocity_; }
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
@@ -37,20 +26,20 @@ public:
 		bounciness_ = bounciness;
 	}
 
-	// 重力の影響度(Unity Rigidbody2D準拠)。
+	// 重力に掛ける倍率で、0で無重力、負で反重力になり、キネマティックには効かない。
 	float GetGravityScale() const { return gravityScale_; }
 	void SetGravityScale(float gravityScale) { gravityScale_ = gravityScale; }
 
-	// true=キネマティック(無限質量・押し出されない・重力を受けない)、false=動的。
+	// trueのキネマティックは押し出されず重力も受けないが、自分の速度で動いて相手に運動量を渡す。
 	bool IsStatic() const { return isStatic_; }
 	void SetStatic(bool isStatic) { isStatic_ = isStatic; }
 
-	// Freeze Position(そのワールド軸の移動を固定)。
+	// ワールドの軸ごとに速度を0にして、押し出されても動かないようにする。
 	bool FreezePositionX() const { return freezePositionX_; }
 	bool FreezePositionY() const { return freezePositionY_; }
 	bool FreezePositionZ() const { return freezePositionZ_; }
 
-	// Freeze Rotation(そのワールド軸の回転を固定。現状は保持のみ)。
+	// ワールドの軸ごとの回転の固定で、角速度の物理がまだないので値を持つだけになる。
 	bool FreezeRotationX() const { return freezeRotationX_; }
 	bool FreezeRotationY() const { return freezeRotationY_; }
 	bool FreezeRotationZ() const { return freezeRotationZ_; }
