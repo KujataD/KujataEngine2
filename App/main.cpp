@@ -48,7 +48,8 @@ int main() {
 		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time);
+		KujataEngine::IWindow* window = static_cast<KujataEngine::IWindow*>(services.Get(KujataEngine::kWindowServiceName));
+		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, window);
 	});
 
 	app.Run();
