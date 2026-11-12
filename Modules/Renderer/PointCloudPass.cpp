@@ -46,12 +46,6 @@ static const UINT kUpdateConstantsCount = sizeof(PointUpdateConstants) / sizeof(
 // 1フレームに動かして描ける点群の数で、定数バッファの場所の数になる。
 static const UINT kMaxPointCloudCount = 16;
 
-// 板の中心から端までの長さ。
-static const float kPointSize = 0.01f;
-
-// 点1つが足す明るさで、点が重なる数だけ足されるので小さくする。
-static const float kPointIntensity = 0.1f;
-
 // PointCloudUpdate.CS.hlslのnumthreadsと合わせる。
 static const UINT kThreadGroupSize = 256;
 
@@ -262,8 +256,8 @@ void PointCloudPass::DrawPoints(const RenderContext& context, const PointCloudRe
 	PointCloudConstants constants = {};
 	constants.view = camera.view;
 	constants.projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
-	constants.pointSize = kPointSize;
-	constants.intensity = kPointIntensity;
+	constants.pointSize = request.pointSize;
+	constants.intensity = request.intensity;
 	constants.targetCount = targets.targetCount;
 	constantBuffer_.Write(constantsIndex, &constants);
 

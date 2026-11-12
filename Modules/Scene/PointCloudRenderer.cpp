@@ -19,6 +19,8 @@ void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
 	request.targets = targets_;
 	request.instanceId = instanceId_;
 	request.world = GetOwner()->GetTransform().matWorld_;
+	request.pointSize = pointSize;
+	request.intensity = intensity;
 	renderQueue->SubmitPointCloud(request);
 }
 

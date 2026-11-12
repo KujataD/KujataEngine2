@@ -17,6 +17,12 @@ public:
 
 	void SubmitRender(IRenderQueue* renderQueue) override;
 
+	// 点の板の中心から端までの長さ。
+	float pointSize = 0.01f;
+
+	// 点1つが足す明るさで、点が重なる数だけ足されるので、密な点群ほど小さくする。
+	float intensity = 0.1f;
+
 private:
 	PointCloudHandle targets_;
 
