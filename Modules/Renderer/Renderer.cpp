@@ -55,6 +55,10 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	opaquePass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, GetRendererDataDirectory());
 	standardRenderPipeline_.AddPass(&opaquePass_);
 
+	// 点の描画
+	pointCloudPass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, GetRendererDataDirectory());
+	standardRenderPipeline_.AddPass(&pointCloudPass_);
+
 	frameLoop.Register(kSubmitRender, [this]() {
 		CollectRenderRequests();
 	});

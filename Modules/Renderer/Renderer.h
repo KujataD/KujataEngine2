@@ -7,6 +7,7 @@
 #include "Interface/IGpu.h"
 #include "Interface/IWindow.h"
 #include "OpaquePass.h"
+#include "PointCloudPass.h"
 #include "RenderQueue.h"
 #include "ShaderCompiler.h"
 #include "ShaderResourceHeap.h"
@@ -52,6 +53,7 @@ private:
 	GpuAssetTable gpuAssets_;
 
 	OpaquePass opaquePass_;
+	PointCloudPass pointCloudPass_;
 	StandardRenderPipeline standardRenderPipeline_;
 	IRenderPipeline* renderPipeline_ = &standardRenderPipeline_;
 

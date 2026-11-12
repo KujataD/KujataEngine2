@@ -12,6 +12,7 @@
     <ClInclude Include="IRenderPipeline.h" />
     <ClInclude Include="OpaquePass.h" />
     <ClInclude Include="PipelineState.h" />
+    <ClInclude Include="PointCloudPass.h" />
     <ClInclude Include="RenderContext.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderQueue.h" />
@@ -28,6 +29,7 @@
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="OpaquePass.cpp" />
     <ClCompile Include="PipelineState.cpp" />
+    <ClCompile Include="PointCloudPass.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
@@ -40,6 +42,8 @@
   <ItemGroup>
     <None Include="Shaders\Object3D.PS.hlsl" />
     <None Include="Shaders\Object3D.VS.hlsl" />
+    <None Include="Shaders\PointCloud.PS.hlsl" />
+    <None Include="Shaders\PointCloud.VS.hlsl" />
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>
