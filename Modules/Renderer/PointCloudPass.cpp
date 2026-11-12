@@ -35,10 +35,9 @@ struct PointUpdateConstants {
 	float deltaTime;
 	uint32_t pointCount;
 	uint32_t targetCount;
-	uint32_t frameIndex;
 	uint32_t shouldInitialize;
 };
-static_assert(sizeof(PointUpdateConstants) == 84, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
+static_assert(sizeof(PointUpdateConstants) == 80, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
 
 // ルート定数は4バイトずつ数える。
 static const UINT kUpdateConstantsCount = sizeof(PointUpdateConstants) / sizeof(uint32_t);
@@ -165,7 +164,6 @@ void PointCloudPass::Execute(const RenderContext& context) {
 	gpuTimer_.Resolve(list);
 
 	RemoveUnusedInstances();
-	frameIndex_++;
 }
 
 PointCloudInstance& PointCloudPass::FindOrCreateInstance(const PointCloudRequest& request, UINT targetCount) {
@@ -218,7 +216,6 @@ void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloud
 	constants.deltaTime = context.deltaTime;
 	constants.pointCount = instance.pointCount;
 	constants.targetCount = targets.targetCount;
-	constants.frameIndex = frameIndex_;
 	constants.shouldInitialize = instance.shouldInitialize ? 1 : 0;
 	instance.shouldInitialize = false;
 

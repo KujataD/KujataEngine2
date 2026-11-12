@@ -4,7 +4,6 @@ cbuffer UpdateConstants : register(b0) {
 	float gDeltaTime;
 	uint gPointCount;
 	uint gTargetCount;
-	uint gFrameIndex;
 	uint gShouldInitialize;
 };
 
@@ -24,14 +23,17 @@ struct PointCloudTarget {
 RWStructuredBuffer<PointState> gPoints : register(u0);
 StructuredBuffer<PointCloudTarget> gTargets : register(t0);
 
-// 速度を揺らす強さで、単位はメートル毎秒毎秒。
-static const float kJitterAcceleration = 4.0f;
+// 集まる先へ引くばねの強さで、大きいほど速く集まる。
+static const float kSpringStiffness = 30.0f;
 
-// 1秒あたりに速度を減らす割合。
-static const float kDampingPerSecond = 2.0f;
+// 速度に比例して止める強さで、小さいほど集まる先を行き過ぎて揺れる。
+static const float kSpringDamping = 6.0f;
 
-// 点が集まる先から離れられる距離。
-static const float kMaxWanderDistance = 0.05f;
+// 1回に進める秒数の上限で、長いフレームでばねが発散するのを防ぐ。
+static const float kMaxDeltaTime = 1.0f / 30.0f;
+
+// 最初に点を散らす範囲で、集まる先からの各軸の最大の距離。
+static const float kScatterDistance = 2.0f;
 
 /// <summary>
 /// 整数を混ぜて、偏りの少ない別の整数にするPCGハッシュ。
@@ -47,6 +49,16 @@ uint PcgHash(uint value) {
 /// </summary>
 float ToUnitFloat(uint hash) {
 	return float(hash >> 8u) / 16777216.0f;
+}
+
+/// <summary>
+/// 点の番号から、その点がいつも同じになる各軸が-1から1の乱数を作る。
+/// </summary>
+float3 MakeScatterOffset(uint index) {
+	const uint seedX = PcgHash(index);
+	const uint seedY = PcgHash(seedX);
+	const uint seedZ = PcgHash(seedY);
+	return float3(ToUnitFloat(seedX), ToUnitFloat(seedY), ToUnitFloat(seedZ)) * 2.0f - 1.0f;
 }
 
 // PointCloudPass.cppのkThreadGroupSizeと合わせる。
@@ -65,28 +77,17 @@ void main(uint3 threadId : SV_DispatchThreadID) {
 
 	PointState current = gPoints[index];
 
-	// 作ったばかりのバッファには何も入っていないので、集まる先から始める。
+	// 作ったばかりのバッファには何も入っていないので、集まる先のまわりに散らして始める。
 	if (gShouldInitialize != 0) {
-		current.position = targetPosition;
+		current.position = targetPosition + MakeScatterOffset(index) * kScatterDistance;
 		current.velocity = float3(0.0f, 0.0f, 0.0f);
 	}
 
-	// 点の番号とフレームの番号を混ぜて、点ごとにもフレームごとにも違う乱数にする。
-	const uint seedX = PcgHash(index ^ PcgHash(gFrameIndex));
-	const uint seedY = PcgHash(seedX);
-	const uint seedZ = PcgHash(seedY);
-	const float3 jitter = float3(ToUnitFloat(seedX), ToUnitFloat(seedY), ToUnitFloat(seedZ)) * 2.0f - 1.0f;
-
-	current.velocity += jitter * kJitterAcceleration * gDeltaTime;
-	current.velocity -= current.velocity * kDampingPerSecond * gDeltaTime;
-	current.position += current.velocity * gDeltaTime;
-
-	// 集まる先から離れすぎた点は、決めた距離まで戻す。
-	const float3 offsetFromTarget = current.position - targetPosition;
-	const float distanceFromTarget = length(offsetFromTarget);
-	if (distanceFromTarget > kMaxWanderDistance) {
-		current.position = targetPosition + offsetFromTarget * (kMaxWanderDistance / distanceFromTarget);
-	}
+	// 速度を先に更新してから位置に使うと、同じ刻みでもばねが発散しにくい。
+	const float deltaTime = min(gDeltaTime, kMaxDeltaTime);
+	const float3 acceleration = (targetPosition - current.position) * kSpringStiffness - current.velocity * kSpringDamping;
+	current.velocity += acceleration * deltaTime;
+	current.position += current.velocity * deltaTime;
 
 	gPoints[index] = current;
 }

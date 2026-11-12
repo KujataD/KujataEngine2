@@ -28,7 +28,7 @@ struct PointCloudInstance {
 
 	UINT pointCount = 0;
 
-	// 作ったばかりのバッファには何も入っていないので、最初の更新で点を集まる先に置く。
+	// 作ったばかりのバッファには何も入っていないので、最初の更新で点を散った位置に置く。
 	bool shouldInitialize = true;
 
 	// このフレームで依頼が来たかどうかで、来なくなった物を片付けるのに使う。
@@ -137,9 +137,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> updateRootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> updatePipelineState_;
-
-	// 乱数を毎フレーム変えるための、点を動かした回数。
-	uint32_t frameIndex_ = 0;
 
 	GpuTimer gpuTimer_;
 
