@@ -19,14 +19,15 @@ struct Point {
 };
 static_assert(sizeof(Point) == 24, "Pointの大きさが変わったらPointCloud.VS.hlslとPointCloudUpdate.CS.hlslも直す。");
 
-// PointCloud.VS.hlslのCameraDataと並びを合わせ、HLSLの16バイトの区切りに合うように詰め物を入れる。
+// PointCloud.VS.hlslとPointCloud.PS.hlslのPointCloudConstantsと並びを合わせ、HLSLの16バイトの区切りに合うように詰め物を入れる。
 struct PointCloudConstants {
 	Matrix4x4 view;
 	Matrix4x4 projection;
 	float pointSize;
-	float padding[3];
+	float intensity;
+	float padding[2];
 };
-static_assert(sizeof(PointCloudConstants) == 144, "PointCloudConstantsの大きさが変わったらPointCloud.VS.hlslも直す。");
+static_assert(sizeof(PointCloudConstants) == 144, "PointCloudConstantsの大きさが変わったらPointCloud.VS.hlslとPointCloud.PS.hlslも直す。");
 
 // PointCloudUpdate.CS.hlslのUpdateConstantsと並びを合わせ、float3の後ろに4バイトの値を置いてHLSLの16バイトの区切りに合わせる。
 struct PointUpdateConstants {
@@ -49,6 +50,9 @@ static const UINT kPointCount = kGridWidth * kGridDepth;
 // 点と点の間隔と、板の中心から端までの長さ。
 static const float kPointSpacing = 0.005f;
 static const float kPointSize = 0.01f;
+
+// 点1つが足す明るさで、点が重なる数だけ足されるので小さくする。
+static const float kPointIntensity = 0.1f;
 
 // 格子の真ん中で、デモの自機のまわりの床から少し浮かせた位置。
 static const Vector3 kGridCenter = { 0.0f, 1.2f, -1.0f };
@@ -123,6 +127,7 @@ void PointCloudPass::Execute(const RenderContext& context) {
 	constants.view = camera.view;
 	constants.projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
 	constants.pointSize = kPointSize;
+	constants.intensity = kPointIntensity;
 	constantBuffer_.Write(0, &constants);
 
 	list->SetPipelineState(pipelineState_.Get());
@@ -257,10 +262,10 @@ void PointCloudPass::CreateRootSignature(ID3D12Device* device) {
 
 	D3D12_ROOT_PARAMETER rootParameters[2] = {};
 
-	// 頂点シェーダーのb0でカメラと板の大きさを受け取る。
+	// b0で、頂点シェーダーがカメラと板の大きさを、ピクセルシェーダーが明るさを受け取る。
 	rootParameters[kConstantsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[kConstantsRootParameterIndex].Descriptor.ShaderRegister = 0;
-	rootParameters[kConstantsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[kConstantsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	// 頂点シェーダーのt0で点のバッファを受け取る。
 	rootParameters[kPointsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
@@ -285,7 +290,18 @@ void PointCloudPass::CreatePipelineState(IGpu* gpu, IDxcBlob* vertexShader, IDxc
 	// 頂点の入力はなく、SV_VertexIDとSV_InstanceIDだけで描く。
 	description.InputLayout = { nullptr, 0 };
 
-	description.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	// 重なった点の明るさを足し合わせ、描く順番に左右されないようにする。
+	D3D12_RENDER_TARGET_BLEND_DESC& blend = description.BlendState.RenderTarget[0];
+	blend.BlendEnable = TRUE;
+	blend.SrcBlend = D3D12_BLEND_ONE;
+	blend.DestBlend = D3D12_BLEND_ONE;
+	blend.BlendOp = D3D12_BLEND_OP_ADD;
+
+	// 画面のアルファは変えない。
+	blend.SrcBlendAlpha = D3D12_BLEND_ZERO;
+	blend.DestBlendAlpha = D3D12_BLEND_ONE;
+	blend.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blend.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	description.SampleMask = UINT32_MAX;
 	description.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 
@@ -296,9 +312,9 @@ void PointCloudPass::CreatePipelineState(IGpu* gpu, IDxcBlob* vertexShader, IDxc
 	description.NumRenderTargets = 1;
 	description.RTVFormats[0] = gpu->GetRenderTargetFormat();
 
-	// 不透明な物と同じく、深度を読み書きする。
+	// 深度を読むので不透明な物には隠れ、書かないので点どうしは隠し合わない。
 	description.DepthStencilState.DepthEnable = TRUE;
-	description.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	description.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	description.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	description.DSVFormat = gpu->GetDepthFormat();
 	description.SampleDesc.Count = 1;

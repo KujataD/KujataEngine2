@@ -1,9 +1,10 @@
 // PointCloudPass.cppのPointCloudConstantsと並びを合わせる。
-cbuffer CameraData : register(b0) {
+cbuffer PointCloudConstants : register(b0) {
 	float4x4 gView;
 	float4x4 gProjection;
 	float gPointSize;
-	float3 gPadding;
+	float gIntensity;
+	float2 gPadding;
 };
 
 // PointCloudPass.cppのPointと並びを合わせ、使わない速度も読み飛ばすために置く。
@@ -16,7 +17,6 @@ StructuredBuffer<Point> gPoints : register(t0);
 
 struct VertexOutput {
 	float4 position : SV_POSITION;
-	float2 corner : TEXCOORD;
 };
 
 // 板の4つの角で、三角形ストリップの順に並べる。
@@ -36,6 +36,5 @@ VertexOutput main(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID) 
 
 	VertexOutput output;
 	output.position = mul(viewPosition, gProjection);
-	output.corner = corner;
 	return output;
 }
