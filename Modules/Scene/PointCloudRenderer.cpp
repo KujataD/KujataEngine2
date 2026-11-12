@@ -14,6 +14,11 @@ PointCloudRenderer::PointCloudRenderer(PointCloudHandle targets) {
 	nextInstanceId++;
 }
 
+void PointCloudRenderer::SetTargets(PointCloudHandle targets) {
+	// 点の位置と速度は番号ごとに描画の担当が覚えているので、集まる先だけを替えればよい。
+	targets_ = targets;
+}
+
 void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
 	PointCloudRequest request;
 	request.targets = targets_;

@@ -9,6 +9,7 @@
 #include "Scene/PointCloudRenderer.h"
 
 #include <cmath>
+#include <vector>
 using namespace KujataEngine;
 
 // アクションの名前。
@@ -16,6 +17,7 @@ static const char* const kMoveAction = "Move";
 static const char* const kFireAction = "Fire";
 static const char* const kLookAction = "Look";
 static const char* const kLookEnabledAction = "LookEnabled";
+static const char* const kSwitchShapeAction = "SwitchShape";
 
 // 衝突の絞り込みに使うLayerの番号。
 static const uint32_t kBulletLayer = 2;
@@ -253,6 +255,10 @@ static void RegisterPlayerActions(IInputActions* inputActions) {
 
 	inputActions->AddButton(kLookEnabledAction);
 	inputActions->BindMouseButton(kLookEnabledAction, MouseButton::Right);
+
+	inputActions->AddButton(kSwitchShapeAction);
+	inputActions->BindKey(kSwitchShapeAction, Key::E);
+	inputActions->BindPadButton(kSwitchShapeAction, PadButton::Y);
 }
 
 /// <summary>
@@ -276,15 +282,45 @@ static const uint32_t kPointCloudPointCount = 333000;
 static const float kPointCloudIntensity = 0.02f;
 
 /// <summary>
-/// 指定の位置に、点が集まって形になる点群を置く。
+/// 切り替えるアクションで、点群の集まる先を一覧の次の形へ差し替える。
 /// </summary>
-static void CreatePointCloud(Scene* scene, PointCloudHandle targets, const Vector3& position) {
+class ShapeSwitcher : public Component {
+public:
+	ShapeSwitcher(IInputActions* inputActions, PointCloudRenderer* renderer, const std::vector<PointCloudHandle>& shapes, size_t shapeIndex) {
+		inputActions_ = inputActions;
+		renderer_ = renderer;
+		shapes_ = shapes;
+		shapeIndex_ = shapeIndex;
+	}
+
+	void Update() override {
+		if (!inputActions_->IsPressed(kSwitchShapeAction)) {
+			return;
+		}
+
+		// 最後の形の次は、最初の形に戻る。
+		shapeIndex_ = (shapeIndex_ + 1) % shapes_.size();
+		renderer_->SetTargets(shapes_[shapeIndex_]);
+	}
+
+private:
+	IInputActions* inputActions_;
+	PointCloudRenderer* renderer_;
+	std::vector<PointCloudHandle> shapes_;
+	size_t shapeIndex_;
+};
+
+/// <summary>
+/// 指定の位置に、一覧の中の指定の形から始まり、切り替えるアクションで形が変わる点群を置く。
+/// </summary>
+static void CreatePointCloud(Scene* scene, IInputActions* inputActions, const std::vector<PointCloudHandle>& shapes, size_t shapeIndex, const Vector3& position) {
 	GameObject* pointCloud = scene->CreateGameObject();
 	pointCloud->GetTransform().translation_ = position;
 
-	PointCloudRenderer* renderer = new PointCloudRenderer(targets);
+	PointCloudRenderer* renderer = new PointCloudRenderer(shapes[shapeIndex]);
 	renderer->intensity = kPointCloudIntensity;
 	pointCloud->AddComponent(renderer);
+	pointCloud->AddComponent(new ShapeSwitcher(inputActions, renderer, shapes, shapeIndex));
 }
 
 void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IWindow* window) {
@@ -301,15 +337,20 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	CreateEnemy(scene, cubeMesh, uvChecker, {0.0f, 0.5f, 4.0f});
 	CreateEnemy(scene, cubeMesh, uvChecker, {2.5f, 0.5f, 4.0f});
 
-	// 自機の左に球を、右に円環を、手前に鳥の形を、合わせて約100万個の点で置く。
-	const PointCloudHandle sphere = assets->AddPointCloud(CreateSpherePointCloud(kPointCloudPointCount, 1.2f, {1.0f, 0.55f, 0.25f}));
-	const PointCloudHandle torus = assets->AddPointCloud(CreateTorusPointCloud(kPointCloudPointCount, 1.2f, 0.45f, {0.3f, 0.75f, 1.0f}));
-	CreatePointCloud(scene, sphere, {-3.5f, 1.5f, -1.0f});
-	CreatePointCloud(scene, torus, {3.5f, 1.5f, -1.0f});
-
 	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
 	const PointCloudData toriSurface = CreateMeshSurfacePointCloud(assets->GetMeshData(tori.mesh), assets->GetImageData(tori.texture), kPointCloudPointCount);
-	CreatePointCloud(scene, assets->AddPointCloud(toriSurface), {0.0f, 1.5f, -5.0f});
+
+	// 3つの点群が同じ3つの形を持ち、切り替えるたびに次の形へ流れる。
+	const std::vector<PointCloudHandle> shapes = {
+		assets->AddPointCloud(CreateSpherePointCloud(kPointCloudPointCount, 1.2f, {1.0f, 0.55f, 0.25f})),
+		assets->AddPointCloud(CreateTorusPointCloud(kPointCloudPointCount, 1.2f, 0.45f, {0.3f, 0.75f, 1.0f})),
+		assets->AddPointCloud(toriSurface),
+	};
+
+	// 自機の左に球を、右に円環を、手前に鳥の形を、合わせて約100万個の点で置く。
+	CreatePointCloud(scene, inputActions, shapes, 0, {-3.5f, 1.5f, -1.0f});
+	CreatePointCloud(scene, inputActions, shapes, 1, {3.5f, 1.5f, -1.0f});
+	CreatePointCloud(scene, inputActions, shapes, 2, {0.0f, 1.5f, -5.0f});
 
 	GameObject* player = scene->CreateGameObject();
 	player->GetTransform().translation_ = {0.0f, 0.5f, -1.0f};

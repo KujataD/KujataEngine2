@@ -17,6 +17,11 @@ public:
 
 	void SubmitRender(IRenderQueue* renderQueue) override;
 
+	/// <summary>
+	/// 集まる先を差し替え、点は今の位置から新しい形へ流れていく。
+	/// </summary>
+	void SetTargets(PointCloudHandle targets);
+
 	// 点の板の中心から端までの長さ。
 	float pointSize = 0.01f;
 
