@@ -67,6 +67,15 @@ static const UINT kThreadGroupSize = 256;
 static const UINT kThreadGroupCount = (kPointCount + kThreadGroupSize - 1) / kThreadGroupSize;
 static_assert(kThreadGroupCount <= D3D12_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION, "1回のDispatchで動かせる数を超えたので、点を減らすか組を大きくする。");
 
+// GPU時間を測る印の番号で、点を動かす前、動かした後、描いた後に付ける。
+static const UINT kUpdateBeginMark = 0;
+static const UINT kUpdateEndMark = 1;
+static const UINT kDrawEndMark = 2;
+static const UINT kMarkCount = 3;
+
+// GPU時間の平均をログに出す間隔で、単位はフレーム。
+static const uint32_t kGpuTimeReportFrameCount = 120;
+
 /// <summary>
 /// 入口の一覧の説明からRootSignatureを作る。
 /// </summary>
@@ -102,6 +111,7 @@ void PointCloudPass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, Shade
 	CreateUpdateRootSignature(gpu->GetDevice());
 	CreateUpdatePipelineState(gpu->GetDevice(), computeShader.Get());
 	constantBuffer_.Initialize(gpu->GetDevice(), sizeof(PointCloudConstants), 1);
+	gpuTimer_.Initialize(gpu, kMarkCount);
 	isReady_ = true;
 }
 
@@ -110,9 +120,12 @@ void PointCloudPass::Execute(const RenderContext& context) {
 		return;
 	}
 
-	UpdatePoints(context);
+	ReportGpuTime();
 
 	ID3D12GraphicsCommandList* list = context.commandList;
+	gpuTimer_.Mark(list, kUpdateBeginMark);
+	UpdatePoints(context);
+	gpuTimer_.Mark(list, kUpdateEndMark);
 
 	// 工程ごとに独立させるため、前の工程と同じ範囲をここでも設定する。
 	const D3D12_VIEWPORT viewport = { 0.0f, 0.0f, context.targetWidth, context.targetHeight, 0.0f, 1.0f };
@@ -139,6 +152,32 @@ void PointCloudPass::Execute(const RenderContext& context) {
 
 	// 頂点4つの板を、点の数だけ繰り返して描く。
 	list->DrawInstanced(4, kPointCount, 0, 0);
+
+	gpuTimer_.Mark(list, kDrawEndMark);
+	gpuTimer_.Resolve(list);
+}
+
+void PointCloudPass::ReportGpuTime() {
+	// 最初のフレームには、まだ読める印がない。
+	if (!gpuTimer_.HasResult()) {
+		return;
+	}
+
+	updateMillisecondsSum_ += gpuTimer_.ReadMilliseconds(kUpdateBeginMark, kUpdateEndMark);
+	drawMillisecondsSum_ += gpuTimer_.ReadMilliseconds(kUpdateEndMark, kDrawEndMark);
+	measuredFrameCount_++;
+	if (measuredFrameCount_ < kGpuTimeReportFrameCount) {
+		return;
+	}
+
+	// 垂直同期を待つとfpsでは余裕が見えないので、GPUが実際にかけた時間を出す。
+	const double updateMilliseconds = updateMillisecondsSum_ / measuredFrameCount_;
+	const double drawMilliseconds = drawMillisecondsSum_ / measuredFrameCount_;
+	printf("点%u個のGPU時間: 更新 %.3f ms、描画 %.3f ms、合計 %.3f ms\n", kPointCount, updateMilliseconds, drawMilliseconds, updateMilliseconds + drawMilliseconds);
+
+	updateMillisecondsSum_ = 0.0;
+	drawMillisecondsSum_ = 0.0;
+	measuredFrameCount_ = 0;
 }
 
 void PointCloudPass::UpdatePoints(const RenderContext& context) {

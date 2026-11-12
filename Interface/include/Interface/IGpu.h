@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <dxgiformat.h>
 #include <functional>
 
@@ -38,6 +39,11 @@ public:
 	/// 深度の形式を返す。
 	/// </summary>
 	virtual DXGI_FORMAT GetDepthFormat() = 0;
+
+	/// <summary>
+	/// GPUのタイムスタンプが1秒に進む数を返し、タイムスタンプの差を秒に直すのに使う。
+	/// </summary>
+	virtual uint64_t GetTimestampFrequency() = 0;
 
 	/// <summary>
 	/// 渡された処理で命令を書いてGPUに実行させ、完了まで待つので、フレームの外で呼ぶ。

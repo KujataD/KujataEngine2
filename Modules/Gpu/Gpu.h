@@ -25,6 +25,7 @@ public:
 	ID3D12GraphicsCommandList* GetCommandList() override;
 	DXGI_FORMAT GetRenderTargetFormat() override;
 	DXGI_FORMAT GetDepthFormat() override;
+	uint64_t GetTimestampFrequency() override;
 	void ExecuteImmediately(std::function<void(ID3D12GraphicsCommandList*)> recordCommands) override;
 
 private:

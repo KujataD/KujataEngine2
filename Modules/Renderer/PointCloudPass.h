@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ConstantBuffer.h"
+#include "GpuTimer.h"
 #include "IRenderPass.h"
 #include "Interface/IGpu.h"
 #include "ShaderCompiler.h"
@@ -42,6 +43,11 @@ private:
 	/// コンピュートシェーダーで点を動かし、描画で読める状態にする命令を書く。
 	/// </summary>
 	void UpdatePoints(const RenderContext& context);
+
+	/// <summary>
+	/// 前のフレームのGPU時間を足し込み、決めたフレーム数ごとに平均をログに出す。
+	/// </summary>
+	void ReportGpuTime();
 
 	/// <summary>
 	/// 点のバッファの状態を切り替える命令を書く。
@@ -89,6 +95,13 @@ private:
 
 	// 乱数を毎フレーム変えるための、点を動かした回数。
 	uint32_t frameIndex_ = 0;
+
+	GpuTimer gpuTimer_;
+
+	// 平均を出すために足し込んだGPU時間で、単位はミリ秒。
+	double updateMillisecondsSum_ = 0.0;
+	double drawMillisecondsSum_ = 0.0;
+	uint32_t measuredFrameCount_ = 0;
 };
 
 } // namespace KujataEngine

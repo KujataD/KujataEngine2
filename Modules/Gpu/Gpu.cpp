@@ -59,6 +59,13 @@ DXGI_FORMAT Gpu::GetDepthFormat() {
 	return depthBuffer_.GetFormat();
 }
 
+uint64_t Gpu::GetTimestampFrequency() {
+	UINT64 frequency = 0;
+	const HRESULT result = commandContext_.GetQueue()->GetTimestampFrequency(&frequency);
+	KUJATA_ASSERT(SUCCEEDED(result));
+	return frequency;
+}
+
 void Gpu::ExecuteImmediately(std::function<void(ID3D12GraphicsCommandList*)> recordCommands) {
 	commandContext_.Begin();
 	recordCommands(commandContext_.GetList());
