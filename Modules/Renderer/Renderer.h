@@ -5,6 +5,7 @@
 #include "GpuAssetTable.h"
 #include "IRenderPipeline.h"
 #include "Interface/IGpu.h"
+#include "Interface/ITime.h"
 #include "Interface/IWindow.h"
 #include "OpaquePass.h"
 #include "PointCloudPass.h"
@@ -46,6 +47,7 @@ private:
 	IWindow* window_ = nullptr;
 	Scene* scene_ = nullptr;
 	IAssetLibrary* assets_ = nullptr;
+	ITime* time_ = nullptr;
 
 	ShaderCompiler shaderCompiler_;
 	ShaderResourceHeap shaderResourceHeap_;

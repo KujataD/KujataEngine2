@@ -44,6 +44,7 @@
     <None Include="Shaders\Object3D.VS.hlsl" />
     <None Include="Shaders\PointCloud.PS.hlsl" />
     <None Include="Shaders\PointCloud.VS.hlsl" />
+    <None Include="Shaders\PointCloudUpdate.CS.hlsl" />
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

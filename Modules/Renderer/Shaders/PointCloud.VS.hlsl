@@ -6,9 +6,10 @@ cbuffer CameraData : register(b0) {
 	float3 gPadding;
 };
 
-// PointCloudPass.cppのPointと並びを合わせる。
+// PointCloudPass.cppのPointと並びを合わせ、使わない速度も読み飛ばすために置く。
 struct Point {
 	float3 position;
+	float3 velocity;
 };
 
 StructuredBuffer<Point> gPoints : register(t0);

@@ -16,6 +16,9 @@ struct RenderContext {
 	GpuAssetTable* gpuAssets;
 	float targetWidth;
 	float targetHeight;
+
+	// 前のフレームからの秒数で、時間の速さが掛かっている。
+	float deltaTime;
 };
 
 } // namespace KujataEngine

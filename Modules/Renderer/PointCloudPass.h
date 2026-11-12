@@ -6,6 +6,7 @@
 #include "ShaderCompiler.h"
 #include "ShaderResourceHeap.h"
 
+#include <cstdint>
 #include <d3d12.h>
 #include <filesystem>
 #include <wrl/client.h>
@@ -23,6 +24,12 @@ public:
 	// RootSignature中、点のバッファが何番目か。
 	static const UINT kPointsRootParameterIndex = 1;
 
+	// 点を動かすRootSignature中、ルート定数が何番目か。
+	static const UINT kUpdateConstantsRootParameterIndex = 0;
+
+	// 点を動かすRootSignature中、書き込む点のバッファが何番目か。
+	static const UINT kUpdatePointsRootParameterIndex = 1;
+
 	/// <summary>
 	/// シェーダーと点のバッファを準備し、用意できなければログを出して、この工程だけ描かない。
 	/// </summary>
@@ -32,7 +39,17 @@ public:
 
 private:
 	/// <summary>
-	/// 格子に並べた点を、GPUだけが読み書きするバッファへ送り、シェーダーから読む名札を作る。
+	/// コンピュートシェーダーで点を動かし、描画で読める状態にする命令を書く。
+	/// </summary>
+	void UpdatePoints(const RenderContext& context);
+
+	/// <summary>
+	/// 点のバッファの状態を切り替える命令を書く。
+	/// </summary>
+	void TransitionPointBuffer(ID3D12GraphicsCommandList* list, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
+
+	/// <summary>
+	/// 格子に並べた点を、GPUだけが読み書きするバッファへ送り、シェーダーから読む名札と書く名札を作る。
 	/// </summary>
 	void CreatePointBuffer(IGpu* gpu);
 
@@ -46,15 +63,32 @@ private:
 	/// </summary>
 	void CreatePipelineState(IGpu* gpu, IDxcBlob* vertexShader, IDxcBlob* pixelShader);
 
+	/// <summary>
+	/// 点を動かすコンピュートシェーダーが、ルート定数と書き込む点のバッファを受け取る入口の一覧を作る。
+	/// </summary>
+	void CreateUpdateRootSignature(ID3D12Device* device);
+
+	/// <summary>
+	/// 点を動かすコンピュートシェーダーのPSOを作る。
+	/// </summary>
+	void CreateUpdatePipelineState(ID3D12Device* device, IDxcBlob* computeShader);
+
 	bool isReady_ = false;
 	ShaderResourceHeap* shaderResourceHeap_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> pointBuffer_;
 	D3D12_GPU_DESCRIPTOR_HANDLE pointsGpuHandle_ = {};
+	D3D12_GPU_DESCRIPTOR_HANDLE pointsUavGpuHandle_ = {};
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;
 	ConstantBuffer constantBuffer_;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> updateRootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> updatePipelineState_;
+
+	// 乱数を毎フレーム変えるための、点を動かした回数。
+	uint32_t frameIndex_ = 0;
 };
 
 } // namespace KujataEngine

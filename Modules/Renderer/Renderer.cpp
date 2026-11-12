@@ -33,7 +33,7 @@ static std::filesystem::path GetRendererDataDirectory() {
 }
 
 std::vector<std::string> Renderer::GetRequiredServices() {
-	return { kGpuServiceName, kWindowServiceName, kSceneServiceName, kAssetLibraryServiceName };
+	return { kGpuServiceName, kWindowServiceName, kSceneServiceName, kAssetLibraryServiceName, kTimeServiceName };
 }
 
 void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
@@ -48,6 +48,9 @@ void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 
 	assets_ = static_cast<IAssetLibrary*>(services.Get(kAssetLibraryServiceName));
 	KUJATA_ASSERT(assets_ != nullptr);
+
+	time_ = static_cast<ITime*>(services.Get(kTimeServiceName));
+	KUJATA_ASSERT(time_ != nullptr);
 
 	shaderCompiler_.Initialize();
 	shaderResourceHeap_.Initialize(gpu_->GetDevice(), kShaderResourceHeapCapacity);
@@ -109,6 +112,7 @@ void Renderer::Draw() {
 		context.gpuAssets = &gpuAssets_;
 		context.targetWidth = static_cast<float>(window_->GetClientWidth());
 		context.targetHeight = static_cast<float>(window_->GetClientHeight());
+		context.deltaTime = time_->GetDeltaTime();
 		renderPipeline_->Render(context);
 	}
 
