@@ -8,10 +8,12 @@ cbuffer PointCloudConstants : register(b0) {
 	float gPadding;
 };
 
-// PointCloudPass.cppのPointStateと並びを合わせ、使わない速度も読み飛ばすために置く。
+// PointCloudPass.cppのPointStateと並びを合わせ、使わない値も読み飛ばすために置く。
 struct PointState {
 	float3 position;
 	float3 velocity;
+	float settleGoal;
+	float settleDisplay;
 };
 
 // Interface/AssetData.hのPointCloudTargetと並びを合わせる。

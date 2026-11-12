@@ -17,7 +17,7 @@
 namespace KujataEngine {
 
 /// <summary>
-/// 描く物1つ分の、点ごとの位置と速度を持つバッファと名札。
+/// 描く物1つ分の、点ごとの位置と速度と形になる度合いを持つバッファと名札。
 /// </summary>
 struct PointCloudInstance {
 	Microsoft::WRL::ComPtr<ID3D12Resource> stateBuffer;
@@ -49,7 +49,7 @@ public:
 	// 描くRootSignature中、集まる先のバッファが何番目か。
 	static const UINT kTargetsRootParameterIndex = 2;
 
-	// 点を動かすRootSignature中、ルート定数が何番目か。
+	// 点を動かすRootSignature中、定数バッファが何番目か。
 	static const UINT kUpdateConstantsRootParameterIndex = 0;
 
 	// 点を動かすRootSignature中、書き込む点のバッファが何番目か。
@@ -74,7 +74,7 @@ private:
 	/// <summary>
 	/// コンピュートシェーダーで1つの点群の点を動かし、描画で読める状態にする命令を書く。
 	/// </summary>
-	void UpdatePoints(const RenderContext& context, const PointCloudRequest& request, PointCloudInstance& instance);
+	void UpdatePoints(const RenderContext& context, const PointCloudRequest& request, PointCloudInstance& instance, UINT constantsIndex);
 
 	/// <summary>
 	/// 1つの点群の点を、点ごとの板で描く命令を書く。
@@ -112,7 +112,7 @@ private:
 	void CreatePipelineState(IGpu* gpu, IDxcBlob* vertexShader, IDxcBlob* pixelShader);
 
 	/// <summary>
-	/// 点を動かすコンピュートシェーダーが、ルート定数と点と集まる先のバッファを受け取る入口の一覧を作る。
+	/// 点を動かすコンピュートシェーダーが、定数バッファと点と集まる先のバッファを受け取る入口の一覧を作る。
 	/// </summary>
 	void CreateUpdateRootSignature(ID3D12Device* device);
 
@@ -137,6 +137,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> updateRootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> updatePipelineState_;
+	ConstantBuffer updateConstantBuffer_;
 
 	GpuTimer gpuTimer_;
 

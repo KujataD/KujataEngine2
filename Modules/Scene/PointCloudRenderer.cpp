@@ -19,6 +19,17 @@ void PointCloudRenderer::SetTargets(PointCloudHandle targets) {
 	targets_ = targets;
 }
 
+void PointCloudRenderer::Gather(const Vector3& worldPosition, float radius) {
+	// 1フレームに渡せる数を超えた分は、次のフレームでまた呼ばれる前提で捨てる。
+	if (gatherPointCount_ >= kMaxPointCloudGatherPoints) {
+		return;
+	}
+
+	gatherPoints_[gatherPointCount_].position = worldPosition;
+	gatherPoints_[gatherPointCount_].radius = radius;
+	gatherPointCount_++;
+}
+
 void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
 	PointCloudRequest request;
 	request.targets = targets_;
@@ -26,6 +37,12 @@ void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
 	request.world = GetOwner()->GetTransform().matWorld_;
 	request.pointSize = pointSize;
 	request.intensity = intensity;
+	request.initialSettle = initialSettle;
+	for (uint32_t i = 0; i < gatherPointCount_; i++) {
+		request.gatherPoints[i] = gatherPoints_[i];
+	}
+	request.gatherPointCount = gatherPointCount_;
+	gatherPointCount_ = 0;
 	renderQueue->SubmitPointCloud(request);
 }
 

@@ -25,6 +25,11 @@ public:
 	/// </summary>
 	void Bind(ID3D12GraphicsCommandList* list, UINT rootParameterIndex, UINT index);
 
+	/// <summary>
+	/// 指定の番号の値をコンピュートシェーダーで使う設定を命令書に書く。
+	/// </summary>
+	void BindCompute(ID3D12GraphicsCommandList* list, UINT rootParameterIndex, UINT index);
+
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer_;
 	unsigned char* mappedMemory_ = nullptr;

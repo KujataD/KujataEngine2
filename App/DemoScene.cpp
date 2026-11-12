@@ -41,22 +41,31 @@ static const float kBulletLifeSeconds = 2.0f;
 // 球の見た目の大きさで、当たり判定の半径にも掛かる。
 static const float kBulletScale = 0.2f;
 
+// 球のまわりの点を形にする半径。
+static const float kBulletGatherRadius = 1.6f;
+
 // マウスの指す点が自機にこれより近いと向きが決まらないので、前へ撃つ。
 static const float kMinAimDistance = 0.01f;
 
 /// <summary>
-/// まっすぐ飛び、決まった秒数がたつと消える球。
+/// まっすぐ飛びながら通った所の点群を形にし、決まった秒数がたつと消える球。
 /// </summary>
 class Bullet : public Component {
 public:
-	Bullet(ITime* time, const Vector3& velocity) {
+	Bullet(ITime* time, const Vector3& velocity, const std::vector<PointCloudRenderer*>& pointClouds) {
 		time_ = time;
 		velocity_ = velocity;
+		pointClouds_ = pointClouds;
 	}
  
 	void Update() override {
 		const float deltaTime = time_->GetDeltaTime();
 		GetOwner()->GetTransform().translation_ += velocity_ * deltaTime;
+
+		// 遠い点群には効かないので、どの点群にも今の位置を伝える。
+		for (PointCloudRenderer* pointCloud : pointClouds_) {
+			pointCloud->Gather(GetOwner()->GetTransform().translation_, kBulletGatherRadius);
+		}
 
 		// 何にも当たらなかった球が残り続けないように、時間で消す。
 		aliveSeconds_ += deltaTime;
@@ -68,6 +77,7 @@ public:
 private:
 	ITime* time_;
 	Vector3 velocity_;
+	std::vector<PointCloudRenderer*> pointClouds_;
 	float aliveSeconds_ = 0.0f;
 };
 
@@ -116,7 +126,7 @@ public:
 /// </summary>
 class PlayerController : public Component {
 public:
-	PlayerController(Scene* scene, IInputActions* inputActions, ITime* time, IWindow* window, Camera* camera, MeshHandle bulletMesh, TextureHandle bulletTexture) {
+	PlayerController(Scene* scene, IInputActions* inputActions, ITime* time, IWindow* window, Camera* camera, MeshHandle bulletMesh, TextureHandle bulletTexture, const std::vector<PointCloudRenderer*>& pointClouds) {
 		scene_ = scene;
 		inputActions_ = inputActions;
 		time_ = time;
@@ -124,6 +134,7 @@ public:
 		camera_ = camera;
 		bulletMesh_ = bulletMesh;
 		bulletTexture_ = bulletTexture;
+		pointClouds_ = pointClouds;
 	}
 
 	void Update() override {
@@ -165,7 +176,7 @@ private:
 		collider->SetCollisionMask(1u << kEnemyLayer);
 		bullet->AddComponent(collider);
 
-		bullet->AddComponent(new Bullet(time_, direction * kBulletSpeed));
+		bullet->AddComponent(new Bullet(time_, direction * kBulletSpeed, pointClouds_));
 	}
 
 	/// <summary>
@@ -234,6 +245,7 @@ private:
 	Camera* camera_;
 	MeshHandle bulletMesh_;
 	TextureHandle bulletTexture_;
+	std::vector<PointCloudRenderer*> pointClouds_;
 };
 
 /// <summary>
@@ -311,16 +323,20 @@ private:
 };
 
 /// <summary>
-/// 指定の位置に、一覧の中の指定の形から始まり、切り替えるアクションで形が変わる点群を置く。
+/// 指定の位置に、散った状態から始まり、切り替えるアクションで集まる形が変わる点群を置いて返す。
 /// </summary>
-static void CreatePointCloud(Scene* scene, IInputActions* inputActions, const std::vector<PointCloudHandle>& shapes, size_t shapeIndex, const Vector3& position) {
+static PointCloudRenderer* CreatePointCloud(Scene* scene, IInputActions* inputActions, const std::vector<PointCloudHandle>& shapes, size_t shapeIndex, const Vector3& position) {
 	GameObject* pointCloud = scene->CreateGameObject();
 	pointCloud->GetTransform().translation_ = position;
 
 	PointCloudRenderer* renderer = new PointCloudRenderer(shapes[shapeIndex]);
 	renderer->intensity = kPointCloudIntensity;
+
+	// 球が通った所だけが形になるように、散った状態から始める。
+	renderer->initialSettle = 0.0f;
 	pointCloud->AddComponent(renderer);
 	pointCloud->AddComponent(new ShapeSwitcher(inputActions, renderer, shapes, shapeIndex));
+	return renderer;
 }
 
 void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IWindow* window) {
@@ -348,9 +364,11 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	};
 
 	// 自機の左に球を、右に円環を、手前に鳥の形を、合わせて約100万個の点で置く。
-	CreatePointCloud(scene, inputActions, shapes, 0, {-3.5f, 1.5f, -1.0f});
-	CreatePointCloud(scene, inputActions, shapes, 1, {3.5f, 1.5f, -1.0f});
-	CreatePointCloud(scene, inputActions, shapes, 2, {0.0f, 1.5f, -5.0f});
+	const std::vector<PointCloudRenderer*> pointClouds = {
+		CreatePointCloud(scene, inputActions, shapes, 0, {-3.5f, 1.5f, -1.0f}),
+		CreatePointCloud(scene, inputActions, shapes, 1, {3.5f, 1.5f, -1.0f}),
+		CreatePointCloud(scene, inputActions, shapes, 2, {0.0f, 1.5f, -5.0f}),
+	};
 
 	GameObject* player = scene->CreateGameObject();
 	player->GetTransform().translation_ = {0.0f, 0.5f, -1.0f};
@@ -365,5 +383,5 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	camera->AddComponent(cameraComponent);
 	camera->AddComponent(new MovementFollower(&player->GetTransform()));
 
-	player->AddComponent(new PlayerController(scene, inputActions, time, window, cameraComponent, cubeMesh, assets->GetWhiteTexture()));
+	player->AddComponent(new PlayerController(scene, inputActions, time, window, cameraComponent, cubeMesh, assets->GetWhiteTexture(), pointClouds));
 }

@@ -28,6 +28,20 @@ struct DirectionalLightData {
 };
 
 /// <summary>
+/// 点を集める場所1つ分で、PointCloudUpdate.CS.hlslのGatherPointと並びを合わせる。
+/// </summary>
+struct PointCloudGatherPoint {
+	// ワールド座標での場所。
+	Vector3 position;
+
+	// この距離より近くに集まる先がある点が、形になり始める。
+	float radius;
+};
+
+// 1つの点群に1フレームで渡せる集める場所の数。
+const uint32_t kMaxPointCloudGatherPoints = 16;
+
+/// <summary>
 /// 点群を1つ描く依頼で、点ごとの位置と速度は描画の担当がinstanceIdごとに覚える。
 /// </summary>
 struct PointCloudRequest {
@@ -43,6 +57,13 @@ struct PointCloudRequest {
 
 	// 点1つが足す明るさで、点が重なる数だけ足されるので、密な点群ほど小さくする。
 	float intensity = 0.1f;
+
+	// 最初に形になっている度合いで、0なら散った状態から、1なら形になった状態から始まる。
+	float initialSettle = 1.0f;
+
+	// このフレームで点を集める場所で、近くに集まる先がある点は形になったままになる。
+	PointCloudGatherPoint gatherPoints[kMaxPointCloudGatherPoints] = {};
+	uint32_t gatherPointCount = 0;
 };
 
 /// <summary>

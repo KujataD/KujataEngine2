@@ -36,4 +36,10 @@ void ConstantBuffer::Bind(ID3D12GraphicsCommandList* list, UINT rootParameterInd
 	list->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer_->GetGPUVirtualAddress() + static_cast<UINT64>(index) * alignedSize_);
 }
 
+void ConstantBuffer::BindCompute(ID3D12GraphicsCommandList* list, UINT rootParameterIndex, UINT index) {
+	KUJATA_ASSERT(index < capacity_);
+
+	list->SetComputeRootConstantBufferView(rootParameterIndex, buffer_->GetGPUVirtualAddress() + static_cast<UINT64>(index) * alignedSize_);
+}
+
 } // namespace KujataEngine

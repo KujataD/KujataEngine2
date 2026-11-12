@@ -15,8 +15,12 @@ namespace KujataEngine {
 struct PointState {
 	Vector3 position;
 	Vector3 velocity;
+
+	// 形になる度合いの目標と、目標へ少しずつ近づく今の値。
+	float settleGoal;
+	float settleDisplay;
 };
-static_assert(sizeof(PointState) == 24, "PointStateの大きさが変わったらPointCloud.VS.hlslとPointCloudUpdate.CS.hlslも直す。");
+static_assert(sizeof(PointState) == 32, "PointStateの大きさが変わったらPointCloud.VS.hlslとPointCloudUpdate.CS.hlslも直す。");
 
 // PointCloud.VS.hlslとPointCloud.PS.hlslのPointCloudConstantsと並びを合わせ、HLSLの16バイトの区切りに合うように詰め物を入れる。
 struct PointCloudConstants {
@@ -29,18 +33,19 @@ struct PointCloudConstants {
 };
 static_assert(sizeof(PointCloudConstants) == 144, "PointCloudConstantsの大きさが変わったらPointCloud.VS.hlslとPointCloud.PS.hlslも直す。");
 
-// PointCloudUpdate.CS.hlslのUpdateConstantsと並びを合わせる。
+// PointCloudUpdate.CS.hlslのUpdateConstantsと並びを合わせ、HLSLの16バイトの区切りに合うように詰め物を入れる。
 struct PointUpdateConstants {
 	Matrix4x4 world;
 	float deltaTime;
 	uint32_t pointCount;
 	uint32_t targetCount;
 	uint32_t shouldInitialize;
+	float initialSettle;
+	uint32_t gatherPointCount;
+	float padding[2];
+	PointCloudGatherPoint gatherPoints[kMaxPointCloudGatherPoints];
 };
-static_assert(sizeof(PointUpdateConstants) == 80, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
-
-// ルート定数は4バイトずつ数える。
-static const UINT kUpdateConstantsCount = sizeof(PointUpdateConstants) / sizeof(uint32_t);
+static_assert(sizeof(PointUpdateConstants) == 352, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
 
 // 1フレームに動かして描ける点群の数で、定数バッファの場所の数になる。
 static const UINT kMaxPointCloudCount = 16;
@@ -119,6 +124,7 @@ void PointCloudPass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, Shade
 	CreateUpdateRootSignature(gpu->GetDevice());
 	CreateUpdatePipelineState(gpu->GetDevice(), computeShader.Get());
 	constantBuffer_.Initialize(gpu->GetDevice(), sizeof(PointCloudConstants), kMaxPointCloudCount);
+	updateConstantBuffer_.Initialize(gpu->GetDevice(), sizeof(PointUpdateConstants), kMaxPointCloudCount);
 	gpuTimer_.Initialize(gpu, kMarkCount);
 	isReady_ = true;
 }
@@ -153,7 +159,7 @@ void PointCloudPass::Execute(const RenderContext& context) {
 	ID3D12GraphicsCommandList* list = context.commandList;
 	gpuTimer_.Mark(list, kUpdateBeginMark);
 	for (UINT i = 0; i < requestCount; i++) {
-		UpdatePoints(context, requests[i], *requestInstances[i]);
+		UpdatePoints(context, requests[i], *requestInstances[i], i);
 	}
 	gpuTimer_.Mark(list, kUpdateEndMark);
 
@@ -207,7 +213,7 @@ PointCloudInstance& PointCloudPass::FindOrCreateInstance(const PointCloudRequest
 	return instance;
 }
 
-void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloudRequest& request, PointCloudInstance& instance) {
+void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloudRequest& request, PointCloudInstance& instance, UINT constantsIndex) {
 	ID3D12GraphicsCommandList* list = context.commandList;
 	const GpuPointCloud& targets = context.gpuAssets->GetPointCloud(request.targets);
 
@@ -217,12 +223,18 @@ void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloud
 	constants.pointCount = instance.pointCount;
 	constants.targetCount = targets.targetCount;
 	constants.shouldInitialize = instance.shouldInitialize ? 1 : 0;
+	constants.initialSettle = request.initialSettle;
+	constants.gatherPointCount = (std::min)(request.gatherPointCount, kMaxPointCloudGatherPoints);
+	for (uint32_t i = 0; i < constants.gatherPointCount; i++) {
+		constants.gatherPoints[i] = request.gatherPoints[i];
+	}
+	updateConstantBuffer_.Write(constantsIndex, &constants);
 	instance.shouldInitialize = false;
 
 	list->SetPipelineState(updatePipelineState_.Get());
 	list->SetComputeRootSignature(updateRootSignature_.Get());
 	shaderResourceHeap_->Bind(list);
-	list->SetComputeRoot32BitConstants(kUpdateConstantsRootParameterIndex, kUpdateConstantsCount, &constants, 0);
+	updateConstantBuffer_.BindCompute(list, kUpdateConstantsRootParameterIndex, constantsIndex);
 	list->SetComputeRootDescriptorTable(kUpdatePointsRootParameterIndex, shaderResourceHeap_->GetGpuHandle(instance.writeHeapIndex));
 	list->SetComputeRootDescriptorTable(kUpdateTargetsRootParameterIndex, targets.targetsGpuHandle);
 
@@ -401,10 +413,9 @@ void PointCloudPass::CreateUpdateRootSignature(ID3D12Device* device) {
 	// コンピュートシェーダーには見える範囲の区別がないので、どの入口もALLにする。
 	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 
-	// b0で毎フレームの秒数やワールド行列を、定数バッファを作らずに直接受け取る。
-	rootParameters[kUpdateConstantsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	rootParameters[kUpdateConstantsRootParameterIndex].Constants.ShaderRegister = 0;
-	rootParameters[kUpdateConstantsRootParameterIndex].Constants.Num32BitValues = kUpdateConstantsCount;
+	// 集める場所の一覧はルート定数に入りきらないので、b0は定数バッファで受け取る。
+	rootParameters[kUpdateConstantsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[kUpdateConstantsRootParameterIndex].Descriptor.ShaderRegister = 0;
 	rootParameters[kUpdateConstantsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	// u0で点のバッファに書き込み、t0で集まる先を読む。
