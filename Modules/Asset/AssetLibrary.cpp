@@ -46,6 +46,14 @@ void AssetLibrary::Initialize(const std::filesystem::path& dataDirectory) {
 	images_.push_back(CreateOnePixelImage(255, 0, 255));
 
 	images_.push_back(CreateOnePixelImage(255, 255, 255));
+
+	// 点群の0番は、原点にある白い1点にする。
+	PointCloudTarget fallbackTarget = {};
+	fallbackTarget.normal = { 0.0f, 1.0f, 0.0f };
+	fallbackTarget.color = { 1.0f, 1.0f, 1.0f };
+	PointCloudData fallbackPointCloud;
+	fallbackPointCloud.targets.push_back(fallbackTarget);
+	pointClouds_.push_back(fallbackPointCloud);
 }
 
 void AssetLibrary::AddMeshLoader(const std::wstring& extension, IMeshFileLoader* loader) {
@@ -100,6 +108,18 @@ MeshHandle AssetLibrary::AddMesh(const MeshData& mesh) {
 	return handle;
 }
 
+PointCloudHandle AssetLibrary::AddPointCloud(const PointCloudData& pointCloud) {
+	if (pointCloud.targets.empty()) {
+		printf("空の点群は登録できないので、代わりの1点を使います。\n");
+		return PointCloudHandle();
+	}
+
+	PointCloudHandle handle;
+	handle.id = static_cast<uint32_t>(pointClouds_.size());
+	pointClouds_.push_back(pointCloud);
+	return handle;
+}
+
 uint32_t AssetLibrary::GetMeshCount() {
 	return static_cast<uint32_t>(meshes_.size());
 }
@@ -120,6 +140,17 @@ const ImageData& AssetLibrary::GetImageData(TextureHandle handle) {
 		return images_[0];
 	}
 	return images_[handle.id];
+}
+
+uint32_t AssetLibrary::GetPointCloudCount() {
+	return static_cast<uint32_t>(pointClouds_.size());
+}
+
+const PointCloudData& AssetLibrary::GetPointCloudData(PointCloudHandle handle) {
+	if (handle.id >= pointClouds_.size()) {
+		return pointClouds_[0];
+	}
+	return pointClouds_[handle.id];
 }
 
 ModelHandles AssetLibrary::ReadModelFile(const std::filesystem::path& filePath) {

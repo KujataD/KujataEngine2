@@ -19,6 +19,13 @@ struct TextureHandle {
 };
 
 /// <summary>
+/// 登録した点群の集まる先を指す番号で、0番は代わりの1点を表す。
+/// </summary>
+struct PointCloudHandle {
+	uint32_t id = 0;
+};
+
+/// <summary>
 /// モデルを描くのに必要なメッシュと画像の組。
 /// </summary>
 struct ModelHandles {

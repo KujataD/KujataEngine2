@@ -7,6 +7,7 @@
   <ItemGroup>
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="GpuAssetTable.h" />
+    <ClInclude Include="GpuBuffer.h" />
     <ClInclude Include="GpuTimer.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="IRenderPass.h" />
@@ -27,6 +28,7 @@
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="GpuAssetTable.cpp" />
+    <ClCompile Include="GpuBuffer.cpp" />
     <ClCompile Include="GpuTimer.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="OpaquePass.cpp" />

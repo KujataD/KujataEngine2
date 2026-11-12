@@ -5,6 +5,7 @@
 #include "Scene/Camera.h"
 #include "Scene/DirectionalLight.h"
 #include "Scene/MeshRenderer.h"
+#include "Scene/PointCloudRenderer.h"
 
 #include <cmath>
 using namespace KujataEngine;
@@ -269,6 +270,25 @@ static void CreateEnemy(Scene* scene, MeshHandle mesh, TextureHandle texture, co
 	enemy->AddComponent(new Enemy());
 }
 
+/// <summary>
+/// 水平な面に、白い点が格子状に並ぶ点群を作る。
+/// </summary>
+static PointCloudData CreateGridPointCloud(uint32_t width, uint32_t depth, float spacing) {
+	PointCloudData pointCloud;
+	pointCloud.targets.reserve(static_cast<size_t>(width) * depth);
+	for (uint32_t z = 0; z < depth; z++) {
+		for (uint32_t x = 0; x < width; x++) {
+			PointCloudTarget target = {};
+			target.position.x = (static_cast<float>(x) - (width - 1) * 0.5f) * spacing;
+			target.position.z = (static_cast<float>(z) - (depth - 1) * 0.5f) * spacing;
+			target.normal = {0.0f, 1.0f, 0.0f};
+			target.color = {1.0f, 1.0f, 1.0f};
+			pointCloud.targets.push_back(target);
+		}
+	}
+	return pointCloud;
+}
+
 void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IWindow* window) {
 	RegisterPlayerActions(inputActions);
 
@@ -282,6 +302,12 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	CreateEnemy(scene, cubeMesh, uvChecker, {-2.5f, 0.5f, 4.0f});
 	CreateEnemy(scene, cubeMesh, uvChecker, {0.0f, 0.5f, 4.0f});
 	CreateEnemy(scene, cubeMesh, uvChecker, {2.5f, 0.5f, 4.0f});
+
+	// 自機のまわりの床から少し浮かせて、100万個の点を並べる。
+	const PointCloudHandle gridPointCloud = assets->AddPointCloud(CreateGridPointCloud(1000, 1000, 0.005f));
+	GameObject* pointCloud = scene->CreateGameObject();
+	pointCloud->GetTransform().translation_ = {0.0f, 1.2f, -1.0f};
+	pointCloud->AddComponent(new PointCloudRenderer(gridPointCloud));
 
 	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
 	GameObject* player = scene->CreateGameObject();

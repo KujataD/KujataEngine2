@@ -36,11 +36,14 @@ public:
 	MeshHandle GetCubeMesh() override;
 	TextureHandle GetWhiteTexture() override;
 	MeshHandle AddMesh(const MeshData& mesh) override;
+	PointCloudHandle AddPointCloud(const PointCloudData& pointCloud) override;
 
 	uint32_t GetMeshCount() override;
 	const MeshData& GetMeshData(MeshHandle handle) override;
 	uint32_t GetTextureCount() override;
 	const ImageData& GetImageData(TextureHandle handle) override;
+	uint32_t GetPointCloudCount() override;
+	const PointCloudData& GetPointCloudData(PointCloudHandle handle) override;
 
 private:
 	ModelHandles ReadModelFile(const std::filesystem::path& filePath);
@@ -52,6 +55,7 @@ private:
 	// ハンドルの番号がそのまま配列の番号になる。
 	std::vector<MeshData> meshes_;
 	std::vector<ImageData> images_;
+	std::vector<PointCloudData> pointClouds_;
 
 	std::map<std::wstring, IMeshFileLoader*> meshLoaders_;
 	std::map<std::wstring, ITextureFileLoader*> textureLoaders_;

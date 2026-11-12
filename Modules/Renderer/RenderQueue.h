@@ -23,12 +23,14 @@ public:
 	void SetCamera(const CameraData& camera) override;
 	void SetDirectionalLight(const DirectionalLightData& light) override;
 	void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) override;
+	void SubmitPointCloud(const PointCloudRequest& request) override;
 
 	bool HasCamera() const;
 	const CameraData& GetCamera() const;
 	bool HasDirectionalLight() const;
 	const DirectionalLightData& GetDirectionalLight() const;
 	const std::vector<DrawRequest>& GetDrawRequests() const;
+	const std::vector<PointCloudRequest>& GetPointCloudRequests() const;
 
 	/// <summary>
 	/// 次のフレームのために預かった依頼を空にする。
@@ -41,6 +43,7 @@ private:
 	DirectionalLightData directionalLight_ = {};
 	bool hasDirectionalLight_ = false;
 	std::vector<DrawRequest> drawRequests_;
+	std::vector<PointCloudRequest> pointCloudRequests_;
 };
 
 } // namespace KujataEngine

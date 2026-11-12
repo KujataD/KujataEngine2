@@ -2,22 +2,21 @@
 
 #include "Core/Assert.h"
 #include "Core/Math/MathUtil.h"
-#include "UploadBuffer.h"
+#include "GpuBuffer.h"
 
+#include <algorithm>
 #include <cstdio>
-#include <cstring>
-#include <vector>
 
 using Microsoft::WRL::ComPtr;
 
 namespace KujataEngine {
 
-// PointCloud.VS.hlslとPointCloudUpdate.CS.hlslのPointと並びを合わせる。
-struct Point {
+// PointCloud.VS.hlslとPointCloudUpdate.CS.hlslのPointStateと並びを合わせる。
+struct PointState {
 	Vector3 position;
 	Vector3 velocity;
 };
-static_assert(sizeof(Point) == 24, "Pointの大きさが変わったらPointCloud.VS.hlslとPointCloudUpdate.CS.hlslも直す。");
+static_assert(sizeof(PointState) == 24, "PointStateの大きさが変わったらPointCloud.VS.hlslとPointCloudUpdate.CS.hlslも直す。");
 
 // PointCloud.VS.hlslとPointCloud.PS.hlslのPointCloudConstantsと並びを合わせ、HLSLの16バイトの区切りに合うように詰め物を入れる。
 struct PointCloudConstants {
@@ -25,47 +24,39 @@ struct PointCloudConstants {
 	Matrix4x4 projection;
 	float pointSize;
 	float intensity;
-	float padding[2];
+	uint32_t targetCount;
+	float padding;
 };
 static_assert(sizeof(PointCloudConstants) == 144, "PointCloudConstantsの大きさが変わったらPointCloud.VS.hlslとPointCloud.PS.hlslも直す。");
 
-// PointCloudUpdate.CS.hlslのUpdateConstantsと並びを合わせ、float3の後ろに4バイトの値を置いてHLSLの16バイトの区切りに合わせる。
+// PointCloudUpdate.CS.hlslのUpdateConstantsと並びを合わせる。
 struct PointUpdateConstants {
-	Vector3 boxCenter;
+	Matrix4x4 world;
 	float deltaTime;
-	Vector3 boxHalfSize;
 	uint32_t pointCount;
+	uint32_t targetCount;
 	uint32_t frameIndex;
+	uint32_t shouldInitialize;
 };
-static_assert(sizeof(PointUpdateConstants) == 36, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
+static_assert(sizeof(PointUpdateConstants) == 84, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
 
 // ルート定数は4バイトずつ数える。
 static const UINT kUpdateConstantsCount = sizeof(PointUpdateConstants) / sizeof(uint32_t);
 
-// 横と奥に並べる点の数で、掛けた数が全体の数になる。
-static const UINT kGridWidth = 1000;
-static const UINT kGridDepth = 1000;
-static const UINT kPointCount = kGridWidth * kGridDepth;
+// 1フレームに動かして描ける点群の数で、定数バッファの場所の数になる。
+static const UINT kMaxPointCloudCount = 16;
 
-// 点と点の間隔と、板の中心から端までの長さ。
-static const float kPointSpacing = 0.005f;
+// 板の中心から端までの長さ。
 static const float kPointSize = 0.01f;
 
 // 点1つが足す明るさで、点が重なる数だけ足されるので小さくする。
 static const float kPointIntensity = 0.1f;
 
-// 格子の真ん中で、デモの自機のまわりの床から少し浮かせた位置。
-static const Vector3 kGridCenter = { 0.0f, 1.2f, -1.0f };
-
-// 点が動ける箱の、格子の面から上と下への広さ。
-static const float kBoxHalfHeight = 0.5f;
-
 // PointCloudUpdate.CS.hlslのnumthreadsと合わせる。
 static const UINT kThreadGroupSize = 256;
 
-// 割り切れない分も動かすために切り上げる。
-static const UINT kThreadGroupCount = (kPointCount + kThreadGroupSize - 1) / kThreadGroupSize;
-static_assert(kThreadGroupCount <= D3D12_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION, "1回のDispatchで動かせる数を超えたので、点を減らすか組を大きくする。");
+// 1回のDispatchで動かせる組の数に上限があるので、1つの点群の点の数もここまでにする。
+static const UINT kMaxPointCountPerCloud = D3D12_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION * kThreadGroupSize;
 
 // GPU時間を測る印の番号で、点を動かす前、動かした後、描いた後に付ける。
 static const UINT kUpdateBeginMark = 0;
@@ -91,7 +82,32 @@ static ComPtr<ID3D12RootSignature> CreateRootSignatureFromDescription(ID3D12Devi
 	return rootSignature;
 }
 
+/// <summary>
+/// 名札を1つだけ受け取るテーブルの入口を作る。
+/// </summary>
+static D3D12_ROOT_PARAMETER MakeTableParameter(const D3D12_DESCRIPTOR_RANGE* range, D3D12_SHADER_VISIBILITY visibility) {
+	D3D12_ROOT_PARAMETER parameter = {};
+	parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter.DescriptorTable.NumDescriptorRanges = 1;
+	parameter.DescriptorTable.pDescriptorRanges = range;
+	parameter.ShaderVisibility = visibility;
+	return parameter;
+}
+
+/// <summary>
+/// 指定の種類とレジスタの番号の名札1つ分の範囲を作る。
+/// </summary>
+static D3D12_DESCRIPTOR_RANGE MakeSingleRange(D3D12_DESCRIPTOR_RANGE_TYPE type, UINT shaderRegister) {
+	D3D12_DESCRIPTOR_RANGE range = {};
+	range.RangeType = type;
+	range.NumDescriptors = 1;
+	range.BaseShaderRegister = shaderRegister;
+	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	return range;
+}
+
 void PointCloudPass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory) {
+	gpu_ = gpu;
 	shaderResourceHeap_ = shaderResourceHeap;
 
 	const std::filesystem::path shaderDirectory = dataDirectory / L"Shaders";
@@ -105,12 +121,11 @@ void PointCloudPass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, Shade
 		return;
 	}
 
-	CreatePointBuffer(gpu);
 	CreateRootSignature(gpu->GetDevice());
 	CreatePipelineState(gpu, vertexShader.Get(), pixelShader.Get());
 	CreateUpdateRootSignature(gpu->GetDevice());
 	CreateUpdatePipelineState(gpu->GetDevice(), computeShader.Get());
-	constantBuffer_.Initialize(gpu->GetDevice(), sizeof(PointCloudConstants), 1);
+	constantBuffer_.Initialize(gpu->GetDevice(), sizeof(PointCloudConstants), kMaxPointCloudCount);
 	gpuTimer_.Initialize(gpu, kMarkCount);
 	isReady_ = true;
 }
@@ -122,10 +137,118 @@ void PointCloudPass::Execute(const RenderContext& context) {
 
 	ReportGpuTime();
 
+	// 点群の数はゲームしだいで増えるので、止めずに上限までだけを描く。
+	const std::vector<PointCloudRequest>& requests = context.renderQueue->GetPointCloudRequests();
+	if (requests.size() > kMaxPointCloudCount && !hasWarnedTooManyPointClouds_) {
+		printf("点群が%u個を超えたので、超えた分は描きません。\n", kMaxPointCloudCount);
+		hasWarnedTooManyPointClouds_ = true;
+	}
+	const UINT requestCount = static_cast<UINT>((std::min)(requests.size(), static_cast<size_t>(kMaxPointCloudCount)));
+
+	// 描く命令の中で探し直さないように、依頼と同じ並びで点のバッファを集める。
+	std::vector<PointCloudInstance*> requestInstances;
+	lastPointCount_ = 0;
+	for (UINT i = 0; i < requestCount; i++) {
+		const UINT targetCount = context.gpuAssets->GetPointCloud(requests[i].targets).targetCount;
+		PointCloudInstance& instance = FindOrCreateInstance(requests[i], targetCount);
+		instance.isUsedThisFrame = true;
+		requestInstances.push_back(&instance);
+		lastPointCount_ += instance.pointCount;
+	}
+
+	// 動かす命令をまとめて先に書き、設定の切り替えを減らす。
 	ID3D12GraphicsCommandList* list = context.commandList;
 	gpuTimer_.Mark(list, kUpdateBeginMark);
-	UpdatePoints(context);
+	for (UINT i = 0; i < requestCount; i++) {
+		UpdatePoints(context, requests[i], *requestInstances[i]);
+	}
 	gpuTimer_.Mark(list, kUpdateEndMark);
+
+	for (UINT i = 0; i < requestCount; i++) {
+		DrawPoints(context, requests[i], *requestInstances[i], i);
+	}
+	gpuTimer_.Mark(list, kDrawEndMark);
+	gpuTimer_.Resolve(list);
+
+	RemoveUnusedInstances();
+	frameIndex_++;
+}
+
+PointCloudInstance& PointCloudPass::FindOrCreateInstance(const PointCloudRequest& request, UINT targetCount) {
+	if (instances_.count(request.instanceId) > 0) {
+		return instances_[request.instanceId];
+	}
+
+	if (targetCount > kMaxPointCountPerCloud && !hasWarnedTooManyPoints_) {
+		printf("1つの点群の点が%u個を超えたので、超えた分は描きません。\n", kMaxPointCountPerCloud);
+		hasWarnedTooManyPoints_ = true;
+	}
+
+	ID3D12Device* device = gpu_->GetDevice();
+	PointCloudInstance& instance = instances_[request.instanceId];
+	instance.pointCount = (std::min)(targetCount, kMaxPointCountPerCloud);
+
+	// コンピュートシェーダーから書き込めるようにUAVを許す。
+	instance.stateBuffer = CreateGpuBuffer(device, sizeof(PointState) * static_cast<UINT64>(instance.pointCount), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+	// 頂点シェーダーのStructuredBuffer<PointState>として読むための名札を、棚に置く。
+	D3D12_SHADER_RESOURCE_VIEW_DESC readDescription = {};
+	readDescription.Format = DXGI_FORMAT_UNKNOWN;
+	readDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	readDescription.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	readDescription.Buffer.FirstElement = 0;
+	readDescription.Buffer.NumElements = instance.pointCount;
+	readDescription.Buffer.StructureByteStride = sizeof(PointState);
+	instance.readHeapIndex = AllocateHeapIndex();
+	device->CreateShaderResourceView(instance.stateBuffer.Get(), &readDescription, shaderResourceHeap_->GetCpuHandle(instance.readHeapIndex));
+
+	// コンピュートシェーダーのRWStructuredBuffer<PointState>として書くための名札も、棚に置く。
+	D3D12_UNORDERED_ACCESS_VIEW_DESC writeDescription = {};
+	writeDescription.Format = DXGI_FORMAT_UNKNOWN;
+	writeDescription.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+	writeDescription.Buffer.FirstElement = 0;
+	writeDescription.Buffer.NumElements = instance.pointCount;
+	writeDescription.Buffer.StructureByteStride = sizeof(PointState);
+	instance.writeHeapIndex = AllocateHeapIndex();
+	device->CreateUnorderedAccessView(instance.stateBuffer.Get(), nullptr, &writeDescription, shaderResourceHeap_->GetCpuHandle(instance.writeHeapIndex));
+
+	return instance;
+}
+
+void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloudRequest& request, PointCloudInstance& instance) {
+	ID3D12GraphicsCommandList* list = context.commandList;
+	const GpuPointCloud& targets = context.gpuAssets->GetPointCloud(request.targets);
+
+	PointUpdateConstants constants = {};
+	constants.world = request.world;
+	constants.deltaTime = context.deltaTime;
+	constants.pointCount = instance.pointCount;
+	constants.targetCount = targets.targetCount;
+	constants.frameIndex = frameIndex_;
+	constants.shouldInitialize = instance.shouldInitialize ? 1 : 0;
+	instance.shouldInitialize = false;
+
+	list->SetPipelineState(updatePipelineState_.Get());
+	list->SetComputeRootSignature(updateRootSignature_.Get());
+	shaderResourceHeap_->Bind(list);
+	list->SetComputeRoot32BitConstants(kUpdateConstantsRootParameterIndex, kUpdateConstantsCount, &constants, 0);
+	list->SetComputeRootDescriptorTable(kUpdatePointsRootParameterIndex, shaderResourceHeap_->GetGpuHandle(instance.writeHeapIndex));
+	list->SetComputeRootDescriptorTable(kUpdateTargetsRootParameterIndex, targets.targetsGpuHandle);
+
+	// 前のフレームの命令が終わるとバッファはCOMMONに戻るので、毎フレームCOMMONから書き込める状態にする。
+	TransitionStateBuffer(list, instance, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	// 割り切れない分も動かすために切り上げる。
+	const UINT threadGroupCount = (instance.pointCount + kThreadGroupSize - 1) / kThreadGroupSize;
+	list->Dispatch(threadGroupCount, 1, 1);
+
+	// 頂点シェーダーが読む前に、書き込みが終わるのを待たせる。
+	TransitionStateBuffer(list, instance, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+}
+
+void PointCloudPass::DrawPoints(const RenderContext& context, const PointCloudRequest& request, const PointCloudInstance& instance, UINT constantsIndex) {
+	ID3D12GraphicsCommandList* list = context.commandList;
+	const GpuPointCloud& targets = context.gpuAssets->GetPointCloud(request.targets);
 
 	// 工程ごとに独立させるため、前の工程と同じ範囲をここでも設定する。
 	const D3D12_VIEWPORT viewport = { 0.0f, 0.0f, context.targetWidth, context.targetHeight, 0.0f, 1.0f };
@@ -141,20 +264,45 @@ void PointCloudPass::Execute(const RenderContext& context) {
 	constants.projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
 	constants.pointSize = kPointSize;
 	constants.intensity = kPointIntensity;
-	constantBuffer_.Write(0, &constants);
+	constants.targetCount = targets.targetCount;
+	constantBuffer_.Write(constantsIndex, &constants);
 
 	list->SetPipelineState(pipelineState_.Get());
 	list->SetGraphicsRootSignature(rootSignature_.Get());
 	shaderResourceHeap_->Bind(list);
-	constantBuffer_.Bind(list, kConstantsRootParameterIndex, 0);
-	list->SetGraphicsRootDescriptorTable(kPointsRootParameterIndex, pointsGpuHandle_);
+	constantBuffer_.Bind(list, kConstantsRootParameterIndex, constantsIndex);
+	list->SetGraphicsRootDescriptorTable(kPointsRootParameterIndex, shaderResourceHeap_->GetGpuHandle(instance.readHeapIndex));
+	list->SetGraphicsRootDescriptorTable(kTargetsRootParameterIndex, targets.targetsGpuHandle);
 	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// 頂点4つの板を、点の数だけ繰り返して描く。
-	list->DrawInstanced(4, kPointCount, 0, 0);
+	list->DrawInstanced(4, instance.pointCount, 0, 0);
+}
 
-	gpuTimer_.Mark(list, kDrawEndMark);
-	gpuTimer_.Resolve(list);
+void PointCloudPass::RemoveUnusedInstances() {
+	// Gpuが毎フレーム完了を待つので、このフレームで使わなかったバッファはもうGPUも使っていない。
+	for (std::map<uint64_t, PointCloudInstance>::iterator it = instances_.begin(); it != instances_.end();) {
+		PointCloudInstance& instance = it->second;
+		if (instance.isUsedThisFrame) {
+			instance.isUsedThisFrame = false;
+			++it;
+			continue;
+		}
+
+		reusableHeapIndices_.push_back(instance.readHeapIndex);
+		reusableHeapIndices_.push_back(instance.writeHeapIndex);
+		it = instances_.erase(it);
+	}
+}
+
+UINT PointCloudPass::AllocateHeapIndex() {
+	if (reusableHeapIndices_.empty()) {
+		return shaderResourceHeap_->Allocate();
+	}
+
+	const UINT heapIndex = reusableHeapIndices_.back();
+	reusableHeapIndices_.pop_back();
+	return heapIndex;
 }
 
 void PointCloudPass::ReportGpuTime() {
@@ -173,144 +321,37 @@ void PointCloudPass::ReportGpuTime() {
 	// 垂直同期を待つとfpsでは余裕が見えないので、GPUが実際にかけた時間を出す。
 	const double updateMilliseconds = updateMillisecondsSum_ / measuredFrameCount_;
 	const double drawMilliseconds = drawMillisecondsSum_ / measuredFrameCount_;
-	printf("点%u個のGPU時間: 更新 %.3f ms、描画 %.3f ms、合計 %.3f ms\n", kPointCount, updateMilliseconds, drawMilliseconds, updateMilliseconds + drawMilliseconds);
+	printf("点%u個のGPU時間: 更新 %.3f ms、描画 %.3f ms、合計 %.3f ms\n", lastPointCount_, updateMilliseconds, drawMilliseconds, updateMilliseconds + drawMilliseconds);
 
 	updateMillisecondsSum_ = 0.0;
 	drawMillisecondsSum_ = 0.0;
 	measuredFrameCount_ = 0;
 }
 
-void PointCloudPass::UpdatePoints(const RenderContext& context) {
-	ID3D12GraphicsCommandList* list = context.commandList;
-
-	PointUpdateConstants constants = {};
-	constants.boxCenter = kGridCenter;
-	constants.deltaTime = context.deltaTime;
-	constants.boxHalfSize = { kGridWidth * kPointSpacing * 0.5f, kBoxHalfHeight, kGridDepth * kPointSpacing * 0.5f };
-	constants.pointCount = kPointCount;
-	constants.frameIndex = frameIndex_;
-	frameIndex_++;
-
-	list->SetPipelineState(updatePipelineState_.Get());
-	list->SetComputeRootSignature(updateRootSignature_.Get());
-	shaderResourceHeap_->Bind(list);
-	list->SetComputeRoot32BitConstants(kUpdateConstantsRootParameterIndex, kUpdateConstantsCount, &constants, 0);
-	list->SetComputeRootDescriptorTable(kUpdatePointsRootParameterIndex, pointsUavGpuHandle_);
-
-	// 前のフレームの命令が終わるとバッファはCOMMONに戻るので、毎フレームCOMMONから書き込める状態にする。
-	TransitionPointBuffer(list, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	list->Dispatch(kThreadGroupCount, 1, 1);
-
-	// 頂点シェーダーが読む前に、書き込みが終わるのを待たせる。
-	TransitionPointBuffer(list, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-}
-
-void PointCloudPass::TransitionPointBuffer(ID3D12GraphicsCommandList* list, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) {
+void PointCloudPass::TransitionStateBuffer(ID3D12GraphicsCommandList* list, const PointCloudInstance& instance, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) {
 	D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Transition.pResource = pointBuffer_.Get();
+	barrier.Transition.pResource = instance.stateBuffer.Get();
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Transition.StateBefore = before;
 	barrier.Transition.StateAfter = after;
 	list->ResourceBarrier(1, &barrier);
 }
 
-void PointCloudPass::CreatePointBuffer(IGpu* gpu) {
-	ID3D12Device* device = gpu->GetDevice();
-
-	// 速度は0から始め、コンピュートシェーダーが揺らしていく。
-	std::vector<Point> points;
-	points.reserve(kPointCount);
-	for (UINT z = 0; z < kGridDepth; z++) {
-		for (UINT x = 0; x < kGridWidth; x++) {
-			Point point = {};
-			point.position.x = (static_cast<float>(x) - (kGridWidth - 1) * 0.5f) * kPointSpacing + kGridCenter.x;
-			point.position.y = kGridCenter.y;
-			point.position.z = (static_cast<float>(z) - (kGridDepth - 1) * 0.5f) * kPointSpacing + kGridCenter.z;
-			points.push_back(point);
-		}
-	}
-
-	const UINT bufferSize = sizeof(Point) * kPointCount;
-
-	// GPUだけが読み書きするメモリに作り、コンピュートシェーダーからも書き込めるようにUAVを許す。
-	D3D12_HEAP_PROPERTIES heapProperties = {};
-	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-	D3D12_RESOURCE_DESC description = {};
-	description.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	description.Width = bufferSize;
-	description.Height = 1;
-	description.DepthOrArraySize = 1;
-	description.MipLevels = 1;
-	description.SampleDesc.Count = 1;
-	description.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	description.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-
-	// バッファはCOMMONで作れば、コピーや読み込みのときにGPUが必要な状態へ自動で切り替える。
-	HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &description, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&pointBuffer_));
-	KUJATA_ASSERT(SUCCEEDED(result));
-
-	// CPUから書ける一時バッファに入れてから、GPUの中でコピーする。
-	ComPtr<ID3D12Resource> uploadBuffer = CreateUploadBuffer(device, bufferSize);
-	void* mappedMemory = nullptr;
-	result = uploadBuffer->Map(0, nullptr, &mappedMemory);
-	KUJATA_ASSERT(SUCCEEDED(result));
-	memcpy(mappedMemory, points.data(), bufferSize);
-	uploadBuffer->Unmap(0, nullptr);
-
-	// 完了まで待つので、関数を抜けて一時バッファが消えても問題ない。
-	gpu->ExecuteImmediately([&](ID3D12GraphicsCommandList* list) {
-		list->CopyBufferRegion(pointBuffer_.Get(), 0, uploadBuffer.Get(), 0, bufferSize);
-	});
-
-	// シェーダーのStructuredBuffer<Point>として読むための名札を、棚に置く。
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription = {};
-	srvDescription.Format = DXGI_FORMAT_UNKNOWN;
-	srvDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDescription.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	srvDescription.Buffer.FirstElement = 0;
-	srvDescription.Buffer.NumElements = kPointCount;
-	srvDescription.Buffer.StructureByteStride = sizeof(Point);
-
-	const UINT srvHeapIndex = shaderResourceHeap_->Allocate();
-	device->CreateShaderResourceView(pointBuffer_.Get(), &srvDescription, shaderResourceHeap_->GetCpuHandle(srvHeapIndex));
-	pointsGpuHandle_ = shaderResourceHeap_->GetGpuHandle(srvHeapIndex);
-
-	// コンピュートシェーダーのRWStructuredBuffer<Point>として書くための名札も、棚に置く。
-	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDescription = {};
-	uavDescription.Format = DXGI_FORMAT_UNKNOWN;
-	uavDescription.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
-	uavDescription.Buffer.FirstElement = 0;
-	uavDescription.Buffer.NumElements = kPointCount;
-	uavDescription.Buffer.StructureByteStride = sizeof(Point);
-
-	const UINT uavHeapIndex = shaderResourceHeap_->Allocate();
-	device->CreateUnorderedAccessView(pointBuffer_.Get(), nullptr, &uavDescription, shaderResourceHeap_->GetCpuHandle(uavHeapIndex));
-	pointsUavGpuHandle_ = shaderResourceHeap_->GetGpuHandle(uavHeapIndex);
-
-	printf("点を%u個、GPUへ送りました。\n", kPointCount);
-}
-
 void PointCloudPass::CreateRootSignature(ID3D12Device* device) {
-	D3D12_DESCRIPTOR_RANGE pointsRange = {};
-	pointsRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	pointsRange.NumDescriptors = 1;
-	pointsRange.BaseShaderRegister = 0;
-	pointsRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	const D3D12_DESCRIPTOR_RANGE pointsRange = MakeSingleRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0);
+	const D3D12_DESCRIPTOR_RANGE targetsRange = MakeSingleRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1);
 
-	D3D12_ROOT_PARAMETER rootParameters[2] = {};
+	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 
 	// b0で、頂点シェーダーがカメラと板の大きさを、ピクセルシェーダーが明るさを受け取る。
 	rootParameters[kConstantsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[kConstantsRootParameterIndex].Descriptor.ShaderRegister = 0;
 	rootParameters[kConstantsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	// 頂点シェーダーのt0で点のバッファを受け取る。
-	rootParameters[kPointsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kPointsRootParameterIndex].DescriptorTable.NumDescriptorRanges = 1;
-	rootParameters[kPointsRootParameterIndex].DescriptorTable.pDescriptorRanges = &pointsRange;
-	rootParameters[kPointsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	// 頂点シェーダーのt0で点の位置を、t1で集まる先の色を受け取る。
+	rootParameters[kPointsRootParameterIndex] = MakeTableParameter(&pointsRange, D3D12_SHADER_VISIBILITY_VERTEX);
+	rootParameters[kTargetsRootParameterIndex] = MakeTableParameter(&targetsRange, D3D12_SHADER_VISIBILITY_VERTEX);
 
 	// 頂点バッファを使わないので、入力の設定を許す旗は立てない。
 	D3D12_ROOT_SIGNATURE_DESC description = {};
@@ -363,26 +404,21 @@ void PointCloudPass::CreatePipelineState(IGpu* gpu, IDxcBlob* vertexShader, IDxc
 }
 
 void PointCloudPass::CreateUpdateRootSignature(ID3D12Device* device) {
-	D3D12_DESCRIPTOR_RANGE pointsRange = {};
-	pointsRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-	pointsRange.NumDescriptors = 1;
-	pointsRange.BaseShaderRegister = 0;
-	pointsRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	const D3D12_DESCRIPTOR_RANGE pointsRange = MakeSingleRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0);
+	const D3D12_DESCRIPTOR_RANGE targetsRange = MakeSingleRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0);
 
 	// コンピュートシェーダーには見える範囲の区別がないので、どの入口もALLにする。
-	D3D12_ROOT_PARAMETER rootParameters[2] = {};
+	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 
-	// b0で毎フレームの秒数や箱の大きさを、定数バッファを作らずに直接受け取る。
+	// b0で毎フレームの秒数やワールド行列を、定数バッファを作らずに直接受け取る。
 	rootParameters[kUpdateConstantsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rootParameters[kUpdateConstantsRootParameterIndex].Constants.ShaderRegister = 0;
 	rootParameters[kUpdateConstantsRootParameterIndex].Constants.Num32BitValues = kUpdateConstantsCount;
 	rootParameters[kUpdateConstantsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	// u0で点のバッファに書き込む。
-	rootParameters[kUpdatePointsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[kUpdatePointsRootParameterIndex].DescriptorTable.NumDescriptorRanges = 1;
-	rootParameters[kUpdatePointsRootParameterIndex].DescriptorTable.pDescriptorRanges = &pointsRange;
-	rootParameters[kUpdatePointsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	// u0で点のバッファに書き込み、t0で集まる先を読む。
+	rootParameters[kUpdatePointsRootParameterIndex] = MakeTableParameter(&pointsRange, D3D12_SHADER_VISIBILITY_ALL);
+	rootParameters[kUpdateTargetsRootParameterIndex] = MakeTableParameter(&targetsRange, D3D12_SHADER_VISIBILITY_ALL);
 
 	D3D12_ROOT_SIGNATURE_DESC description = {};
 	description.NumParameters = _countof(rootParameters);

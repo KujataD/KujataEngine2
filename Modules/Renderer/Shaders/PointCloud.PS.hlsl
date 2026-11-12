@@ -4,14 +4,16 @@ cbuffer PointCloudConstants : register(b0) {
 	float4x4 gProjection;
 	float gPointSize;
 	float gIntensity;
-	float2 gPadding;
+	uint gTargetCount;
+	float gPadding;
 };
 
 struct VertexOutput {
 	float4 position : SV_POSITION;
+	float3 color : COLOR;
 };
 
 float4 main(VertexOutput input) : SV_TARGET {
-	// 板のどこでも同じ明るさの白を足す。
-	return float4(gIntensity, gIntensity, gIntensity, 1.0f);
+	// 板のどこでも同じ明るさで、点の色を足す。
+	return float4(input.color * gIntensity, 1.0f);
 }

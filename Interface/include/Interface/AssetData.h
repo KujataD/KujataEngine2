@@ -26,6 +26,22 @@ struct MeshData {
 };
 
 /// <summary>
+/// 点群の点が集まる先1つ分で、GpuAssetTable.cppの転送と点群のシェーダーのPointCloudTargetと並びを合わせる。
+/// </summary>
+struct PointCloudTarget {
+	Vector3 position;
+	Vector3 normal;
+	Vector3 color;
+};
+
+/// <summary>
+/// 点が集まって作る形を、集まる先の一覧で表すデータで、GPUには依存しない。
+/// </summary>
+struct PointCloudData {
+	std::vector<PointCloudTarget> targets;
+};
+
+/// <summary>
 /// 画像の画素の形式で、特定のグラフィックスAPIには依存しない。
 /// </summary>
 enum class ImageFormat {
