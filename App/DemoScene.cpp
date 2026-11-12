@@ -1,5 +1,6 @@
 #include "DemoScene.h"
 
+#include "Asset/PointCloudShapes.h"
 #include "Interface/ICollisionListener.h"
 #include "Physics/ColliderComponent.h"
 #include "Scene/Camera.h"
@@ -270,23 +271,20 @@ static void CreateEnemy(Scene* scene, MeshHandle mesh, TextureHandle texture, co
 	enemy->AddComponent(new Enemy());
 }
 
+// 点群1つの点の数と、点1つが足す明るさ。
+static const uint32_t kPointCloudPointCount = 500000;
+static const float kPointCloudIntensity = 0.02f;
+
 /// <summary>
-/// 水平な面に、白い点が格子状に並ぶ点群を作る。
+/// 指定の位置に、点が集まって形になる点群を置く。
 /// </summary>
-static PointCloudData CreateGridPointCloud(uint32_t width, uint32_t depth, float spacing) {
-	PointCloudData pointCloud;
-	pointCloud.targets.reserve(static_cast<size_t>(width) * depth);
-	for (uint32_t z = 0; z < depth; z++) {
-		for (uint32_t x = 0; x < width; x++) {
-			PointCloudTarget target = {};
-			target.position.x = (static_cast<float>(x) - (width - 1) * 0.5f) * spacing;
-			target.position.z = (static_cast<float>(z) - (depth - 1) * 0.5f) * spacing;
-			target.normal = {0.0f, 1.0f, 0.0f};
-			target.color = {1.0f, 1.0f, 1.0f};
-			pointCloud.targets.push_back(target);
-		}
-	}
-	return pointCloud;
+static void CreatePointCloud(Scene* scene, PointCloudHandle targets, const Vector3& position) {
+	GameObject* pointCloud = scene->CreateGameObject();
+	pointCloud->GetTransform().translation_ = position;
+
+	PointCloudRenderer* renderer = new PointCloudRenderer(targets);
+	renderer->intensity = kPointCloudIntensity;
+	pointCloud->AddComponent(renderer);
 }
 
 void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IWindow* window) {
@@ -303,11 +301,11 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	CreateEnemy(scene, cubeMesh, uvChecker, {0.0f, 0.5f, 4.0f});
 	CreateEnemy(scene, cubeMesh, uvChecker, {2.5f, 0.5f, 4.0f});
 
-	// 自機のまわりの床から少し浮かせて、100万個の点を並べる。
-	const PointCloudHandle gridPointCloud = assets->AddPointCloud(CreateGridPointCloud(1000, 1000, 0.005f));
-	GameObject* pointCloud = scene->CreateGameObject();
-	pointCloud->GetTransform().translation_ = {0.0f, 1.2f, -1.0f};
-	pointCloud->AddComponent(new PointCloudRenderer(gridPointCloud));
+	// 自機の左に球を、右に円環を、合わせて100万個の点で置く。
+	const PointCloudHandle sphere = assets->AddPointCloud(CreateSpherePointCloud(kPointCloudPointCount, 1.2f, {1.0f, 0.55f, 0.25f}));
+	const PointCloudHandle torus = assets->AddPointCloud(CreateTorusPointCloud(kPointCloudPointCount, 1.2f, 0.45f, {0.3f, 0.75f, 1.0f}));
+	CreatePointCloud(scene, sphere, {-3.5f, 1.5f, -1.0f});
+	CreatePointCloud(scene, torus, {3.5f, 1.5f, -1.0f});
 
 	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
 	GameObject* player = scene->CreateGameObject();
