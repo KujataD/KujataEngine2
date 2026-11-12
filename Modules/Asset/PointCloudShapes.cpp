@@ -1,8 +1,13 @@
 ﻿#include "PointCloudShapes.h"
 
+#include "Core/Math/MathUtil.h"
+
+#include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <numbers>
 #include <random>
+#include <vector>
 
 namespace KujataEngine {
 
@@ -10,6 +15,30 @@ namespace KujataEngine {
 static const uint32_t kRandomSeed = 20240229;
 
 static const float kTwoPi = std::numbers::pi_v<float> * 2.0f;
+
+// sRGBの画像の値を、光の強さに比例する値へ直すときの指数。
+static const float kSrgbGamma = 2.2f;
+
+/// <summary>
+/// 0から1のUVの位置の色を、いちばん大きい段の画像から光の強さに比例する値で読む。
+/// </summary>
+static Vector3 ReadImageColor(const ImageData& image, const Vector2& uv) {
+	const ImageMip& mip = image.mips[0];
+
+	// 0から1の外のUVは、画像を繰り返し並べたものとして読む。
+	const float wrappedU = uv.x - std::floor(uv.x);
+	const float wrappedV = uv.y - std::floor(uv.y);
+	const uint32_t pixelX = (std::min)(static_cast<uint32_t>(wrappedU * mip.width), mip.width - 1);
+	const uint32_t pixelY = (std::min)(static_cast<uint32_t>(wrappedV * mip.height), mip.height - 1);
+
+	// 1画素は赤、緑、青、不透明度の順の4バイト。
+	const uint8_t* pixel = &mip.pixels[static_cast<size_t>(pixelY) * mip.rowPitch + static_cast<size_t>(pixelX) * 4];
+	Vector3 color;
+	color.x = std::pow(pixel[0] / 255.0f, kSrgbGamma);
+	color.y = std::pow(pixel[1] / 255.0f, kSrgbGamma);
+	color.z = std::pow(pixel[2] / 255.0f, kSrgbGamma);
+	return color;
+}
 
 PointCloudData CreateSpherePointCloud(uint32_t pointCount, float radius, const Vector3& color) {
 	std::mt19937 randomEngine(kRandomSeed);
@@ -53,6 +82,61 @@ PointCloudData CreateTorusPointCloud(uint32_t pointCount, float ringRadius, floa
 		target.position = { distanceFromAxis * std::cos(ringAngle), tubeRadius * std::sin(tubeAngle), distanceFromAxis * std::sin(ringAngle) };
 		target.normal = { std::cos(tubeAngle) * std::cos(ringAngle), std::sin(tubeAngle), std::cos(tubeAngle) * std::sin(ringAngle) };
 		target.color = color;
+		pointCloud.targets.push_back(target);
+	}
+	return pointCloud;
+}
+
+PointCloudData CreateMeshSurfacePointCloud(const MeshData& mesh, const ImageData& image, uint32_t pointCount) {
+	// 頂点だけに置くと平らな面に点が来ないので、三角形の面積に比例した確率で三角形を選ぶ。
+	const size_t triangleCount = mesh.indices.size() / 3;
+	std::vector<float> cumulativeAreas;
+	cumulativeAreas.reserve(triangleCount);
+	float totalArea = 0.0f;
+	for (size_t i = 0; i < triangleCount; i++) {
+		const Vector3& position0 = mesh.vertices[mesh.indices[i * 3]].position;
+		const Vector3& position1 = mesh.vertices[mesh.indices[i * 3 + 1]].position;
+		const Vector3& position2 = mesh.vertices[mesh.indices[i * 3 + 2]].position;
+		totalArea += Length(Cross(position1 - position0, position2 - position0)) * 0.5f;
+		cumulativeAreas.push_back(totalArea);
+	}
+
+	PointCloudData pointCloud;
+	if (totalArea <= 0.0f || image.mips.empty()) {
+		printf("面積のないメッシュか空の画像なので、点群を作れません。\n");
+		return pointCloud;
+	}
+
+	std::mt19937 randomEngine(kRandomSeed);
+	std::uniform_real_distribution<float> unitDistribution(0.0f, 1.0f);
+
+	pointCloud.targets.reserve(pointCount);
+	for (uint32_t i = 0; i < pointCount; i++) {
+		// 面積の累積和の中で乱数の位置を二分探索すると、広い三角形ほど選ばれやすくなる。
+		const float areaPosition = unitDistribution(randomEngine) * totalArea;
+		const size_t foundIndex = std::lower_bound(cumulativeAreas.begin(), cumulativeAreas.end(), areaPosition) - cumulativeAreas.begin();
+		const size_t triangleIndex = (std::min)(foundIndex, triangleCount - 1);
+
+		const MeshVertex& vertex0 = mesh.vertices[mesh.indices[triangleIndex * 3]];
+		const MeshVertex& vertex1 = mesh.vertices[mesh.indices[triangleIndex * 3 + 1]];
+		const MeshVertex& vertex2 = mesh.vertices[mesh.indices[triangleIndex * 3 + 2]];
+
+		// 平方根を挟むと、三角形の中で角に偏らずに一様に取れる。
+		const float rootOfRandom = std::sqrt(unitDistribution(randomEngine));
+		const float secondRandom = unitDistribution(randomEngine);
+		const float weight0 = 1.0f - rootOfRandom;
+		const float weight1 = rootOfRandom * (1.0f - secondRandom);
+		const float weight2 = rootOfRandom * secondRandom;
+
+		const Vector2 uv = {
+			vertex0.uv.x * weight0 + vertex1.uv.x * weight1 + vertex2.uv.x * weight2,
+			vertex0.uv.y * weight0 + vertex1.uv.y * weight1 + vertex2.uv.y * weight2,
+		};
+
+		PointCloudTarget target = {};
+		target.position = vertex0.position * weight0 + vertex1.position * weight1 + vertex2.position * weight2;
+		target.normal = Normalize(vertex0.normal * weight0 + vertex1.normal * weight1 + vertex2.normal * weight2);
+		target.color = ReadImageColor(image, uv);
 		pointCloud.targets.push_back(target);
 	}
 	return pointCloud;

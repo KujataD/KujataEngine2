@@ -272,7 +272,7 @@ static void CreateEnemy(Scene* scene, MeshHandle mesh, TextureHandle texture, co
 }
 
 // 点群1つの点の数と、点1つが足す明るさ。
-static const uint32_t kPointCloudPointCount = 500000;
+static const uint32_t kPointCloudPointCount = 333000;
 static const float kPointCloudIntensity = 0.02f;
 
 /// <summary>
@@ -301,13 +301,16 @@ void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	CreateEnemy(scene, cubeMesh, uvChecker, {0.0f, 0.5f, 4.0f});
 	CreateEnemy(scene, cubeMesh, uvChecker, {2.5f, 0.5f, 4.0f});
 
-	// 自機の左に球を、右に円環を、合わせて100万個の点で置く。
+	// 自機の左に球を、右に円環を、手前に鳥の形を、合わせて約100万個の点で置く。
 	const PointCloudHandle sphere = assets->AddPointCloud(CreateSpherePointCloud(kPointCloudPointCount, 1.2f, {1.0f, 0.55f, 0.25f}));
 	const PointCloudHandle torus = assets->AddPointCloud(CreateTorusPointCloud(kPointCloudPointCount, 1.2f, 0.45f, {0.3f, 0.75f, 1.0f}));
 	CreatePointCloud(scene, sphere, {-3.5f, 1.5f, -1.0f});
 	CreatePointCloud(scene, torus, {3.5f, 1.5f, -1.0f});
 
 	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
+	const PointCloudData toriSurface = CreateMeshSurfacePointCloud(assets->GetMeshData(tori.mesh), assets->GetImageData(tori.texture), kPointCloudPointCount);
+	CreatePointCloud(scene, assets->AddPointCloud(toriSurface), {0.0f, 1.5f, -5.0f});
+
 	GameObject* player = scene->CreateGameObject();
 	player->GetTransform().translation_ = {0.0f, 0.5f, -1.0f};
 	player->GetTransform().scale_ = {0.4f, 0.4f, 0.4f};
