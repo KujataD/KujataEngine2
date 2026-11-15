@@ -1,7 +1,9 @@
 #include "Asset/Asset.h"
+#include "Console/Console.h"
 #include "Core/App.h"
 #include "DemoScene.h"
 #include "Gpu/Gpu.h"
+#include "ImGuiModule/ImGuiModule.h"
 #include "Input/Input.h"
 #include "Physics/Physics.h"
 #include "Renderer/Renderer.h"
@@ -22,7 +24,7 @@ int main() {
 	app.Add(&timeModule);
 
 	// ウィンドウを作ってAppに入れると、閉じたときにループが終わる。
-	KujataEngine::Window window(L"KujataEngine2", 1280, 720);
+	KujataEngine::Window window(L"LE2B_03_オオツカ_ダイチ", 1280, 720);
 	app.Add(&window);
 
 	KujataEngine::Input input;
@@ -37,11 +39,19 @@ int main() {
 	KujataEngine::Renderer renderer;
 	app.Add(&renderer);
 
+	// シーンやほかのモジュールが、フレームの中でimguiのウィンドウを組めるようにする。
+	KujataEngine::ImGuiModule imguiModule;
+	app.Add(&imguiModule);
+
 	KujataEngine::SceneModule sceneModule;
 	app.Add(&sceneModule);
 
 	KujataEngine::Physics physics;
 	app.Add(&physics);
+
+	// ターミナルに打ったコマンドを実行できるようにする。
+	KujataEngine::Console console;
+	app.Add(&console);
 
 	// Assetなどの起動が終わってからシーンを作る。
 	app.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
@@ -49,7 +59,8 @@ int main() {
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
 		KujataEngine::IWindow* window = static_cast<KujataEngine::IWindow*>(services.Get(KujataEngine::kWindowServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, window);
+		KujataEngine::IConsoleCommands* consoleCommands = static_cast<KujataEngine::IConsoleCommands*>(services.Get(KujataEngine::kConsoleCommandsServiceName));
+		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, window, consoleCommands);
 	});
 
 	app.Run();

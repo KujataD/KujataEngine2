@@ -22,6 +22,7 @@ public:
 	void Shutdown() override;
 
 	ID3D12Device* GetDevice() override;
+	ID3D12CommandQueue* GetCommandQueue() override;
 	ID3D12GraphicsCommandList* GetCommandList() override;
 	DXGI_FORMAT GetRenderTargetFormat() override;
 	DXGI_FORMAT GetDepthFormat() override;

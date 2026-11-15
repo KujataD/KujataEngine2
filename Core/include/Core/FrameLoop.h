@@ -15,6 +15,8 @@ enum FramePhase {
 	kLateUpdate,
 	kSubmitRender,
 	kRender,
+	// シーンを描き終えた後で、その上に重ねる物を描く。
+	kRenderOverlay,
 	kEndFrame,
 	kFramePhaseCount,
 };

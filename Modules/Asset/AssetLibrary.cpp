@@ -79,6 +79,10 @@ TextureHandle AssetLibrary::LoadTexture(const std::string& utf8Path) {
 	return LoadTextureFile((dataDirectory_ / MakePathFromUtf8(utf8Path)).lexically_normal());
 }
 
+std::filesystem::path AssetLibrary::GetDataDirectory() {
+	return dataDirectory_;
+}
+
 MeshHandle AssetLibrary::GetCubeMesh() {
 	return MeshHandle();
 }

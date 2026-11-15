@@ -139,6 +139,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> updatePipelineState_;
 	ConstantBuffer updateConstantBuffer_;
 
+	// 点の揺れの進み具合を表す角度で、単位はラジアン。
+	float floatPhase_ = 0.0f;
+
 	GpuTimer gpuTimer_;
 
 	// 平均を出すために足し込んだGPU時間で、単位はミリ秒。

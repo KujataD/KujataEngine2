@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <functional>
+
 namespace KujataEngine {
 
 // ServiceRegistryに登録するときの名前。
@@ -26,6 +29,11 @@ public:
 	/// 描画できる領域の高さをピクセルで返す。
 	/// </summary>
 	virtual int GetClientHeight() = 0;
+
+	/// <summary>
+	/// OSから届いたメッセージを窓より先に受け取る処理を登録し、処理がtrueを返したメッセージは窓で処理しない。
+	/// </summary>
+	virtual void AddMessageHandler(std::function<bool(void* windowHandle, uint32_t message, uint64_t wparam, int64_t lparam)> handler) = 0;
 };
 
 } // namespace KujataEngine

@@ -5,7 +5,9 @@
 #include "GpuBuffer.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
+#include <numbers>
 
 using Microsoft::WRL::ComPtr;
 
@@ -29,7 +31,7 @@ struct PointCloudConstants {
 	float pointSize;
 	float intensity;
 	uint32_t targetCount;
-	float padding;
+	float scatteredBrightness;
 };
 static_assert(sizeof(PointCloudConstants) == 144, "PointCloudConstantsの大きさが変わったらPointCloud.VS.hlslとPointCloud.PS.hlslも直す。");
 
@@ -42,13 +44,24 @@ struct PointUpdateConstants {
 	uint32_t shouldInitialize;
 	float initialSettle;
 	uint32_t gatherPointCount;
-	float padding[2];
+	float floatDistance;
+	float floatPhase;
+	uint32_t hasSettleOverride;
+	float settleOverride;
+	uint32_t scatterSeed;
+	float padding;
 	PointCloudGatherPoint gatherPoints[kMaxPointCloudGatherPoints];
 };
-static_assert(sizeof(PointUpdateConstants) == 352, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
+static_assert(sizeof(PointUpdateConstants) == 368, "PointUpdateConstantsの大きさが変わったらPointCloudUpdate.CS.hlslも直す。");
 
 // 1フレームに動かして描ける点群の数で、定数バッファの場所の数になる。
-static const UINT kMaxPointCloudCount = 16;
+static const UINT kMaxPointCloudCount = 64;
+
+// 点の揺れの角度が1秒に進む量で、単位はラジアン。
+static const float kFloatRadiansPerSecond = 1.5f;
+
+// 揺れの角度を巻き戻す周期で、シェーダーが掛ける倍率が0.25の倍数なので、ここで戻しても揺れがつながる。
+static const float kFloatPhasePeriod = std::numbers::pi_v<float> * 8.0f;
 
 // PointCloudUpdate.CS.hlslのnumthreadsと合わせる。
 static const UINT kThreadGroupSize = 256;
@@ -155,6 +168,9 @@ void PointCloudPass::Execute(const RenderContext& context) {
 		lastPointCount_ += instance.pointCount;
 	}
 
+	// 角度を増やし続けると小数の細かさが足りなくなるので、周期ごとに巻き戻す。
+	floatPhase_ = std::fmod(floatPhase_ + context.deltaTime * kFloatRadiansPerSecond, kFloatPhasePeriod);
+
 	// 動かす命令をまとめて先に書き、設定の切り替えを減らす。
 	ID3D12GraphicsCommandList* list = context.commandList;
 	gpuTimer_.Mark(list, kUpdateBeginMark);
@@ -224,6 +240,11 @@ void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloud
 	constants.targetCount = targets.targetCount;
 	constants.shouldInitialize = instance.shouldInitialize ? 1 : 0;
 	constants.initialSettle = request.initialSettle;
+	constants.floatDistance = request.floatDistance;
+	constants.floatPhase = floatPhase_;
+	constants.scatterSeed = request.scatterSeed;
+	constants.hasSettleOverride = request.hasSettleOverride ? 1 : 0;
+	constants.settleOverride = request.settleOverride;
 	constants.gatherPointCount = (std::min)(request.gatherPointCount, kMaxPointCloudGatherPoints);
 	for (uint32_t i = 0; i < constants.gatherPointCount; i++) {
 		constants.gatherPoints[i] = request.gatherPoints[i];
@@ -268,6 +289,7 @@ void PointCloudPass::DrawPoints(const RenderContext& context, const PointCloudRe
 	constants.pointSize = request.pointSize;
 	constants.intensity = request.intensity;
 	constants.targetCount = targets.targetCount;
+	constants.scatteredBrightness = request.scatteredBrightness;
 	constantBuffer_.Write(constantsIndex, &constants);
 
 	list->SetPipelineState(pipelineState_.Get());
@@ -278,8 +300,12 @@ void PointCloudPass::DrawPoints(const RenderContext& context, const PointCloudRe
 	list->SetGraphicsRootDescriptorTable(kTargetsRootParameterIndex, targets.targetsGpuHandle);
 	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	// 頂点4つの板を、点の数だけ繰り返して描く。
-	list->DrawInstanced(4, instance.pointCount, 0, 0);
+	// 点は面にランダムに並んでいるので、頭から割合の分だけ描けば全体が同じようにまばらになる。
+	const float density = std::clamp(request.density, 0.0f, 1.0f);
+	const UINT drawnPointCount = static_cast<UINT>(static_cast<float>(instance.pointCount) * density);
+
+	// 頂点4つの板を、描く点の数だけ繰り返して描く。
+	list->DrawInstanced(4, drawnPointCount, 0, 0);
 }
 
 void PointCloudPass::RemoveUnusedInstances() {

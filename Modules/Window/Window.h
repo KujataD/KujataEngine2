@@ -3,6 +3,8 @@
 #include "Core/IModule.h"
 #include "Interface/IWindow.h"
 
+#include <vector>
+
 namespace KujataEngine {
 
 /// <summary>
@@ -20,6 +22,12 @@ public:
 	void* GetNativeHandle() override;
 	int GetClientWidth() override;
 	int GetClientHeight() override;
+	void AddMessageHandler(std::function<bool(void* windowHandle, uint32_t message, uint64_t wparam, int64_t lparam)> handler) override;
+
+	/// <summary>
+	/// 登録された処理へ順にメッセージを渡し、どれかがtrueを返したらtrueを返す。
+	/// </summary>
+	bool DispatchToMessageHandlers(void* windowHandle, uint32_t message, uint64_t wparam, int64_t lparam);
 
 private:
 	void ProcessMessages();
@@ -31,6 +39,9 @@ private:
 	// Windows.hをこのヘッダーに持ち込まないように、HWNDをvoid*で持つ。
 	void* handle_ = nullptr;
 	FrameLoop* frameLoop_ = nullptr;
+
+	// 窓より先にメッセージを受け取る処理の一覧。
+	std::vector<std::function<bool(void* windowHandle, uint32_t message, uint64_t wparam, int64_t lparam)>> messageHandlers_;
 };
 
 } // namespace KujataEngine

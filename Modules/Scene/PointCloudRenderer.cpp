@@ -30,6 +30,18 @@ void PointCloudRenderer::Gather(const Vector3& worldPosition, float radius) {
 	gatherPointCount_++;
 }
 
+void PointCloudRenderer::Crumble() {
+	// 形になっている間に種を変えるので、散った点がいきなり別の場所へ飛ぶことはない。
+	scatterSeed_++;
+	hasSettleOverride_ = true;
+	settleOverride_ = 0.0f;
+}
+
+void PointCloudRenderer::GatherAll() {
+	hasSettleOverride_ = true;
+	settleOverride_ = 1.0f;
+}
+
 void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
 	PointCloudRequest request;
 	request.targets = targets_;
@@ -38,6 +50,16 @@ void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
 	request.pointSize = pointSize;
 	request.intensity = intensity;
 	request.initialSettle = initialSettle;
+	request.floatDistance = floatDistance;
+	request.scatteredBrightness = scatteredBrightness;
+	request.density = density;
+	request.scatterSeed = scatterSeed_;
+
+	// 目標の指定は1回だけ効かせたいので、渡したら取り消す。
+	request.hasSettleOverride = hasSettleOverride_;
+	request.settleOverride = settleOverride_;
+	hasSettleOverride_ = false;
+
 	for (uint32_t i = 0; i < gatherPointCount_; i++) {
 		request.gatherPoints[i] = gatherPoints_[i];
 	}

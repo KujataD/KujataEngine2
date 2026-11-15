@@ -5,7 +5,7 @@ cbuffer PointCloudConstants : register(b0) {
 	float gPointSize;
 	float gIntensity;
 	uint gTargetCount;
-	float gPadding;
+	float gScatteredBrightness;
 };
 
 struct VertexOutput {

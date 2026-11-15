@@ -32,6 +32,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Input", "Modules\Input\Inpu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Time", "Modules\Time\Time.vcxproj", "{25899933-0153-46DF-8C60-3C7BB55256D5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console", "Modules\Console\Console.vcxproj", "{4C5AB12F-8F90-4556-9B93-AC31D79D2249}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGuiModule", "Modules\ImGuiModule\ImGuiModule.vcxproj", "{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -129,6 +133,18 @@ Global
 		{25899933-0153-46DF-8C60-3C7BB55256D5}.Development|x64.Build.0 = Development|x64
 		{25899933-0153-46DF-8C60-3C7BB55256D5}.Release|x64.ActiveCfg = Release|x64
 		{25899933-0153-46DF-8C60-3C7BB55256D5}.Release|x64.Build.0 = Release|x64
+		{4C5AB12F-8F90-4556-9B93-AC31D79D2249}.Debug|x64.ActiveCfg = Debug|x64
+		{4C5AB12F-8F90-4556-9B93-AC31D79D2249}.Debug|x64.Build.0 = Debug|x64
+		{4C5AB12F-8F90-4556-9B93-AC31D79D2249}.Development|x64.ActiveCfg = Development|x64
+		{4C5AB12F-8F90-4556-9B93-AC31D79D2249}.Development|x64.Build.0 = Development|x64
+		{4C5AB12F-8F90-4556-9B93-AC31D79D2249}.Release|x64.ActiveCfg = Release|x64
+		{4C5AB12F-8F90-4556-9B93-AC31D79D2249}.Release|x64.Build.0 = Release|x64
+		{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}.Debug|x64.ActiveCfg = Debug|x64
+		{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}.Debug|x64.Build.0 = Debug|x64
+		{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}.Development|x64.ActiveCfg = Development|x64
+		{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}.Development|x64.Build.0 = Development|x64
+		{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}.Release|x64.ActiveCfg = Release|x64
+		{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

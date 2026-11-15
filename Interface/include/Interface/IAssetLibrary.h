@@ -4,6 +4,7 @@
 #include "Interface/AssetHandle.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <string>
 
 namespace KujataEngine {
@@ -17,6 +18,11 @@ const char* const kAssetLibraryServiceName = "AssetLibrary";
 class IAssetLibrary {
 public:
 	virtual ~IAssetLibrary() = default;
+
+	/// <summary>
+	/// ゲームのデータがあるフォルダを返し、ゲームが自分の設定のファイルを読み書きする場所に使う。
+	/// </summary>
+	virtual std::filesystem::path GetDataDirectory() = 0;
 
 	/// <summary>
 	/// データのフォルダからの相対パスでモデルを読み、読めなければ代わりの物を返す。

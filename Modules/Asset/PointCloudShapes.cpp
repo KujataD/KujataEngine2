@@ -87,6 +87,42 @@ PointCloudData CreateTorusPointCloud(uint32_t pointCount, float ringRadius, floa
 	return pointCloud;
 }
 
+PointCloudData CreateBoxPointCloud(uint32_t pointCount, const Vector3& size, const Vector3& color) {
+	std::mt19937 randomEngine(kRandomSeed);
+	std::uniform_real_distribution<float> unitDistribution(0.0f, 1.0f);
+
+	// 向かい合う2面をまとめた面積で、Xに垂直な面、Yに垂直な面、Zに垂直な面の順。
+	const float areaX = size.y * size.z * 2.0f;
+	const float areaY = size.x * size.z * 2.0f;
+	const float areaZ = size.x * size.y * 2.0f;
+	const Vector3 halfSize = size * 0.5f;
+
+	PointCloudData pointCloud;
+	pointCloud.targets.reserve(pointCount);
+	for (uint32_t i = 0; i < pointCount; i++) {
+		// 広い面ほど選ばれやすくして、細長い箱でも面積あたりの数をそろえる。
+		const float areaPosition = unitDistribution(randomEngine) * (areaX + areaY + areaZ);
+		const float side = unitDistribution(randomEngine) < 0.5f ? -1.0f : 1.0f;
+		const float first = unitDistribution(randomEngine) * 2.0f - 1.0f;
+		const float second = unitDistribution(randomEngine) * 2.0f - 1.0f;
+
+		PointCloudTarget target = {};
+		if (areaPosition < areaX) {
+			target.normal = { side, 0.0f, 0.0f };
+			target.position = { side * halfSize.x, first * halfSize.y, second * halfSize.z };
+		} else if (areaPosition < areaX + areaY) {
+			target.normal = { 0.0f, side, 0.0f };
+			target.position = { first * halfSize.x, side * halfSize.y, second * halfSize.z };
+		} else {
+			target.normal = { 0.0f, 0.0f, side };
+			target.position = { first * halfSize.x, second * halfSize.y, side * halfSize.z };
+		}
+		target.color = color;
+		pointCloud.targets.push_back(target);
+	}
+	return pointCloud;
+}
+
 PointCloudData CreateMeshSurfacePointCloud(const MeshData& mesh, const ImageData& image, uint32_t pointCount) {
 	// 頂点だけに置くと平らな面に点が来ないので、三角形の面積に比例した確率で三角形を選ぶ。
 	const size_t triangleCount = mesh.indices.size() / 3;

@@ -13,6 +13,12 @@ static const wchar_t* const kWindowClassName = L"KujataEngine2Window";
 /// OSがウィンドウにメッセージを届けるたびに呼ばれる。
 /// </summary>
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+	// 窓を作っている途中のメッセージでは、まだWindowが結び付いていない。
+	Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+	if (window != nullptr && window->DispatchToMessageHandlers(hwnd, message, wparam, lparam)) {
+		return 1;
+	}
+
 	// 閉じる操作ではGpuが描いている窓を消さず、ループの終了だけを頼む。
 	if (message == WM_CLOSE) {
 		PostQuitMessage(0);
@@ -70,6 +76,10 @@ void Window::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	KUJATA_ASSERT(hwnd != nullptr);
 
 	handle_ = hwnd;
+
+	// WindowProcからこのWindowを取り出せるように、窓に結び付ける。
+	SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
 	ShowWindow(hwnd, SW_SHOW);
 
 	// 受け取る側がIWindow*に戻せるように、void*にする前にIWindow*へ変換する。
@@ -100,6 +110,19 @@ int Window::GetClientWidth() {
 
 int Window::GetClientHeight() {
 	return clientHeight_;
+}
+
+void Window::AddMessageHandler(std::function<bool(void* windowHandle, uint32_t message, uint64_t wparam, int64_t lparam)> handler) {
+	messageHandlers_.push_back(handler);
+}
+
+bool Window::DispatchToMessageHandlers(void* windowHandle, uint32_t message, uint64_t wparam, int64_t lparam) {
+	for (const auto& handler : messageHandlers_) {
+		if (handler(windowHandle, message, wparam, lparam)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void Window::ProcessMessages() {

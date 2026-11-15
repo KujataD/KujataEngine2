@@ -10,3 +10,6 @@ ipch/
 build/
 x64/
 externals/DirectXTex/Bin/
+
+# imguiが起動した場所に保存する、ウィンドウの配置
+imgui.ini

@@ -5,7 +5,7 @@
 namespace KujataEngine {
 
 // 背景を塗る色で、RGBAを0から1で表す。
-static const float kClearColor[4] = { 0.392f, 0.584f, 0.929f, 1.0f };
+static const float kClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 std::vector<std::string> Gpu::GetProvidedServices() {
 	return { kGpuServiceName };
@@ -45,6 +45,10 @@ void Gpu::Shutdown() {
 
 ID3D12Device* Gpu::GetDevice() {
 	return device_.GetDevice();
+}
+
+ID3D12CommandQueue* Gpu::GetCommandQueue() {
+	return commandContext_.GetQueue();
 }
 
 ID3D12GraphicsCommandList* Gpu::GetCommandList() {

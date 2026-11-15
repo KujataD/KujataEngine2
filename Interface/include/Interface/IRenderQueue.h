@@ -61,6 +61,22 @@ struct PointCloudRequest {
 	// 最初に形になっている度合いで、0なら散った状態から、1なら形になった状態から始まる。
 	float initialSettle = 1.0f;
 
+	// 点が引き寄せる先のまわりを揺れ続ける幅で、0なら揺れない。
+	float floatDistance = 0.05f;
+
+	// 形になっていない点の明るさの倍率で、0にすると崩れた点が点ごとに違うタイミングで消える。
+	float scatteredBrightness = 1.0f;
+
+	// 描く点の割合で、1なら全部を描き、点は面にランダムに並んでいるので減らすと全体がまばらになる。
+	float density = 1.0f;
+
+	// trueのフレームだけ、全部の点の形になる度合いの目標をsettleOverrideにする。
+	bool hasSettleOverride = false;
+	float settleOverride = 0.0f;
+
+	// 点ごとの散る位置と崩れる速さを決める乱数の種で、変えると同じ点群でも違う崩れ方になる。
+	uint32_t scatterSeed = 0;
+
 	// このフレームで点を集める場所で、近くに集まる先がある点は形になったままになる。
 	PointCloudGatherPoint gatherPoints[kMaxPointCloudGatherPoints] = {};
 	uint32_t gatherPointCount = 0;

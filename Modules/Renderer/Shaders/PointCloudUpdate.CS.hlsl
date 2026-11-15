@@ -16,7 +16,12 @@ cbuffer UpdateConstants : register(b0) {
 	uint gShouldInitialize;
 	float gInitialSettle;
 	uint gGatherPointCount;
-	float2 gPadding;
+	float gFloatDistance;
+	float gFloatPhase;
+	uint gHasSettleOverride;
+	float gSettleOverride;
+	uint gScatterSeed;
+	float gPadding;
 	GatherPoint gGatherPoints[kMaxGatherPoints];
 };
 
@@ -41,8 +46,8 @@ StructuredBuffer<PointCloudTarget> gTargets : register(t0);
 // 引き寄せる先へ引くばねの強さで、大きいほど速く集まる。
 static const float kSpringStiffness = 30.0f;
 
-// 速度に比例して止める強さで、小さいほど引き寄せる先を行き過ぎて揺れる。
-static const float kSpringDamping = 6.0f;
+// 速度に比例して止める強さで、ばねの強さの平方根の2倍より大きくして、引き寄せる先を行き過ぎて戻る動きを出さない。
+static const float kSpringDamping = 11.0f;
 
 // 1回に進める秒数の上限で、長いフレームでばねが発散するのを防ぐ。
 static const float kMaxDeltaTime = 1.0f / 30.0f;
@@ -52,6 +57,10 @@ static const float kScatterDistance = 2.0f;
 
 // 形になる度合いが1秒で目標へ近づく割合。
 static const float kSettleSpeedPerSecond = 3.0f;
+
+// 点ごとに近づく速さへ掛ける倍率の最小と最大で、差が大きいほど崩れるタイミングがばらける。
+static const float kMinSettleSpeedRatio = 0.25f;
+static const float kMaxSettleSpeedRatio = 2.0f;
 
 // 集める場所の半径のうち、この割合より内側の点は完全に形になる。
 static const float kFullGatherRadiusRatio = 0.5f;
@@ -73,13 +82,28 @@ float ToUnitFloat(uint hash) {
 }
 
 /// <summary>
-/// 点の番号から、その点がいつも同じになる各軸が-1から1の乱数を作る。
+/// 点の番号と散り方の種から、種を変えるまでは同じになる各軸が-1から1の乱数を作る。
 /// </summary>
 float3 MakeScatterOffset(uint index) {
-	const uint seedX = PcgHash(index);
+	const uint seedX = PcgHash(index ^ PcgHash(gScatterSeed));
 	const uint seedY = PcgHash(seedX);
 	const uint seedZ = PcgHash(seedY);
 	return float3(ToUnitFloat(seedX), ToUnitFloat(seedY), ToUnitFloat(seedZ)) * 2.0f - 1.0f;
+}
+
+/// <summary>
+/// 点ごとに違う拍子でゆっくり行き来する、各軸が-1から1の揺れを作る。
+/// </summary>
+float3 MakeFloatOffset(uint index) {
+	// 散る位置と同じ乱数にならないように、番号をずらしてから混ぜる。
+	const uint seedX = PcgHash(index + 0x9E3779B9u);
+	const uint seedY = PcgHash(seedX);
+	const uint seedZ = PcgHash(seedY);
+	const float3 startAngle = float3(ToUnitFloat(seedX), ToUnitFloat(seedY), ToUnitFloat(seedZ)) * 6.2831853f;
+
+	// 軸ごとに速さを変えて同じ道を回らないようにし、倍率はPointCloudPass.cppのkFloatPhasePeriodに合わせて0.25の倍数にする。
+	const float3 speedRatio = float3(1.0f, 1.25f, 0.75f);
+	return sin(gFloatPhase * speedRatio + startAngle);
 }
 
 /// <summary>
@@ -121,15 +145,27 @@ void main(uint3 threadId : SV_DispatchThreadID) {
 		current.settleDisplay = gInitialSettle;
 	}
 
-	// 目標は上げるだけなので、集める場所が離れた後も形になったままになる。
+	// 全部を崩すときや形に戻すときは、目標をまとめて書き換える。
+	if (gHasSettleOverride != 0) {
+		current.settleGoal = gSettleOverride;
+	}
+
+	// 集める場所では目標を上げるだけなので、集める場所が離れた後も形になったままになる。
 	current.settleGoal = max(current.settleGoal, ComputeGatherAmount(targetPosition));
+
+	// 点ごとに近づく速さを変えて、早く崩れる点と遅く崩れる点が混ざるようにする。
+	const float speedRandom = ToUnitFloat(PcgHash(index + 0x85EBCA6Bu + gScatterSeed * 0xC2B2AE35u));
+	const float settleSpeed = kSettleSpeedPerSecond * lerp(kMinSettleSpeedRatio, kMaxSettleSpeedRatio, speedRandom);
 
 	// 今の値を目標へ少しずつ近づけ、点がいっせいに飛ばないようにする。
 	const float deltaTime = min(gDeltaTime, kMaxDeltaTime);
-	current.settleDisplay += (current.settleGoal - current.settleDisplay) * min(kSettleSpeedPerSecond * deltaTime, 1.0f);
+	current.settleDisplay += (current.settleGoal - current.settleDisplay) * min(settleSpeed * deltaTime, 1.0f);
 
 	// 引き寄せる先を、散った位置と集まる先の間で、形になる度合いに合わせて動かす。
-	const float3 attractPosition = lerp(scatterPosition, targetPosition, smoothstep(0.0f, 1.0f, current.settleDisplay));
+	const float3 restPosition = lerp(scatterPosition, targetPosition, smoothstep(0.0f, 1.0f, current.settleDisplay));
+
+	// 引き寄せる先そのものを揺らすと、ばねが追いかけて点がふわふわ動き続ける。
+	const float3 attractPosition = restPosition + MakeFloatOffset(index) * gFloatDistance;
 
 	// 作ったばかりの点は、引き寄せる先に止まった状態から始める。
 	if (gShouldInitialize != 0) {

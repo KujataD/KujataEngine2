@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="PointCloudRenderer.h" />
@@ -13,6 +14,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="PointCloudRenderer.cpp" />

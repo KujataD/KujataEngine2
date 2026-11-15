@@ -33,6 +33,7 @@ public:
 
 	ModelHandles LoadModel(const std::string& utf8Path) override;
 	TextureHandle LoadTexture(const std::string& utf8Path) override;
+	std::filesystem::path GetDataDirectory() override;
 	MeshHandle GetCubeMesh() override;
 	TextureHandle GetWhiteTexture() override;
 	MeshHandle AddMesh(const MeshData& mesh) override;

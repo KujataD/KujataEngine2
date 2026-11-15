@@ -6,6 +6,7 @@
 
 // d3d12.hをこのヘッダーに持ち込まないように、型の名前だけを伝える。
 struct ID3D12Device;
+struct ID3D12CommandQueue;
 struct ID3D12GraphicsCommandList;
 
 namespace KujataEngine {
@@ -24,6 +25,11 @@ public:
 	/// GPUの資源を作るためのDeviceを返す。
 	/// </summary>
 	virtual ID3D12Device* GetDevice() = 0;
+
+	/// <summary>
+	/// 命令をGPUへ渡すCommandQueueを返す。
+	/// </summary>
+	virtual ID3D12CommandQueue* GetCommandQueue() = 0;
 
 	/// <summary>
 	/// 今のフレームの命令を書くCommandListを返す。
