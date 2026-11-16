@@ -58,9 +58,8 @@ int main() {
 		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
-		KujataEngine::IWindow* window = static_cast<KujataEngine::IWindow*>(services.Get(KujataEngine::kWindowServiceName));
 		KujataEngine::IConsoleCommands* consoleCommands = static_cast<KujataEngine::IConsoleCommands*>(services.Get(KujataEngine::kConsoleCommandsServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, window, consoleCommands);
+		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands);
 	});
 
 	app.Run();
