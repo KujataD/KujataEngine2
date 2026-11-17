@@ -24,10 +24,6 @@
     <ClCompile Include="PointCloudShapes.cpp" />
     <ClCompile Include="WicTextureLoader.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
-      <Project>{371B9FA9-4C90-4AC6-A123-ACED756D6C77}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="..\Module.props" />
+  <Import Project="..\..\externals\DirectXTex.props" />
 </Project>

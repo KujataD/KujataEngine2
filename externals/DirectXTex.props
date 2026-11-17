@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DirectXTexで画像を読むプロジェクトが、Module.propsの後に読み込む。 -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
+      <Project>{371B9FA9-4C90-4AC6-A123-ACED756D6C77}</Project>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

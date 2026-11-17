@@ -2,7 +2,7 @@
 
 #include <d3d12.h>
 
-#include "../../externals/DirectXTex/DirectXTex.h"
+#include <DirectXTex.h>
 
 #include <utility>
 

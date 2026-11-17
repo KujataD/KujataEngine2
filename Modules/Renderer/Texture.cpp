@@ -3,7 +3,7 @@
 #include "Core/Assert.h"
 #include "UploadBuffer.h"
 
-#include "../../externals/DirectXTex/d3dx12.h"
+#include <d3dx12.h>
 
 #include <vector>
 

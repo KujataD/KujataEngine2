@@ -51,4 +51,5 @@
     <None Include="Shaders\PointCloudUpdate.CS.hlsl" />
   </ItemGroup>
   <Import Project="..\Module.props" />
+  <Import Project="..\..\externals\d3dx12.props" />
 </Project>

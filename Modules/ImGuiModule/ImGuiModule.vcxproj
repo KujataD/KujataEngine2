@@ -26,4 +26,5 @@
     <ClCompile Include="..\..\externals\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <Import Project="..\Module.props" />
+  <Import Project="..\..\externals\imgui.props" />
 </Project>
