@@ -1,7 +1,7 @@
-#include "IndexBuffer.h"
+#include "GraphicsKit/IndexBuffer.h"
 
 #include "Core/Assert.h"
-#include "UploadBuffer.h"
+#include "GraphicsKit/UploadBuffer.h"
 
 #include <cstring>
 

@@ -2,7 +2,8 @@
 
 #include "Core/Assert.h"
 #include "Core/Math/MathUtil.h"
-#include "GpuBuffer.h"
+#include "GraphicsKit/GpuBuffer.h"
+#include "GraphicsKit/RootSignature.h"
 
 #include <algorithm>
 #include <cmath>
@@ -77,45 +78,6 @@ static const UINT kMarkCount = 3;
 
 // GPU時間の平均をログに出す間隔で、単位はフレーム。
 static const uint32_t kGpuTimeReportFrameCount = 120;
-
-/// <summary>
-/// 入口の一覧の説明からRootSignatureを作る。
-/// </summary>
-static ComPtr<ID3D12RootSignature> CreateRootSignatureFromDescription(ID3D12Device* device, const D3D12_ROOT_SIGNATURE_DESC& description) {
-	ComPtr<ID3DBlob> serialized;
-	ComPtr<ID3DBlob> errors;
-	HRESULT result = D3D12SerializeRootSignature(&description, D3D_ROOT_SIGNATURE_VERSION_1, &serialized, &errors);
-	KUJATA_ASSERT(SUCCEEDED(result));
-
-	ComPtr<ID3D12RootSignature> rootSignature;
-	result = device->CreateRootSignature(0, serialized->GetBufferPointer(), serialized->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
-	KUJATA_ASSERT(SUCCEEDED(result));
-	return rootSignature;
-}
-
-/// <summary>
-/// 名札を1つだけ受け取るテーブルの入口を作る。
-/// </summary>
-static D3D12_ROOT_PARAMETER MakeTableParameter(const D3D12_DESCRIPTOR_RANGE* range, D3D12_SHADER_VISIBILITY visibility) {
-	D3D12_ROOT_PARAMETER parameter = {};
-	parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameter.DescriptorTable.NumDescriptorRanges = 1;
-	parameter.DescriptorTable.pDescriptorRanges = range;
-	parameter.ShaderVisibility = visibility;
-	return parameter;
-}
-
-/// <summary>
-/// 指定の種類とレジスタの番号の名札1つ分の範囲を作る。
-/// </summary>
-static D3D12_DESCRIPTOR_RANGE MakeSingleRange(D3D12_DESCRIPTOR_RANGE_TYPE type, UINT shaderRegister) {
-	D3D12_DESCRIPTOR_RANGE range = {};
-	range.RangeType = type;
-	range.NumDescriptors = 1;
-	range.BaseShaderRegister = shaderRegister;
-	range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	return range;
-}
 
 void PointCloudPass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory) {
 	gpu_ = gpu;

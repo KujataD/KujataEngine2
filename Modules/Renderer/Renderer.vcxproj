@@ -5,11 +5,7 @@
     <RootNamespace>Renderer</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="GpuAssetTable.h" />
-    <ClInclude Include="GpuBuffer.h" />
-    <ClInclude Include="GpuTimer.h" />
-    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="IRenderPass.h" />
     <ClInclude Include="IRenderPipeline.h" />
     <ClInclude Include="OpaquePass.h" />
@@ -18,30 +14,16 @@
     <ClInclude Include="RenderContext.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderQueue.h" />
-    <ClInclude Include="ShaderCompiler.h" />
-    <ClInclude Include="ShaderResourceHeap.h" />
     <ClInclude Include="StandardRenderPipeline.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="UploadBuffer.h" />
-    <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="GpuAssetTable.cpp" />
-    <ClCompile Include="GpuBuffer.cpp" />
-    <ClCompile Include="GpuTimer.cpp" />
-    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="OpaquePass.cpp" />
     <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="PointCloudPass.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
-    <ClCompile Include="ShaderCompiler.cpp" />
-    <ClCompile Include="ShaderResourceHeap.cpp" />
     <ClCompile Include="StandardRenderPipeline.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="UploadBuffer.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Object3D.PS.hlsl" />
@@ -51,5 +33,5 @@
     <None Include="Shaders\PointCloudUpdate.CS.hlsl" />
   </ItemGroup>
   <Import Project="..\Module.props" />
-  <Import Project="..\..\externals\d3dx12.props" />
+  <Import Project="..\..\GraphicsKit\GraphicsKit.props" />
 </Project>

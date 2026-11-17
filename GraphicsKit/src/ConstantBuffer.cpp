@@ -1,7 +1,7 @@
-#include "ConstantBuffer.h"
+#include "GraphicsKit/ConstantBuffer.h"
 
 #include "Core/Assert.h"
-#include "UploadBuffer.h"
+#include "GraphicsKit/UploadBuffer.h"
 
 #include <cstring>
 

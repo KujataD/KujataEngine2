@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ConstantBuffer.h"
-#include "GpuTimer.h"
+#include "GraphicsKit/ConstantBuffer.h"
+#include "GraphicsKit/GpuTimer.h"
+#include "GraphicsKit/ShaderCompiler.h"
+#include "GraphicsKit/ShaderResourceHeap.h"
 #include "IRenderPass.h"
 #include "Interface/IGpu.h"
-#include "ShaderCompiler.h"
-#include "ShaderResourceHeap.h"
 
 #include <cstdint>
 #include <d3d12.h>

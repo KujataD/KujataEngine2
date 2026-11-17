@@ -1,7 +1,7 @@
-﻿#include "Texture.h"
+﻿#include "GraphicsKit/Texture.h"
 
 #include "Core/Assert.h"
-#include "UploadBuffer.h"
+#include "GraphicsKit/UploadBuffer.h"
 
 #include <d3dx12.h>
 

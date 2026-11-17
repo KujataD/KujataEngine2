@@ -3,6 +3,8 @@
 #include "Core/IModule.h"
 #include "Framework/Scene.h"
 #include "GpuAssetTable.h"
+#include "GraphicsKit/ShaderCompiler.h"
+#include "GraphicsKit/ShaderResourceHeap.h"
 #include "IRenderPipeline.h"
 #include "Interface/IGpu.h"
 #include "Interface/ITime.h"
@@ -10,8 +12,6 @@
 #include "OpaquePass.h"
 #include "PointCloudPass.h"
 #include "RenderQueue.h"
-#include "ShaderCompiler.h"
-#include "ShaderResourceHeap.h"
 #include "StandardRenderPipeline.h"
 
 namespace KujataEngine {

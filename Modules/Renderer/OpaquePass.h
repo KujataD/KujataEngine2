@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ConstantBuffer.h"
+#include "GraphicsKit/ConstantBuffer.h"
+#include "GraphicsKit/ShaderCompiler.h"
+#include "GraphicsKit/ShaderResourceHeap.h"
 #include "IRenderPass.h"
 #include "Interface/IGpu.h"
 #include "PipelineState.h"
-#include "ShaderCompiler.h"
-#include "ShaderResourceHeap.h"
 
 #include <filesystem>
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GraphicsKitを使うモジュールが、Module.propsの後に読み込む。ゲームのDLLは読み込まない。 -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)GraphicsKit.vcxproj">
+      <Project>{7C2E5B41-3A9D-4F68-B1E0-5D8A2C6F9E13}</Project>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

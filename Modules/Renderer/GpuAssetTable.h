@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "IndexBuffer.h"
+#include "GraphicsKit/IndexBuffer.h"
+#include "GraphicsKit/ShaderResourceHeap.h"
+#include "GraphicsKit/Texture.h"
+#include "GraphicsKit/VertexBuffer.h"
 #include "Interface/IAssetLibrary.h"
 #include "Interface/IGpu.h"
-#include "ShaderResourceHeap.h"
-#include "Texture.h"
-#include "VertexBuffer.h"
 
 #include <vector>
 

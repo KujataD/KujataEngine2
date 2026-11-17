@@ -1,4 +1,4 @@
-#include "GpuTimer.h"
+#include "GraphicsKit/GpuTimer.h"
 
 #include "Core/Assert.h"
 

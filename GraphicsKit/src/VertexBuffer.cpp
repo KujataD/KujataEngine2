@@ -1,7 +1,7 @@
-#include "VertexBuffer.h"
+#include "GraphicsKit/VertexBuffer.h"
 
 #include "Core/Assert.h"
-#include "UploadBuffer.h"
+#include "GraphicsKit/UploadBuffer.h"
 
 #include <cstring>
 

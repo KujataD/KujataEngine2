@@ -1,12 +1,11 @@
 #include "PipelineState.h"
 
 #include "Core/Assert.h"
+#include "GraphicsKit/RootSignature.h"
 #include "Interface/AssetData.h"
 
 #include <cstddef>
 #include <cstdint>
-
-using Microsoft::WRL::ComPtr;
 
 namespace KujataEngine {
 
@@ -63,13 +62,7 @@ void PipelineState::CreateRootSignature(ID3D12Device* device) {
 	description.pStaticSamplers = &sampler;
 	description.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	ComPtr<ID3DBlob> serialized;
-	ComPtr<ID3DBlob> errors;
-	HRESULT result = D3D12SerializeRootSignature(&description, D3D_ROOT_SIGNATURE_VERSION_1, &serialized, &errors);
-	KUJATA_ASSERT(SUCCEEDED(result));
-
-	result = device->CreateRootSignature(0, serialized->GetBufferPointer(), serialized->GetBufferSize(), IID_PPV_ARGS(&rootSignature_));
-	KUJATA_ASSERT(SUCCEEDED(result));
+	rootSignature_ = CreateRootSignatureFromDescription(device, description);
 }
 
 void PipelineState::CreatePipelineState(ID3D12Device* device, IDxcBlob* vertexShader, IDxcBlob* pixelShader, DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthFormat) {

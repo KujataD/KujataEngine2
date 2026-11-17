@@ -1,8 +1,8 @@
 ﻿#include "GpuAssetTable.h"
 
 #include "Core/Assert.h"
-#include "GpuBuffer.h"
-#include "UploadBuffer.h"
+#include "GraphicsKit/GpuBuffer.h"
+#include "GraphicsKit/UploadBuffer.h"
 
 #include <cstdio>
 #include <cstring>
