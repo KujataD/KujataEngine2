@@ -58,6 +58,9 @@
     <ClInclude Include="include\GraphicsKit\GpuBuffer.h" />
     <ClInclude Include="include\GraphicsKit\GpuTimer.h" />
     <ClInclude Include="include\GraphicsKit\IndexBuffer.h" />
+    <ClInclude Include="include\GraphicsKit\IRenderPass.h" />
+    <ClInclude Include="include\GraphicsKit\IRenderPasses.h" />
+    <ClInclude Include="include\GraphicsKit\RenderContext.h" />
     <ClInclude Include="include\GraphicsKit\RootSignature.h" />
     <ClInclude Include="include\GraphicsKit\ShaderCompiler.h" />
     <ClInclude Include="include\GraphicsKit\ShaderResourceHeap.h" />

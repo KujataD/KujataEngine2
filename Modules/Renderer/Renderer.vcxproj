@@ -6,15 +6,13 @@
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="GpuAssetTable.h" />
-    <ClInclude Include="IRenderPass.h" />
-    <ClInclude Include="IRenderPipeline.h" />
     <ClInclude Include="OpaquePass.h" />
     <ClInclude Include="PipelineState.h" />
     <ClInclude Include="PointCloudPass.h" />
-    <ClInclude Include="RenderContext.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RenderPassList.h" />
     <ClInclude Include="RenderQueue.h" />
-    <ClInclude Include="StandardRenderPipeline.h" />
+    <ClInclude Include="RenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GpuAssetTable.cpp" />
@@ -22,8 +20,9 @@
     <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="PointCloudPass.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RenderPassList.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
-    <ClCompile Include="StandardRenderPipeline.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Object3D.PS.hlsl" />

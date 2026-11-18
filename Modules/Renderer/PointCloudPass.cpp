@@ -79,9 +79,11 @@ static const UINT kMarkCount = 3;
 // GPU時間の平均をログに出す間隔で、単位はフレーム。
 static const uint32_t kGpuTimeReportFrameCount = 120;
 
-void PointCloudPass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory) {
+void PointCloudPass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory, const RenderQueue* renderQueue, GpuAssetTable* gpuAssets) {
 	gpu_ = gpu;
 	shaderResourceHeap_ = shaderResourceHeap;
+	renderQueue_ = renderQueue;
+	gpuAssets_ = gpuAssets;
 
 	const std::filesystem::path shaderDirectory = dataDirectory / L"Shaders";
 	ComPtr<IDxcBlob> vertexShader = shaderCompiler->Compile((shaderDirectory / L"PointCloud.VS.hlsl").wstring(), L"vs_6_0");
@@ -112,7 +114,7 @@ void PointCloudPass::Execute(const RenderContext& context) {
 	ReportGpuTime();
 
 	// 点群の数はゲームしだいで増えるので、止めずに上限までだけを描く。
-	const std::vector<PointCloudRequest>& requests = context.renderQueue->GetPointCloudRequests();
+	const std::vector<PointCloudRequest>& requests = renderQueue_->GetPointCloudRequests();
 	if (requests.size() > kMaxPointCloudCount && !hasWarnedTooManyPointClouds_) {
 		printf("点群が%u個を超えたので、超えた分は描きません。\n", kMaxPointCloudCount);
 		hasWarnedTooManyPointClouds_ = true;
@@ -123,7 +125,7 @@ void PointCloudPass::Execute(const RenderContext& context) {
 	std::vector<PointCloudInstance*> requestInstances;
 	lastPointCount_ = 0;
 	for (UINT i = 0; i < requestCount; i++) {
-		const UINT targetCount = context.gpuAssets->GetPointCloud(requests[i].targets).targetCount;
+		const UINT targetCount = gpuAssets_->GetPointCloud(requests[i].targets).targetCount;
 		PointCloudInstance& instance = FindOrCreateInstance(requests[i], targetCount);
 		instance.isUsedThisFrame = true;
 		requestInstances.push_back(&instance);
@@ -193,7 +195,7 @@ PointCloudInstance& PointCloudPass::FindOrCreateInstance(const PointCloudRequest
 
 void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloudRequest& request, PointCloudInstance& instance, UINT constantsIndex) {
 	ID3D12GraphicsCommandList* list = context.commandList;
-	const GpuPointCloud& targets = context.gpuAssets->GetPointCloud(request.targets);
+	const GpuPointCloud& targets = gpuAssets_->GetPointCloud(request.targets);
 
 	PointUpdateConstants constants = {};
 	constants.world = request.world;
@@ -234,7 +236,7 @@ void PointCloudPass::UpdatePoints(const RenderContext& context, const PointCloud
 
 void PointCloudPass::DrawPoints(const RenderContext& context, const PointCloudRequest& request, const PointCloudInstance& instance, UINT constantsIndex) {
 	ID3D12GraphicsCommandList* list = context.commandList;
-	const GpuPointCloud& targets = context.gpuAssets->GetPointCloud(request.targets);
+	const GpuPointCloud& targets = gpuAssets_->GetPointCloud(request.targets);
 
 	// 工程ごとに独立させるため、前の工程と同じ範囲をここでも設定する。
 	const D3D12_VIEWPORT viewport = { 0.0f, 0.0f, context.targetWidth, context.targetHeight, 0.0f, 1.0f };
@@ -242,12 +244,9 @@ void PointCloudPass::DrawPoints(const RenderContext& context, const PointCloudRe
 	list->RSSetViewports(1, &viewport);
 	list->RSSetScissorRects(1, &scissor);
 
-	const CameraData& camera = context.renderQueue->GetCamera();
-	const float aspectRatio = context.targetWidth / context.targetHeight;
-
 	PointCloudConstants constants = {};
-	constants.view = camera.view;
-	constants.projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
+	constants.view = context.view;
+	constants.projection = context.projection;
 	constants.pointSize = request.pointSize;
 	constants.intensity = request.intensity;
 	constants.targetCount = targets.targetCount;

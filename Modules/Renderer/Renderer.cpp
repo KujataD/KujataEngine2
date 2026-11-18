@@ -1,135 +1,28 @@
 #include "Renderer.h"
 
-#include "Core/Assert.h"
-#include "Interface/IRenderable.h"
-
-#include <Windows.h>
-#include <cstdio>
-#include <filesystem>
+#include "RenderSystem.h"
 
 namespace KujataEngine {
 
-// テクスチャの棚に置ける数。
-static const UINT kShaderResourceHeapCapacity = 4096;
+Renderer::Renderer() : system_(std::make_unique<RenderSystem>()) {}
 
-/// <summary>
-/// exeの場所から、Rendererのデータがあるフォルダを求める。
-/// </summary>
-static std::filesystem::path GetRendererDataDirectory() {
-	wchar_t exePath[MAX_PATH] = {};
-	GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+// unique_ptrがRenderSystemを消すには中身が見えている必要があるので、ここで定義する。
+Renderer::~Renderer() = default;
 
-	const std::filesystem::path exeDirectory = std::filesystem::path(exePath).parent_path();
-
-	// 配布したexeは、隣のDataを使う。
-	const std::filesystem::path packagedDirectory = exeDirectory / L"Data" / L"Renderer";
-	if (std::filesystem::exists(packagedDirectory)) {
-		return packagedDirectory;
-	}
-
-	// 開発中のexeはbuild\bin\構成名にあるので、3つ上がリポジトリの一番上になる。
-	const std::filesystem::path repositoryRoot = exeDirectory.parent_path().parent_path().parent_path();
-	return repositoryRoot / L"Modules" / L"Renderer";
+std::vector<std::string> Renderer::GetProvidedServices() {
+	return system_->GetProvidedServices();
 }
 
 std::vector<std::string> Renderer::GetRequiredServices() {
-	return { kGpuServiceName, kWindowServiceName, kSceneServiceName, kAssetLibraryServiceName, kTimeServiceName };
+	return system_->GetRequiredServices();
 }
 
 void Renderer::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
-	gpu_ = static_cast<IGpu*>(services.Get(kGpuServiceName));
-	KUJATA_ASSERT(gpu_ != nullptr);
-
-	window_ = static_cast<IWindow*>(services.Get(kWindowServiceName));
-	KUJATA_ASSERT(window_ != nullptr);
-
-	scene_ = static_cast<Scene*>(services.Get(kSceneServiceName));
-	KUJATA_ASSERT(scene_ != nullptr);
-
-	assets_ = static_cast<IAssetLibrary*>(services.Get(kAssetLibraryServiceName));
-	KUJATA_ASSERT(assets_ != nullptr);
-
-	time_ = static_cast<ITime*>(services.Get(kTimeServiceName));
-	KUJATA_ASSERT(time_ != nullptr);
-
-	shaderCompiler_.Initialize();
-	shaderResourceHeap_.Initialize(gpu_->GetDevice(), kShaderResourceHeapCapacity);
-
-	opaquePass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, GetRendererDataDirectory());
-	standardRenderPipeline_.AddPass(&opaquePass_);
-
-	// 点の描画
-	pointCloudPass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, GetRendererDataDirectory());
-	standardRenderPipeline_.AddPass(&pointCloudPass_);
-
-	frameLoop.Register(kSubmitRender, [this]() {
-		CollectRenderRequests();
-	});
-	frameLoop.Register(kRender, [this]() {
-		Draw();
-	});
+	system_->Startup(services, frameLoop);
 }
 
 void Renderer::Prepare() {
-	gpuAssets_.UploadAll(gpu_, &shaderResourceHeap_, assets_);
-}
-
-void Renderer::SetRenderPipeline(IRenderPipeline* renderPipeline) {
-	KUJATA_ASSERT(renderPipeline != nullptr);
-
-	renderPipeline_ = renderPipeline;
-}
-
-OpaquePass* Renderer::GetOpaquePass() {
-	return &opaquePass_;
-}
-
-void Renderer::CollectRenderRequests() {
-	for (GameObject* gameObject : scene_->GetGameObjects()) {
-		if (!gameObject->IsActive()) {
-			continue;
-		}
-
-		for (Component* component : gameObject->GetComponents()) {
-			if (!component->IsEnabled()) {
-				continue;
-			}
-
-			// 描きたいと宣言したコンポーネントにだけ頼む。
-			IRenderable* renderable = dynamic_cast<IRenderable*>(component);
-			if (renderable != nullptr) {
-				renderable->SubmitRender(&renderQueue_);
-			}
-		}
-	}
-}
-
-void Renderer::Draw() {
-	if (renderQueue_.HasCamera()) {
-		RenderContext context = {};
-		context.commandList = gpu_->GetCommandList();
-		context.renderQueue = &renderQueue_;
-		context.gpuAssets = &gpuAssets_;
-		context.targetWidth = static_cast<float>(window_->GetClientWidth());
-		context.targetHeight = static_cast<float>(window_->GetClientHeight());
-		context.deltaTime = time_->GetDeltaTime();
-		renderPipeline_->Render(context);
-	}
-
-	// カメラがないのは作る人の間違いなので、止めずにログを1回だけ出す。
-	if (!renderQueue_.HasCamera() && !hasWarnedNoCamera_) {
-		printf("カメラがないので、シーンを描きません。\n");
-		hasWarnedNoCamera_ = true;
-	}
-
-	// 光がないのも作る人の間違いなので、止めずにログを1回だけ出す。
-	if (!renderQueue_.HasDirectionalLight() && !hasWarnedNoLight_) {
-		printf("平行光源がないので、環境光だけで描きます。\n");
-		hasWarnedNoLight_ = true;
-	}
-
-	// 描かなかったフレームでも依頼が溜まらないように、必ず空にする。
-	renderQueue_.Clear();
+	system_->Prepare();
 }
 
 } // namespace KujataEngine

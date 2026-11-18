@@ -1,11 +1,13 @@
 #pragma once
 
+#include "GpuAssetTable.h"
 #include "GraphicsKit/ConstantBuffer.h"
 #include "GraphicsKit/GpuTimer.h"
+#include "GraphicsKit/IRenderPass.h"
 #include "GraphicsKit/ShaderCompiler.h"
 #include "GraphicsKit/ShaderResourceHeap.h"
-#include "IRenderPass.h"
 #include "Interface/IGpu.h"
+#include "RenderQueue.h"
 
 #include <cstdint>
 #include <d3d12.h>
@@ -59,9 +61,9 @@ public:
 	static const UINT kUpdateTargetsRootParameterIndex = 2;
 
 	/// <summary>
-	/// シェーダーと描く設定を準備し、用意できなければログを出して、この工程だけ描かない。
+	/// シェーダーと描く設定を準備し、用意できなければログを出して、この工程だけ描かない。点群の依頼とGPUに上げた集まる先は、Rendererから借りる。
 	/// </summary>
-	void Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory);
+	void Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory, const RenderQueue* renderQueue, GpuAssetTable* gpuAssets);
 
 	void Execute(const RenderContext& context) override;
 
@@ -124,6 +126,8 @@ private:
 	bool isReady_ = false;
 	IGpu* gpu_ = nullptr;
 	ShaderResourceHeap* shaderResourceHeap_ = nullptr;
+	const RenderQueue* renderQueue_ = nullptr;
+	GpuAssetTable* gpuAssets_ = nullptr;
 
 	// 依頼の番号から、その物の点のバッファを引く。
 	std::map<uint64_t, PointCloudInstance> instances_;

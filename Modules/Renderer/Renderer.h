@@ -1,66 +1,29 @@
 #pragma once
 
 #include "Core/IModule.h"
-#include "Framework/Scene.h"
-#include "GpuAssetTable.h"
-#include "GraphicsKit/ShaderCompiler.h"
-#include "GraphicsKit/ShaderResourceHeap.h"
-#include "IRenderPipeline.h"
-#include "Interface/IGpu.h"
-#include "Interface/ITime.h"
-#include "Interface/IWindow.h"
-#include "OpaquePass.h"
-#include "PointCloudPass.h"
-#include "RenderQueue.h"
-#include "StandardRenderPipeline.h"
+
+#include <memory>
 
 namespace KujataEngine {
 
+// 中身はRenderer.cppだけが知っていればよいので、クラスの名前だけを伝える。
+class RenderSystem;
+
 /// <summary>
-/// Sceneから描画の依頼を集めて、描画の手順を毎フレーム実行するモジュール。
+/// 描画を担当するモジュールで、読む側には工程やGPUの部品を見せない。
 /// </summary>
 class Renderer : public IModule {
 public:
+	Renderer();
+	~Renderer() override;
+
+	std::vector<std::string> GetProvidedServices() override;
 	std::vector<std::string> GetRequiredServices() override;
 	void Startup(ServiceRegistry& services, FrameLoop& frameLoop) override;
 	void Prepare() override;
 
-	/// <summary>
-	/// 描画の手順を差し替え、手順の持ち主は呼び出し側のままにする。
-	/// </summary>
-	void SetRenderPipeline(IRenderPipeline* renderPipeline);
-
-	/// <summary>
-	/// 差し替えた手順からも使えるように、不透明の工程を返す。
-	/// </summary>
-	OpaquePass* GetOpaquePass();
-
 private:
-	/// <summary>
-	/// 有効なコンポーネントから、このフレームの描画の依頼を集める。
-	/// </summary>
-	void CollectRenderRequests();
-
-	void Draw();
-
-	IGpu* gpu_ = nullptr;
-	IWindow* window_ = nullptr;
-	Scene* scene_ = nullptr;
-	IAssetLibrary* assets_ = nullptr;
-	ITime* time_ = nullptr;
-
-	ShaderCompiler shaderCompiler_;
-	ShaderResourceHeap shaderResourceHeap_;
-	RenderQueue renderQueue_;
-	GpuAssetTable gpuAssets_;
-
-	OpaquePass opaquePass_;
-	PointCloudPass pointCloudPass_;
-	StandardRenderPipeline standardRenderPipeline_;
-	IRenderPipeline* renderPipeline_ = &standardRenderPipeline_;
-
-	bool hasWarnedNoCamera_ = false;
-	bool hasWarnedNoLight_ = false;
+	std::unique_ptr<RenderSystem> system_;
 };
 
 } // namespace KujataEngine

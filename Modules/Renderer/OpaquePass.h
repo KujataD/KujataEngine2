@@ -1,11 +1,13 @@
 #pragma once
 
+#include "GpuAssetTable.h"
 #include "GraphicsKit/ConstantBuffer.h"
+#include "GraphicsKit/IRenderPass.h"
 #include "GraphicsKit/ShaderCompiler.h"
 #include "GraphicsKit/ShaderResourceHeap.h"
-#include "IRenderPass.h"
 #include "Interface/IGpu.h"
 #include "PipelineState.h"
+#include "RenderQueue.h"
 
 #include <filesystem>
 
@@ -17,9 +19,9 @@ namespace KujataEngine {
 class OpaquePass : public IRenderPass {
 public:
 	/// <summary>
-	/// シェーダーやバッファを準備し、用意できなければログを出して、この工程だけ描かない。
+	/// シェーダーやバッファを準備し、用意できなければログを出して、この工程だけ描かない。描く物の依頼とGPUに上げた資産は、Rendererから借りる。
 	/// </summary>
-	void Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory);
+	void Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory, const RenderQueue* renderQueue, GpuAssetTable* gpuAssets);
 
 	void Execute(const RenderContext& context) override;
 
@@ -27,6 +29,8 @@ private:
 	bool isReady_ = false;
 	bool hasWarnedTooManyDraws_ = false;
 	ShaderResourceHeap* shaderResourceHeap_ = nullptr;
+	const RenderQueue* renderQueue_ = nullptr;
+	GpuAssetTable* gpuAssets_ = nullptr;
 
 	PipelineState pipelineState_;
 	ConstantBuffer transformBuffer_;

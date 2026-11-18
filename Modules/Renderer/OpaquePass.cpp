@@ -31,8 +31,10 @@ static const Vector3 kAmbientColor = { 0.3f, 0.3f, 0.3f };
 // 1フレームに描ける物の数。
 static const UINT kMaxDrawCount = 1024;
 
-void OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory) {
+void OpaquePass::Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, ShaderResourceHeap* shaderResourceHeap, const std::filesystem::path& dataDirectory, const RenderQueue* renderQueue, GpuAssetTable* gpuAssets) {
 	shaderResourceHeap_ = shaderResourceHeap;
+	renderQueue_ = renderQueue;
+	gpuAssets_ = gpuAssets;
 
 	const std::filesystem::path shaderDirectory = dataDirectory / L"Shaders";
 	ComPtr<IDxcBlob> vertexShader = shaderCompiler->Compile((shaderDirectory / L"Object3D.VS.hlsl").wstring(), L"vs_6_0");
@@ -68,15 +70,10 @@ void OpaquePass::Execute(const RenderContext& context) {
 	shaderResourceHeap_->Bind(list);
 	list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	const CameraData& camera = context.renderQueue->GetCamera();
-	const float aspectRatio = context.targetWidth / context.targetHeight;
-	const Matrix4x4 projection = MakePerspectiveFovMatrix(camera.fovYRadians, aspectRatio, camera.nearZ, camera.farZ);
-	const Matrix4x4 viewProjection = camera.view * projection;
-
 	// 光がないフレームは強さを0のまま書くので、環境光だけで描かれる。
 	LightData lightData = {};
-	if (context.renderQueue->HasDirectionalLight()) {
-		const DirectionalLightData& light = context.renderQueue->GetDirectionalLight();
+	if (renderQueue_->HasDirectionalLight()) {
+		const DirectionalLightData& light = renderQueue_->GetDirectionalLight();
 		lightData.direction = light.direction;
 		lightData.color = light.color;
 		lightData.intensity = light.intensity;
@@ -85,7 +82,7 @@ void OpaquePass::Execute(const RenderContext& context) {
 	lightBuffer_.Write(0, &lightData);
 	lightBuffer_.Bind(list, PipelineState::kLightRootParameterIndex, 0);
 
-	const std::vector<DrawRequest>& drawRequests = context.renderQueue->GetDrawRequests();
+	const std::vector<DrawRequest>& drawRequests = renderQueue_->GetDrawRequests();
 	// 物の数はゲームしだいで増えるので、止めずに上限までだけを描く。
 	if (drawRequests.size() > kMaxDrawCount && !hasWarnedTooManyDraws_) {
 		printf("描く物が%u個を超えたので、超えた分は描きません。\n", kMaxDrawCount);
@@ -96,15 +93,15 @@ void OpaquePass::Execute(const RenderContext& context) {
 		const DrawRequest& request = drawRequests[drawIndex];
 
 		TransformData transformData = {};
-		transformData.worldViewProjection = request.world * viewProjection;
+		transformData.worldViewProjection = request.world * context.viewProjection;
 		transformData.worldInverseTranspose = Transpose(Inverse(request.world));
 		transformBuffer_.Write(drawIndex, &transformData);
 		transformBuffer_.Bind(list, PipelineState::kTransformRootParameterIndex, drawIndex);
 
-		GpuMesh& mesh = context.gpuAssets->GetMesh(request.mesh);
+		GpuMesh& mesh = gpuAssets_->GetMesh(request.mesh);
 		mesh.vertexBuffer.Bind(list);
 		mesh.indexBuffer.Bind(list);
-		context.gpuAssets->GetTexture(request.texture).Bind(list, PipelineState::kTextureRootParameterIndex);
+		gpuAssets_->GetTexture(request.texture).Bind(list, PipelineState::kTextureRootParameterIndex);
 
 		list->DrawIndexedInstanced(mesh.indexBuffer.GetIndexCount(), 1, 0, 0, 0);
 	}
