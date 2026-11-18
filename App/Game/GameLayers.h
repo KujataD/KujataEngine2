@@ -8,7 +8,7 @@
 namespace GameLayer {
 
 // 0は既定の番号なので使わない。
-constexpr uint32_t kBullet = 2;
+constexpr uint32_t kPlayerBullet = 2;
 constexpr uint32_t kEnemy = 3;
 
 /// <summary>

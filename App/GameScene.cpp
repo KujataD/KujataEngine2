@@ -5,6 +5,7 @@
 #include "Game/GameLayers.h"
 #include "Game/MovementFollower.h"
 #include "Game/PlayerController.h"
+#include "Game/Weapon.h"
 #include "Physics/ColliderComponent.h"
 #include "Scene/Camera.h"
 #include "Scene/DirectionalLight.h"
@@ -50,7 +51,7 @@ static void CreateEnemy(Scene* scene, MeshHandle mesh, TextureHandle texture, co
 	enemy->AddComponent(new MeshRenderer(mesh, texture));
 
 	BoxColliderComponent* collider = new BoxColliderComponent();
-	collider->SetCollisionMask(GameLayer::ToMask(GameLayer::kBullet));
+	collider->SetCollisionMask(GameLayer::ToMask(GameLayer::kPlayerBullet));
 	enemy->AddComponent(collider);
 
 	enemy->AddComponent(new Enemy());
@@ -81,5 +82,10 @@ void BuildGameScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputAct
 	camera->AddComponent(cameraComponent);
 	camera->AddComponent(new MovementFollower(&player->GetTransform()));
 
-	player->AddComponent(new PlayerController(scene, inputActions, time, window, cameraComponent, cubeMesh, assets->GetWhiteTexture()));
+	Weapon* weapon = new Weapon(scene, time, cubeMesh, assets->GetWhiteTexture());
+	weapon->bulletLayer = GameLayer::kPlayerBullet;
+	weapon->targetLayerMask = GameLayer::ToMask(GameLayer::kEnemy);
+	player->AddComponent(weapon);
+
+	player->AddComponent(new PlayerController(inputActions, time, window, cameraComponent, weapon));
 }

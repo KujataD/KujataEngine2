@@ -1,24 +1,18 @@
 #include "PlayerController.h"
 
-#include "Bullet.h"
 #include "Core/Math/MathUtil.h"
 #include "Framework/GameObject.h"
-#include "GameLayers.h"
-#include "Physics/ColliderComponent.h"
-#include "Scene/MeshRenderer.h"
 
 #include <cmath>
 
 using namespace KujataEngine;
 
-PlayerController::PlayerController(Scene* scene, IInputActions* inputActions, ITime* time, IWindow* window, Camera* camera, MeshHandle bulletMesh, TextureHandle bulletTexture) {
-	scene_ = scene;
+PlayerController::PlayerController(IInputActions* inputActions, ITime* time, IWindow* window, Camera* camera, Weapon* weapon) {
 	inputActions_ = inputActions;
 	time_ = time;
 	window_ = window;
 	camera_ = camera;
-	bulletMesh_ = bulletMesh;
-	bulletTexture_ = bulletTexture;
+	weapon_ = weapon;
 }
 
 void PlayerController::RegisterActions(IInputActions* inputActions) {
@@ -57,8 +51,9 @@ void PlayerController::Update() {
 	const Vector3 aimDirection = Normalize(toAim);
 	FaceTowards(aimDirection);
 
-	if (inputActions_->IsPressed(kFireAction)) {
-		SpawnBullet(aimDirection);
+	// 押している間は、Weaponの間隔ごとに撃ち続ける。
+	if (inputActions_->IsHeld(kFireAction)) {
+		weapon_->TryFire(aimDirection);
 	}
 }
 
@@ -67,26 +62,6 @@ void PlayerController::FaceTowards(const Vector3& direction) {
 	GetOwner()->GetTransform().rotation_.y = std::atan2(direction.x, direction.z) + kModelYawOffset;
 }
 
-void PlayerController::SpawnBullet(const Vector3& direction) {
-	const WorldTransform& playerTransform = GetOwner()->GetTransform();
-
-	GameObject* bullet = scene_->CreateGameObject();
-	bullet->SetLayer(GameLayer::kBullet);
-	bullet->GetTransform().translation_ = playerTransform.translation_;
-	bullet->GetTransform().scale_ = {bulletScale, bulletScale, bulletScale};
-
-	MeshRenderer* renderer = new MeshRenderer(bulletMesh_, bulletTexture_);
-	renderer->tint = bulletTint;
-	bullet->AddComponent(renderer);
-
-	// 重なりだけを知りたいので、トリガーにする。
-	SphereColliderComponent* collider = new SphereColliderComponent();
-	collider->SetTrigger(true);
-	collider->SetCollisionMask(GameLayer::ToMask(GameLayer::kEnemy));
-	bullet->AddComponent(collider);
-
-	bullet->AddComponent(new Bullet(time_, direction * bulletSpeed));
-}
 
 bool PlayerController::PickHorizontalPlane(const Vector2& screenPosition, float planeY, Vector3* hitPosition) {
 	// マウスの位置はウィンドウのピクセルなので、ウィンドウの大きさを使う。

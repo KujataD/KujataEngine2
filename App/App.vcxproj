@@ -86,6 +86,7 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     <ClCompile Include="Game\Enemy.cpp" />
     <ClCompile Include="Game\MovementFollower.cpp" />
     <ClCompile Include="Game\PlayerController.cpp" />
+    <ClCompile Include="Game\Weapon.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -96,6 +97,7 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     <ClInclude Include="Game\GameLayers.h" />
     <ClInclude Include="Game\MovementFollower.h" />
     <ClInclude Include="Game\PlayerController.h" />
+    <ClInclude Include="Game\Weapon.h" />
     <ClInclude Include="GameScene.h" />
   </ItemGroup>
   <ItemGroup>
