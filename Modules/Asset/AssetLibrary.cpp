@@ -83,6 +83,11 @@ std::filesystem::path AssetLibrary::GetDataDirectory() {
 	return dataDirectory_;
 }
 
+std::filesystem::path AssetLibrary::GetEngineResourcesDirectory() {
+	// ゲームのデータと一緒にexeの隣へ配るので、データのフォルダの中に置く。
+	return dataDirectory_ / L"EngineResources";
+}
+
 MeshHandle AssetLibrary::GetCubeMesh() {
 	return MeshHandle();
 }

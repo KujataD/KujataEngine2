@@ -5,6 +5,7 @@
 #include "Gpu/Gpu.h"
 #include "ImGuiModule/ImGuiModule.h"
 #include "Input/Input.h"
+#include "Lines/Lines.h"
 #include "Physics/Physics.h"
 #include "Renderer/Renderer.h"
 #include "Scene/SceneModule.h"
@@ -39,6 +40,10 @@ int main() {
 	KujataEngine::Renderer renderer;
 	app.Add(&renderer);
 
+	// 線を描く工程を、Rendererの登録口に足す。
+	KujataEngine::Lines lines;
+	app.Add(&lines);
+
 	// シーンやほかのモジュールが、フレームの中でimguiのウィンドウを組めるようにする。
 	KujataEngine::ImGuiModule imguiModule;
 	app.Add(&imguiModule);
@@ -59,7 +64,8 @@ int main() {
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
 		KujataEngine::IConsoleCommands* consoleCommands = static_cast<KujataEngine::IConsoleCommands*>(services.Get(KujataEngine::kConsoleCommandsServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands);
+		KujataEngine::ILineRenderer* lineRenderer = static_cast<KujataEngine::ILineRenderer*>(services.Get(KujataEngine::kLineRendererServiceName));
+		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands, lineRenderer);
 	});
 
 	app.Run();

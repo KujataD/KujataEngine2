@@ -77,13 +77,23 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"
-xcopy /E /I /Y "$(ProjectDir)..\Modules\Renderer\Shaders" "$(TargetDir)Data\Renderer\Shaders"
 xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DemoScene.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\EngineResources\Shaders\Line.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Line.VS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Object3D.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Object3D.VS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\PointCloud.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\PointCloud.VS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\PointCloudUpdate.CS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\ThickLine.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\ThickLine.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
@@ -127,6 +137,9 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     </ProjectReference>
     <ProjectReference Include="..\Modules\ImGuiModule\ImGuiModule.vcxproj">
       <Project>{59AE657B-97FF-4B67-9C3D-AE82C00F90C1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Modules\Lines\Lines.vcxproj">
+      <Project>{3B8F1D27-6C4E-4A95-8E2D-7F1A9C5B3E61}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

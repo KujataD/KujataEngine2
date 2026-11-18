@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3B8F1D27-6C4E-4A95-8E2D-7F1A9C5B3E61}</ProjectGuid>
+    <RootNamespace>Lines</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="LinePass.h" />
+    <ClInclude Include="Lines.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LinePass.cpp" />
+    <ClCompile Include="Lines.cpp" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+  <Import Project="..\..\GraphicsKit\GraphicsKit.props" />
+</Project>

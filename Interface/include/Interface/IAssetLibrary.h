@@ -25,6 +25,11 @@ public:
 	virtual std::filesystem::path GetDataDirectory() = 0;
 
 	/// <summary>
+	/// シェーダーなど、エンジンが既定で使うリソースを置くフォルダを返す。
+	/// </summary>
+	virtual std::filesystem::path GetEngineResourcesDirectory() = 0;
+
+	/// <summary>
 	/// データのフォルダからの相対パスでモデルを読み、読めなければ代わりの物を返す。
 	/// </summary>
 	virtual ModelHandles LoadModel(const std::string& utf8Path) = 0;
