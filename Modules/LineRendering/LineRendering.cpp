@@ -40,7 +40,7 @@ void LineRendering::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	IAssetLibrary* assets = static_cast<IAssetLibrary*>(services.Get(kAssetLibraryServiceName));
 	KUJATA_ASSERT(assets != nullptr);
 
-	pass_->Initialize(gpu, renderPasses->GetShaderCompiler(), assets->GetEngineResourcesDirectory(), &batches_);
+	pass_->Initialize(gpu, renderPasses, assets->GetEngineResourcesDirectory(), &batches_);
 	renderPasses->AddPass(pass_.get(), RenderStage::Debug, 0);
 
 	// 受け取る側がILineRenderer*に戻せるように、void*にする前にILineRenderer*へ変換する。

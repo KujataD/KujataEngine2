@@ -101,9 +101,7 @@ void ParticleDrawPass::CreateRootSignature(ID3D12Device* device) {
 	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 
 	// b0で、頂点シェーダーがカメラと板の大きさを、ピクセルシェーダーが明るさを受け取る。
-	rootParameters[kConstantsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kConstantsRootParameterIndex].Descriptor.ShaderRegister = 0;
-	rootParameters[kConstantsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParameters[kConstantsRootParameterIndex] = MakeConstantsParameter(0, D3D12_SHADER_VISIBILITY_ALL);
 
 	// 頂点シェーダーのt0で粒の位置を、t1で集まる先の色を受け取る。
 	rootParameters[kStatesRootParameterIndex] = MakeTableParameter(&statesRange, D3D12_SHADER_VISIBILITY_VERTEX);

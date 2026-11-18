@@ -36,4 +36,25 @@ D3D12_DESCRIPTOR_RANGE MakeSingleRange(D3D12_DESCRIPTOR_RANGE_TYPE type, UINT sh
 	return range;
 }
 
+D3D12_ROOT_PARAMETER MakeConstantsParameter(UINT shaderRegister, D3D12_SHADER_VISIBILITY visibility) {
+	D3D12_ROOT_PARAMETER parameter = {};
+	parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameter.Descriptor.ShaderRegister = shaderRegister;
+	parameter.ShaderVisibility = visibility;
+	return parameter;
+}
+
+D3D12_STATIC_SAMPLER_DESC MakeWrapLinearSampler(UINT shaderRegister, D3D12_SHADER_VISIBILITY visibility) {
+	D3D12_STATIC_SAMPLER_DESC sampler = {};
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	sampler.MaxLOD = D3D12_FLOAT32_MAX;
+	sampler.ShaderRegister = shaderRegister;
+	sampler.ShaderVisibility = visibility;
+	return sampler;
+}
+
 } // namespace KujataEngine

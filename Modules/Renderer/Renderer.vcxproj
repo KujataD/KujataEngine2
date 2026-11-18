@@ -7,7 +7,6 @@
   <ItemGroup>
     <ClInclude Include="GpuAssetTable.h" />
     <ClInclude Include="OpaquePass.h" />
-    <ClInclude Include="PipelineState.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPassList.h" />
     <ClInclude Include="RenderQueue.h" />
@@ -16,7 +15,6 @@
   <ItemGroup>
     <ClCompile Include="GpuAssetTable.cpp" />
     <ClCompile Include="OpaquePass.cpp" />
-    <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderPassList.cpp" />
     <ClCompile Include="RenderQueue.cpp" />

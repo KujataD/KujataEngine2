@@ -145,9 +145,7 @@ void ParticleSimulationPass::CreateRootSignature(ID3D12Device* device) {
 	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 
 	// 集める場所の一覧はルート定数に入りきらないので、b0は定数バッファで受け取る。
-	rootParameters[kConstantsRootParameterIndex].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[kConstantsRootParameterIndex].Descriptor.ShaderRegister = 0;
-	rootParameters[kConstantsRootParameterIndex].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParameters[kConstantsRootParameterIndex] = MakeConstantsParameter(0, D3D12_SHADER_VISIBILITY_ALL);
 
 	// u0で粒のバッファに書き込み、t0で集まる先を読む。
 	rootParameters[kStatesRootParameterIndex] = MakeTableParameter(&statesRange, D3D12_SHADER_VISIBILITY_ALL);

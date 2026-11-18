@@ -25,6 +25,11 @@ public:
 	/// </summary>
 	bool HasFreeSlot();
 
+	/// <summary>
+	/// まだ名札を置ける場所の数を返す。
+	/// </summary>
+	UINT GetFreeSlotCount();
+
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(UINT index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle(UINT index);
 

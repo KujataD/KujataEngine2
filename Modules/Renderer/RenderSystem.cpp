@@ -46,7 +46,7 @@ void RenderSystem::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	// シェーダーは、エンジン既定のリソースのフォルダの Shaders に置く。
 	const std::filesystem::path resourcesDirectory = assets_->GetEngineResourcesDirectory();
 
-	opaquePass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, resourcesDirectory, &renderQueue_, &gpuAssets_);
+	opaquePass_.Initialize(gpu_, &passList_, resourcesDirectory, &renderQueue_, &gpuAssets_);
 	passList_.AddPass(&opaquePass_, RenderStage::Opaque, 0);
 
 
