@@ -99,7 +99,8 @@ void CollectSceneColliders(Scene& scene, std::vector<ColliderComponent*>& outCol
 	outColliders.clear();
 
 	for (GameObject* gameObject : scene.GetGameObjects()) {
-		if (!gameObject || !gameObject->IsActive()) {
+		// 削除の印が付いた物は、消えるまでの間も当たらず動かない。
+		if (!gameObject || !gameObject->IsActive() || gameObject->IsDestroyed()) {
 			continue;
 		}
 

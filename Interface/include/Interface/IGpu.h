@@ -47,6 +47,12 @@ public:
 	virtual DXGI_FORMAT GetDepthFormat() = 0;
 
 	/// <summary>
+	/// 描き先の幅と高さを返す。ウィンドウが最小化されている間は、前の大きさのまま。
+	/// </summary>
+	virtual uint32_t GetRenderTargetWidth() = 0;
+	virtual uint32_t GetRenderTargetHeight() = 0;
+
+	/// <summary>
 	/// GPUのタイムスタンプが1秒に進む数を返し、タイムスタンプの差を秒に直すのに使う。
 	/// </summary>
 	virtual uint64_t GetTimestampFrequency() = 0;

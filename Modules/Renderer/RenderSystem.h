@@ -7,7 +7,6 @@
 #include "GraphicsKit/ShaderResourceHeap.h"
 #include "Interface/IGpu.h"
 #include "Interface/ITime.h"
-#include "Interface/IWindow.h"
 #include "OpaquePass.h"
 #include "RenderPassList.h"
 #include "RenderQueue.h"
@@ -33,7 +32,6 @@ private:
 	void Draw();
 
 	IGpu* gpu_ = nullptr;
-	IWindow* window_ = nullptr;
 	Scene* scene_ = nullptr;
 	IAssetLibrary* assets_ = nullptr;
 	ITime* time_ = nullptr;

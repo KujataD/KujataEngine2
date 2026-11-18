@@ -17,15 +17,12 @@ std::vector<std::string> RenderSystem::GetProvidedServices() {
 }
 
 std::vector<std::string> RenderSystem::GetRequiredServices() {
-	return { kGpuServiceName, kWindowServiceName, kSceneServiceName, kAssetLibraryServiceName, kTimeServiceName };
+	return { kGpuServiceName, kSceneServiceName, kAssetLibraryServiceName, kTimeServiceName };
 }
 
 void RenderSystem::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	gpu_ = static_cast<IGpu*>(services.Get(kGpuServiceName));
 	KUJATA_ASSERT(gpu_ != nullptr);
-
-	window_ = static_cast<IWindow*>(services.Get(kWindowServiceName));
-	KUJATA_ASSERT(window_ != nullptr);
 
 	scene_ = static_cast<Scene*>(services.Get(kSceneServiceName));
 	KUJATA_ASSERT(scene_ != nullptr);
@@ -86,8 +83,9 @@ void RenderSystem::Draw() {
 	if (renderQueue_.HasCamera()) {
 		RenderContext context = {};
 		context.commandList = gpu_->GetCommandList();
-		context.targetWidth = static_cast<float>(window_->GetClientWidth());
-		context.targetHeight = static_cast<float>(window_->GetClientHeight());
+		// ウィンドウではなく描き先の大きさを使うので、最小化の間も0で割らない。
+		context.targetWidth = static_cast<float>(gpu_->GetRenderTargetWidth());
+		context.targetHeight = static_cast<float>(gpu_->GetRenderTargetHeight());
 		context.deltaTime = time_->GetDeltaTime();
 
 		// カメラの行列は、どの工程も同じものを使うので、ここで1回だけ作る。

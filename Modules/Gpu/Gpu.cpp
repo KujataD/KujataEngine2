@@ -18,6 +18,7 @@ std::vector<std::string> Gpu::GetRequiredServices() {
 void Gpu::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	IWindow* window = static_cast<IWindow*>(services.Get(kWindowServiceName));
 	KUJATA_ASSERT(window != nullptr);
+	window_ = window;
 
 	debugMessages_.EnableDebugLayer();
 
@@ -63,6 +64,14 @@ DXGI_FORMAT Gpu::GetDepthFormat() {
 	return depthBuffer_.GetFormat();
 }
 
+uint32_t Gpu::GetRenderTargetWidth() {
+	return swapChain_.GetWidth();
+}
+
+uint32_t Gpu::GetRenderTargetHeight() {
+	return swapChain_.GetHeight();
+}
+
 uint64_t Gpu::GetTimestampFrequency() {
 	UINT64 frequency = 0;
 	const HRESULT result = commandContext_.GetQueue()->GetTimestampFrequency(&frequency);
@@ -78,6 +87,9 @@ void Gpu::ExecuteImmediately(std::function<void(ID3D12GraphicsCommandList*)> rec
 }
 
 void Gpu::BeginFrame() {
+	// Windowより後に起動するので、メッセージを処理して大きさが変わった後にここへ来る。
+	ResizeIfWindowChanged();
+
 	commandContext_.Begin();
 
 	ID3D12GraphicsCommandList* list = commandContext_.GetList();
@@ -108,6 +120,23 @@ void Gpu::StopIfGpuErrorFound() {
 	// Releaseではアサートが消えるので、呼び出しを条件の中に書かない。
 	const bool hasError = debugMessages_.PrintProblems();
 	KUJATA_ASSERT(!hasError);
+}
+
+void Gpu::ResizeIfWindowChanged() {
+	const UINT width = static_cast<UINT>(window_->GetClientWidth());
+	const UINT height = static_cast<UINT>(window_->GetClientHeight());
+
+	// 最小化の間は大きさが0になり、0では作れないので、前の大きさのまま描く。
+	if (width == 0 || height == 0) {
+		return;
+	}
+	if (width == swapChain_.GetWidth() && height == swapChain_.GetHeight()) {
+		return;
+	}
+
+	// 前のフレームの終わりでGPUの完了を待っているので、ここではもう誰も描き先を使っていない。
+	swapChain_.Resize(device_.GetDevice(), width, height);
+	depthBuffer_.Resize(device_.GetDevice(), width, height);
 }
 
 } // namespace KujataEngine

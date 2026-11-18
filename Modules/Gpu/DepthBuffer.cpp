@@ -11,6 +11,21 @@ static const DXGI_FORMAT kDepthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 static const float kFarthestDepth = 1.0f;
 
 void DepthBuffer::Initialize(ID3D12Device* device, UINT width, UINT height) {
+	D3D12_DESCRIPTOR_HEAP_DESC heapDescription = {};
+	heapDescription.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	heapDescription.NumDescriptors = 1;
+	const HRESULT result = device->CreateDescriptorHeap(&heapDescription, IID_PPV_ARGS(&viewHeap_));
+	KUJATA_ASSERT(SUCCEEDED(result));
+
+	CreateBuffer(device, width, height);
+}
+
+void DepthBuffer::Resize(ID3D12Device* device, UINT width, UINT height) {
+	// 名札の場所はそのまま使い、新しいバッファの名札で上書きする。
+	CreateBuffer(device, width, height);
+}
+
+void DepthBuffer::CreateBuffer(ID3D12Device* device, UINT width, UINT height) {
 	D3D12_RESOURCE_DESC description = {};
 	description.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	description.Width = width;
@@ -28,13 +43,8 @@ void DepthBuffer::Initialize(ID3D12Device* device, UINT width, UINT height) {
 	clearValue.Format = kDepthFormat;
 	clearValue.DepthStencil.Depth = kFarthestDepth;
 
-	HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &description, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&buffer_));
-	KUJATA_ASSERT(SUCCEEDED(result));
-
-	D3D12_DESCRIPTOR_HEAP_DESC heapDescription = {};
-	heapDescription.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	heapDescription.NumDescriptors = 1;
-	result = device->CreateDescriptorHeap(&heapDescription, IID_PPV_ARGS(&viewHeap_));
+	// 前のバッファはここで手放され、GPUはもう使っていない。
+	const HRESULT result = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &description, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&buffer_));
 	KUJATA_ASSERT(SUCCEEDED(result));
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC viewDescription = {};

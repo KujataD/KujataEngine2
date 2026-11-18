@@ -16,6 +16,11 @@ public:
 	void Initialize(ID3D12Device* device, UINT width, UINT height);
 
 	/// <summary>
+	/// 指定の大きさで深度バッファを作り直す。GPUが使い終わってから呼ぶ。
+	/// </summary>
+	void Resize(ID3D12Device* device, UINT width, UINT height);
+
+	/// <summary>
 	/// 深度バッファに描くための名札を返す。
 	/// </summary>
 	D3D12_CPU_DESCRIPTOR_HANDLE GetView();
@@ -31,6 +36,11 @@ public:
 	void Clear(ID3D12GraphicsCommandList* list);
 
 private:
+	/// <summary>
+	/// 深度バッファを作り、名札を置く。
+	/// </summary>
+	void CreateBuffer(ID3D12Device* device, UINT width, UINT height);
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer_;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> viewHeap_;
 };

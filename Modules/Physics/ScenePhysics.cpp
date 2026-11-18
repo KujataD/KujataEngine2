@@ -114,7 +114,8 @@ void ScenePhysics::IntegrateRigidbodies(Scene& scene, float deltaTime) {
 		return;
 	}
 	for (GameObject* gameObject : scene.GetGameObjects()) {
-		if (!gameObject || !gameObject->IsActive()) {
+		// 削除の印が付いた物は、消えるまでの間も当たらず動かない。
+		if (!gameObject || !gameObject->IsActive() || gameObject->IsDestroyed()) {
 			continue;
 		}
 		RigidbodyComponent* rigidbody = gameObject->GetComponent<RigidbodyComponent>();

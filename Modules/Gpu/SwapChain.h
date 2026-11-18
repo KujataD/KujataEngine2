@@ -43,8 +43,17 @@ public:
 	/// </summary>
 	void Present();
 
+	/// <summary>
+	/// 画像を指定の大きさで作り直す。GPUが画像を使い終わってから呼ぶ。
+	/// </summary>
+	void Resize(ID3D12Device* device, UINT width, UINT height);
+
+	UINT GetWidth() const { return width_; }
+	UINT GetHeight() const { return height_; }
+
 private:
 	void CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* queue, IWindow* window);
+	void CreateRenderTargetViewHeap(ID3D12Device* device);
 	void CreateRenderTargetViews(ID3D12Device* device);
 	void Transition(ID3D12GraphicsCommandList* list, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
 
@@ -56,6 +65,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> backBuffers_[kBackBufferCount];
 	UINT renderTargetViewSize_ = 0;
 	UINT backBufferIndex_ = 0;
+	UINT width_ = 0;
+	UINT height_ = 0;
 };
 
 } // namespace KujataEngine

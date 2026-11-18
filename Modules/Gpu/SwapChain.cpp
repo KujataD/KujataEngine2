@@ -14,6 +14,23 @@ static const DXGI_FORMAT kRenderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 void SwapChain::Initialize(IDXGIFactory7* factory, ID3D12Device* device, ID3D12CommandQueue* queue, IWindow* window) {
 	CreateSwapChain(factory, queue, window);
+	CreateRenderTargetViewHeap(device);
+	CreateRenderTargetViews(device);
+}
+
+void SwapChain::Resize(ID3D12Device* device, UINT width, UINT height) {
+	// 画像を参照したままだと作り直せないので、先に手放す。
+	for (UINT i = 0; i < kBackBufferCount; i++) {
+		backBuffers_[i].Reset();
+	}
+
+	// 枚数と形式は0を渡すと今のまま変えない。
+	const HRESULT result = swapChain_->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+	KUJATA_ASSERT(SUCCEEDED(result));
+
+	width_ = width;
+	height_ = height;
+	backBufferIndex_ = swapChain_->GetCurrentBackBufferIndex();
 	CreateRenderTargetViews(device);
 }
 
@@ -44,9 +61,12 @@ void SwapChain::Present() {
 }
 
 void SwapChain::CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* queue, IWindow* window) {
+	width_ = static_cast<UINT>(window->GetClientWidth());
+	height_ = static_cast<UINT>(window->GetClientHeight());
+
 	DXGI_SWAP_CHAIN_DESC1 description = {};
-	description.Width = window->GetClientWidth();
-	description.Height = window->GetClientHeight();
+	description.Width = width_;
+	description.Height = height_;
 	description.Format = kBackBufferFormat;
 	description.SampleDesc.Count = 1;
 	description.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -63,19 +83,27 @@ void SwapChain::CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* queu
 	result = createdSwapChain.As(&swapChain_);
 	KUJATA_ASSERT(SUCCEEDED(result));
 
+	// 全画面はまだ作らないので、Alt+Enterで排他的な全画面に切り替わらないようにする。
+	result = factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
+	KUJATA_ASSERT(SUCCEEDED(result));
+
 	backBufferIndex_ = swapChain_->GetCurrentBackBufferIndex();
 }
 
-void SwapChain::CreateRenderTargetViews(ID3D12Device* device) {
+void SwapChain::CreateRenderTargetViewHeap(ID3D12Device* device) {
 	D3D12_DESCRIPTOR_HEAP_DESC heapDescription = {};
 	heapDescription.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDescription.NumDescriptors = kBackBufferCount;
-	HRESULT result = device->CreateDescriptorHeap(&heapDescription, IID_PPV_ARGS(&renderTargetViewHeap_));
+	const HRESULT result = device->CreateDescriptorHeap(&heapDescription, IID_PPV_ARGS(&renderTargetViewHeap_));
 	KUJATA_ASSERT(SUCCEEDED(result));
 
 	// RTV1個の大きさはGPUによって違うので、聞いてからずらす。
 	renderTargetViewSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+}
 
+void SwapChain::CreateRenderTargetViews(ID3D12Device* device) {
+	// 作り直しでは同じ場所に名札を上書きする。
+	HRESULT result = S_OK;
 	D3D12_RENDER_TARGET_VIEW_DESC viewDescription = {};
 	viewDescription.Format = kRenderTargetFormat;
 	viewDescription.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;

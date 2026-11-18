@@ -26,6 +26,8 @@ public:
 	ID3D12GraphicsCommandList* GetCommandList() override;
 	DXGI_FORMAT GetRenderTargetFormat() override;
 	DXGI_FORMAT GetDepthFormat() override;
+	uint32_t GetRenderTargetWidth() override;
+	uint32_t GetRenderTargetHeight() override;
 	uint64_t GetTimestampFrequency() override;
 	void ExecuteImmediately(std::function<void(ID3D12GraphicsCommandList*)> recordCommands) override;
 
@@ -33,6 +35,13 @@ private:
 	void BeginFrame();
 	void EndFrame();
 	void StopIfGpuErrorFound();
+
+	/// <summary>
+	/// ウィンドウの大きさが描き先と違えば、描き先と深度バッファを作り直す。大きさが0の間は作り直さない。
+	/// </summary>
+	void ResizeIfWindowChanged();
+
+	IWindow* window_ = nullptr;
 
 	// メンバーは宣言の逆順に破棄されるので、使われる側を先に宣言する。
 	GpuDebugMessages debugMessages_;
