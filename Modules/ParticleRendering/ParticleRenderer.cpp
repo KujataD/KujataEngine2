@@ -1,4 +1,4 @@
-#include "PointCloudRenderer.h"
+#include "ParticleRenderer.h"
 
 #include "Framework/GameObject.h"
 #include "Interface/IRenderQueue.h"
@@ -8,20 +8,21 @@ namespace KujataEngine {
 // 次に作るコンポーネントに渡す番号で、作るたびに増やして重ならないようにする。
 static uint64_t nextInstanceId = 1;
 
-PointCloudRenderer::PointCloudRenderer(PointCloudHandle targets) {
-	targets_ = targets;
+ParticleRenderer::ParticleRenderer(IParticleRenderer* particleRenderer, ParticleShapeHandle shape) {
+	particleRenderer_ = particleRenderer;
+	shape_ = shape;
 	instanceId_ = nextInstanceId;
 	nextInstanceId++;
 }
 
-void PointCloudRenderer::SetTargets(PointCloudHandle targets) {
-	// 点の位置と速度は番号ごとに描画の担当が覚えているので、集まる先だけを替えればよい。
-	targets_ = targets;
+void ParticleRenderer::SetShape(ParticleShapeHandle shape) {
+	// 粒の位置と速度は番号ごとに描画の担当が覚えているので、集まる先だけを替えればよい。
+	shape_ = shape;
 }
 
-void PointCloudRenderer::Gather(const Vector3& worldPosition, float radius) {
+void ParticleRenderer::Gather(const Vector3& worldPosition, float radius) {
 	// 1フレームに渡せる数を超えた分は、次のフレームでまた呼ばれる前提で捨てる。
-	if (gatherPointCount_ >= kMaxPointCloudGatherPoints) {
+	if (gatherPointCount_ >= kMaxParticleGatherPoints) {
 		return;
 	}
 
@@ -30,21 +31,21 @@ void PointCloudRenderer::Gather(const Vector3& worldPosition, float radius) {
 	gatherPointCount_++;
 }
 
-void PointCloudRenderer::Crumble() {
-	// 形になっている間に種を変えるので、散った点がいきなり別の場所へ飛ぶことはない。
+void ParticleRenderer::Crumble() {
+	// 形になっている間に種を変えるので、散った粒がいきなり別の場所へ飛ぶことはない。
 	scatterSeed_++;
 	hasSettleOverride_ = true;
 	settleOverride_ = 0.0f;
 }
 
-void PointCloudRenderer::GatherAll() {
+void ParticleRenderer::GatherAll() {
 	hasSettleOverride_ = true;
 	settleOverride_ = 1.0f;
 }
 
-void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
-	PointCloudRequest request;
-	request.targets = targets_;
+void ParticleRenderer::SubmitRender(IRenderQueue* /*renderQueue*/) {
+	ParticleRequest request;
+	request.shape = shape_;
 	request.instanceId = instanceId_;
 	request.world = GetOwner()->GetTransform().matWorld_;
 	request.pointSize = pointSize;
@@ -65,7 +66,7 @@ void PointCloudRenderer::SubmitRender(IRenderQueue* renderQueue) {
 	}
 	request.gatherPointCount = gatherPointCount_;
 	gatherPointCount_ = 0;
-	renderQueue->SubmitPointCloud(request);
+	particleRenderer_->SubmitParticles(request);
 }
 
 } // namespace KujataEngine

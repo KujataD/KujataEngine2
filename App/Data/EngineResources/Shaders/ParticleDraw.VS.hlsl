@@ -1,5 +1,5 @@
-// PointCloudPass.cppのPointCloudConstantsと並びを合わせる。
-cbuffer PointCloudConstants : register(b0) {
+// ParticleDrawPass.cppのDrawConstantsと並びを合わせる。
+cbuffer DrawConstants : register(b0) {
 	float4x4 gView;
 	float4x4 gProjection;
 	float gPointSize;
@@ -8,38 +8,38 @@ cbuffer PointCloudConstants : register(b0) {
 	float gScatteredBrightness;
 };
 
-// PointCloudPass.cppのPointStateと並びを合わせ、使わない値も読み飛ばすために置く。
-struct PointState {
+// ParticleInstances.hのParticleStateと並びを合わせ、使わない値も読み飛ばすために置く。
+struct ParticleState {
 	float3 position;
 	float3 velocity;
 	float settleGoal;
 	float settleDisplay;
 };
 
-// Interface/AssetData.hのPointCloudTargetと並びを合わせる。
-struct PointCloudTarget {
+// Interface/ParticleData.hのParticleTargetと並びを合わせる。
+struct ParticleTarget {
 	float3 position;
 	float3 normal;
 	float3 color;
 };
 
-StructuredBuffer<PointState> gPoints : register(t0);
-StructuredBuffer<PointCloudTarget> gTargets : register(t1);
+StructuredBuffer<ParticleState> gPoints : register(t0);
+StructuredBuffer<ParticleTarget> gTargets : register(t1);
 
 struct VertexOutput {
 	float4 position : SV_POSITION;
 	float3 color : COLOR;
 };
 
-// 点が消える度合いのしきい値の範囲で、形になる度合いがここを下回った点から消える。
+// 粒が消える度合いのしきい値の範囲で、形になる度合いがここを下回った粒から消える。
 static const float kMinVanishThreshold = 0.15f;
 static const float kMaxVanishThreshold = 0.85f;
 
-// しきい値の前後で明るさを切り替える幅で、狭いほど点がぱっと消える。
+// しきい値の前後で明るさを切り替える幅で、狭いほど粒がぱっと消える。
 static const float kVanishFadeWidth = 0.08f;
 
 /// <summary>
-/// 整数を混ぜて0以上1未満の小数にする乱数で、PointCloudUpdate.CS.hlslのPcgHashと同じ混ぜ方を使う。
+/// 整数を混ぜて0以上1未満の小数にする乱数で、ParticleSimulation.CS.hlslのPcgHashと同じ混ぜ方を使う。
 /// </summary>
 float HashToUnitFloat(uint value) {
 	uint state = value * 747796405u + 2891336453u;
@@ -66,11 +66,11 @@ VertexOutput main(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID) 
 	VertexOutput output;
 	output.position = mul(viewPosition, gProjection);
 
-	// 点ごとに違うしきい値を持たせ、形になる度合いが下がっていくと、ばらばらの順に形でない明るさへ切り替わる。
+	// 粒ごとに違うしきい値を持たせ、形になる度合いが下がっていくと、ばらばらの順に形でない明るさへ切り替わる。
 	const float vanishThreshold = lerp(kMinVanishThreshold, kMaxVanishThreshold, HashToUnitFloat(instanceId));
 	const float formedAmount = smoothstep(vanishThreshold - kVanishFadeWidth, vanishThreshold + kVanishFadeWidth, gPoints[instanceId].settleDisplay);
 
-	// 点の色は同じ番号の集まる先の色にし、形でない点は決めた倍率の明るさにする。
+	// 粒の色は同じ番号の集まる先の色にし、形でない粒は決めた倍率の明るさにする。
 	const float brightness = lerp(gScatteredBrightness, 1.0f, formedAmount);
 	output.color = gTargets[instanceId % gTargetCount].color * brightness;
 	return output;

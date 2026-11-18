@@ -1,6 +1,8 @@
 #include "DemoScene.h"
 
 #include "Interface/LineShapes.h"
+#include "ParticleRendering/ParticleRenderer.h"
+#include "ParticleRendering/ParticleShapes.h"
 #include "Scene/Camera.h"
 #include "Scene/DebugCamera.h"
 #include "Scene/DirectionalLight.h"
@@ -32,6 +34,49 @@ static const float kFloorThickness = 0.2f;
 
 // 線の描画を確かめる箱の位置で、目の正面の少し先に置く。
 static const Vector3 kLineCheckBoxPosition = {0.0f, 0.5f, 6.0f};
+
+// 粒子の描画を確かめる球と円環の位置で、線の箱の両脇の奥に置く。
+static const Vector3 kParticleSpherePosition = {-4.0f, 1.2f, 8.0f};
+static const Vector3 kParticleTorusPosition = {4.0f, 1.2f, 8.0f};
+
+// 粒子1つの粒の数で、重なって明るくなりすぎないように明るさと組で決める。
+static const uint32_t kParticlePointCount = 20000;
+static const float kParticleIntensity = 0.15f;
+
+// 粒子が崩れる状態と集まる状態を切り替える間隔で、単位は秒。
+static const float kParticleToggleSeconds = 2.5f;
+
+/// <summary>
+/// 決めた間隔で、付いている物の粒子を崩したり集めたりして、粒を動かす工程を確かめる。
+/// </summary>
+class ParticleBreather : public Component {
+public:
+	ParticleBreather(ITime* time, ParticleRenderer* particles) {
+		time_ = time;
+		particles_ = particles;
+	}
+
+	void Update() override {
+		elapsedSeconds_ += time_->GetDeltaTime();
+		if (elapsedSeconds_ < kParticleToggleSeconds) {
+			return;
+		}
+		elapsedSeconds_ = 0.0f;
+
+		isCrumbled_ = !isCrumbled_;
+		if (isCrumbled_) {
+			particles_->Crumble();
+		} else {
+			particles_->GatherAll();
+		}
+	}
+
+private:
+	ITime* time_ = nullptr;
+	ParticleRenderer* particles_ = nullptr;
+	float elapsedSeconds_ = 0.0f;
+	bool isCrumbled_ = false;
+};
 
 /// <summary>
 /// 付いている物の箱に重ねて線の箱を描き、床の格子と球と太い線も描いて、線の描画を確かめる。
@@ -161,6 +206,29 @@ static void CreateLineCheckBox(Scene* scene, IAssetLibrary* assets, ILineRendere
 }
 
 /// <summary>
+/// 指定の形の粒子を置き、決めた間隔で崩しては集める。
+/// </summary>
+static void CreateBreathingParticles(Scene* scene, ITime* time, IParticleRenderer* particleRenderer, ParticleShapeHandle shape, const Vector3& position) {
+	ParticleRenderer* particles = new ParticleRenderer(particleRenderer, shape);
+	particles->intensity = kParticleIntensity;
+
+	GameObject* object = scene->CreateGameObject();
+	object->GetTransform().translation_ = position;
+	object->AddComponent(particles);
+	object->AddComponent(new ParticleBreather(time, particles));
+}
+
+/// <summary>
+/// 粒子の描画を確かめる、球と円環の粒子を置く。
+/// </summary>
+static void CreateParticleCheck(Scene* scene, ITime* time, IParticleRenderer* particleRenderer) {
+	const ParticleShapeHandle sphere = particleRenderer->AddShape(CreateSphereParticleShape(kParticlePointCount, 1.0f, {0.3f, 0.7f, 1.0f}));
+	const ParticleShapeHandle torus = particleRenderer->AddShape(CreateTorusParticleShape(kParticlePointCount, 0.9f, 0.3f, {1.0f, 0.6f, 0.2f}));
+	CreateBreathingParticles(scene, time, particleRenderer, sphere, kParticleSpherePosition);
+	CreateBreathingParticles(scene, time, particleRenderer, torus, kParticleTorusPosition);
+}
+
+/// <summary>
 /// 目になるカメラを置く。
 /// </summary>
 static Camera* CreateEye(Scene* scene, IInputActions* inputActions, ITime* time) {
@@ -185,11 +253,12 @@ static void CreateDebugCamera(Scene* scene, IInputActions* inputActions, ITime* 
 	});
 }
 
-void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IConsoleCommands* consoleCommands, ILineRenderer* lineRenderer) {
+void BuildDemoScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IConsoleCommands* consoleCommands, ILineRenderer* lineRenderer, IParticleRenderer* particleRenderer) {
 	RegisterEyeActions(inputActions);
 	CreateLight(scene);
 	CreateFloor(scene, assets);
 	CreateLineCheckBox(scene, assets, lineRenderer);
+	CreateParticleCheck(scene, time, particleRenderer);
 
 	Camera* camera = CreateEye(scene, inputActions, time);
 	CreateDebugCamera(scene, inputActions, time, consoleCommands, camera);

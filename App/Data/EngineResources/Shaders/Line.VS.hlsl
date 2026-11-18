@@ -7,7 +7,7 @@ cbuffer LineConstants : register(b0) {
 	float2 gPadding;
 };
 
-// Lines.hのLineVertexとLinePass.cppの入力の設定と並びを合わせる。
+// LineRendering.hのLineVertexとLinePass.cppの入力の設定と並びを合わせる。
 struct VertexInput {
 	float3 position : POSITION;
 	float4 color : COLOR;

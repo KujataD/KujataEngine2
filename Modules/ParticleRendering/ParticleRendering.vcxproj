@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7C2E5A91-3D48-4F6B-B0A7-9E14C6D82F35}</ProjectGuid>
+    <RootNamespace>ParticleRendering</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="ParticleDrawPass.h" />
+    <ClInclude Include="ParticleInstances.h" />
+    <ClInclude Include="ParticleRenderer.h" />
+    <ClInclude Include="ParticleRendering.h" />
+    <ClInclude Include="ParticleShapes.h" />
+    <ClInclude Include="ParticleShapeTable.h" />
+    <ClInclude Include="ParticleSimulationPass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ParticleDrawPass.cpp" />
+    <ClCompile Include="ParticleInstances.cpp" />
+    <ClCompile Include="ParticleRenderer.cpp" />
+    <ClCompile Include="ParticleRendering.cpp" />
+    <ClCompile Include="ParticleShapes.cpp" />
+    <ClCompile Include="ParticleShapeTable.cpp" />
+    <ClCompile Include="ParticleSimulationPass.cpp" />
+  </ItemGroup>
+  <Import Project="..\Module.props" />
+  <Import Project="..\..\GraphicsKit\GraphicsKit.props" />
+</Project>

@@ -1,4 +1,4 @@
-#include "Lines.h"
+#include "LineRendering.h"
 
 #include "Core/Assert.h"
 #include "GraphicsKit/IRenderPasses.h"
@@ -17,20 +17,20 @@ void LineBatches::Clear() {
 	thickAlwaysVisible.clear();
 }
 
-Lines::Lines() : pass_(std::make_unique<LinePass>()) {}
+LineRendering::LineRendering() : pass_(std::make_unique<LinePass>()) {}
 
 // unique_ptrがLinePassを消すには中身が見えている必要があるので、ここで定義する。
-Lines::~Lines() = default;
+LineRendering::~LineRendering() = default;
 
-std::vector<std::string> Lines::GetProvidedServices() {
+std::vector<std::string> LineRendering::GetProvidedServices() {
 	return { kLineRendererServiceName };
 }
 
-std::vector<std::string> Lines::GetRequiredServices() {
+std::vector<std::string> LineRendering::GetRequiredServices() {
 	return { kRenderPassesServiceName, kGpuServiceName, kAssetLibraryServiceName };
 }
 
-void Lines::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
+void LineRendering::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	IRenderPasses* renderPasses = static_cast<IRenderPasses*>(services.Get(kRenderPassesServiceName));
 	KUJATA_ASSERT(renderPasses != nullptr);
 
@@ -53,7 +53,7 @@ void Lines::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	});
 }
 
-void Lines::SubmitLine(const Vector3& start, const Vector3& end, const Vector4& color, bool depthTest) {
+void LineRendering::SubmitLine(const Vector3& start, const Vector3& end, const Vector4& color, bool depthTest) {
 	// 頂点は1本に2つなので、頂点の数の半分が線の数になる。
 	const size_t lineCount = (batches_.thinDepthTested.size() + batches_.thinAlwaysVisible.size()) / 2;
 
@@ -71,7 +71,7 @@ void Lines::SubmitLine(const Vector3& start, const Vector3& end, const Vector4& 
 	vertices.push_back({ end, color });
 }
 
-void Lines::SubmitThickLine(const Vector3& start, const Vector3& end, const Vector4& color, float thickness, LineWidthUnit unit, bool depthTest) {
+void LineRendering::SubmitThickLine(const Vector3& start, const Vector3& end, const Vector4& color, float thickness, LineWidthUnit unit, bool depthTest) {
 	const size_t lineCount = batches_.thickDepthTested.size() + batches_.thickAlwaysVisible.size();
 	if (lineCount >= kMaxThickLineCount) {
 		if (!hasWarnedTooManyThickLines_) {

@@ -5,7 +5,8 @@
 #include "Gpu/Gpu.h"
 #include "ImGuiModule/ImGuiModule.h"
 #include "Input/Input.h"
-#include "Lines/Lines.h"
+#include "LineRendering/LineRendering.h"
+#include "ParticleRendering/ParticleRendering.h"
 #include "Physics/Physics.h"
 #include "Renderer/Renderer.h"
 #include "Scene/SceneModule.h"
@@ -41,8 +42,12 @@ int main() {
 	app.Add(&renderer);
 
 	// 線を描く工程を、Rendererの登録口に足す。
-	KujataEngine::Lines lines;
-	app.Add(&lines);
+	KujataEngine::LineRendering lineRendering;
+	app.Add(&lineRendering);
+
+	// 粒子を動かす工程と描く工程を、Rendererの登録口に足す。
+	KujataEngine::ParticleRendering particleRendering;
+	app.Add(&particleRendering);
 
 	// シーンやほかのモジュールが、フレームの中でimguiのウィンドウを組めるようにする。
 	KujataEngine::ImGuiModule imguiModule;
@@ -65,7 +70,8 @@ int main() {
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
 		KujataEngine::IConsoleCommands* consoleCommands = static_cast<KujataEngine::IConsoleCommands*>(services.Get(KujataEngine::kConsoleCommandsServiceName));
 		KujataEngine::ILineRenderer* lineRenderer = static_cast<KujataEngine::ILineRenderer*>(services.Get(KujataEngine::kLineRendererServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands, lineRenderer);
+		KujataEngine::IParticleRenderer* particleRenderer = static_cast<KujataEngine::IParticleRenderer*>(services.Get(KujataEngine::kParticleRendererServiceName));
+		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands, lineRenderer, particleRenderer);
 	});
 
 	app.Run();

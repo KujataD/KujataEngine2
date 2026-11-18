@@ -20,10 +20,6 @@ void RenderQueue::Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4
 	drawRequests_.push_back(request);
 }
 
-void RenderQueue::SubmitPointCloud(const PointCloudRequest& request) {
-	pointCloudRequests_.push_back(request);
-}
-
 bool RenderQueue::HasCamera() const {
 	return hasCamera_;
 }
@@ -44,15 +40,10 @@ const std::vector<DrawRequest>& RenderQueue::GetDrawRequests() const {
 	return drawRequests_;
 }
 
-const std::vector<PointCloudRequest>& RenderQueue::GetPointCloudRequests() const {
-	return pointCloudRequests_;
-}
-
 void RenderQueue::Clear() {
 	hasCamera_ = false;
 	hasDirectionalLight_ = false;
 	drawRequests_.clear();
-	pointCloudRequests_.clear();
 }
 
 } // namespace KujataEngine

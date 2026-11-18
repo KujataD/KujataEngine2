@@ -4,7 +4,7 @@
 #include "GraphicsKit/IRenderPass.h"
 #include "GraphicsKit/ShaderCompiler.h"
 #include "Interface/IGpu.h"
-#include "Lines.h"
+#include "LineRendering.h"
 
 #include <d3d12.h>
 #include <filesystem>
@@ -24,7 +24,7 @@ public:
 	static const UINT kThickLinesRootParameterIndex = 1;
 
 	/// <summary>
-	/// シェーダーと描く設定とバッファを準備し、用意できなければログを出して、この工程だけ描かない。描く線はLinesから借りる。
+	/// シェーダーと描く設定とバッファを準備し、用意できなければログを出して、この工程だけ描かない。描く線はLineRenderingから借りる。
 	/// </summary>
 	void Initialize(IGpu* gpu, ShaderCompiler* shaderCompiler, const std::filesystem::path& resourcesDirectory, const LineBatches* batches);
 

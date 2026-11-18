@@ -1,4 +1,4 @@
-﻿#include "PointCloudShapes.h"
+﻿#include "ParticleShapes.h"
 
 #include "Core/Math/MathUtil.h"
 
@@ -11,7 +11,7 @@
 
 namespace KujataEngine {
 
-// 同じ引数なら毎回同じ点群になるように、乱数の種を決めておく。
+// 同じ引数なら毎回同じ形になるように、乱数の種を決めておく。
 static const uint32_t kRandomSeed = 20240229;
 
 static const float kTwoPi = std::numbers::pi_v<float> * 2.0f;
@@ -40,34 +40,34 @@ static Vector3 ReadImageColor(const ImageData& image, const Vector2& uv) {
 	return color;
 }
 
-PointCloudData CreateSpherePointCloud(uint32_t pointCount, float radius, const Vector3& color) {
+ParticleShape CreateSphereParticleShape(uint32_t pointCount, float radius, const Vector3& color) {
 	std::mt19937 randomEngine(kRandomSeed);
 	std::uniform_real_distribution<float> unitDistribution(0.0f, 1.0f);
 
-	PointCloudData pointCloud;
-	pointCloud.targets.reserve(pointCount);
+	ParticleShape shape;
+	shape.targets.reserve(pointCount);
 	for (uint32_t i = 0; i < pointCount; i++) {
 		// 緯度と経度の角度をそのまま一様に取ると極に固まるので、軸の上の高さを一様に取る。
 		const float height = unitDistribution(randomEngine) * 2.0f - 1.0f;
 		const float angle = unitDistribution(randomEngine) * kTwoPi;
 		const float ringRadius = std::sqrt(1.0f - height * height);
 
-		PointCloudTarget target = {};
+		ParticleTarget target = {};
 		target.normal = { ringRadius * std::cos(angle), height, ringRadius * std::sin(angle) };
 		target.position = { target.normal.x * radius, target.normal.y * radius, target.normal.z * radius };
 		target.color = color;
-		pointCloud.targets.push_back(target);
+		shape.targets.push_back(target);
 	}
-	return pointCloud;
+	return shape;
 }
 
-PointCloudData CreateTorusPointCloud(uint32_t pointCount, float ringRadius, float tubeRadius, const Vector3& color) {
+ParticleShape CreateTorusParticleShape(uint32_t pointCount, float ringRadius, float tubeRadius, const Vector3& color) {
 	std::mt19937 randomEngine(kRandomSeed);
 	std::uniform_real_distribution<float> unitDistribution(0.0f, 1.0f);
 
-	PointCloudData pointCloud;
-	pointCloud.targets.reserve(pointCount);
-	while (pointCloud.targets.size() < pointCount) {
+	ParticleShape shape;
+	shape.targets.reserve(pointCount);
+	while (shape.targets.size() < pointCount) {
 		const float ringAngle = unitDistribution(randomEngine) * kTwoPi;
 		const float tubeAngle = unitDistribution(randomEngine) * kTwoPi;
 
@@ -78,16 +78,16 @@ PointCloudData CreateTorusPointCloud(uint32_t pointCount, float ringRadius, floa
 			continue;
 		}
 
-		PointCloudTarget target = {};
+		ParticleTarget target = {};
 		target.position = { distanceFromAxis * std::cos(ringAngle), tubeRadius * std::sin(tubeAngle), distanceFromAxis * std::sin(ringAngle) };
 		target.normal = { std::cos(tubeAngle) * std::cos(ringAngle), std::sin(tubeAngle), std::cos(tubeAngle) * std::sin(ringAngle) };
 		target.color = color;
-		pointCloud.targets.push_back(target);
+		shape.targets.push_back(target);
 	}
-	return pointCloud;
+	return shape;
 }
 
-PointCloudData CreateBoxPointCloud(uint32_t pointCount, const Vector3& size, const Vector3& color) {
+ParticleShape CreateBoxParticleShape(uint32_t pointCount, const Vector3& size, const Vector3& color) {
 	std::mt19937 randomEngine(kRandomSeed);
 	std::uniform_real_distribution<float> unitDistribution(0.0f, 1.0f);
 
@@ -97,8 +97,8 @@ PointCloudData CreateBoxPointCloud(uint32_t pointCount, const Vector3& size, con
 	const float areaZ = size.x * size.y * 2.0f;
 	const Vector3 halfSize = size * 0.5f;
 
-	PointCloudData pointCloud;
-	pointCloud.targets.reserve(pointCount);
+	ParticleShape shape;
+	shape.targets.reserve(pointCount);
 	for (uint32_t i = 0; i < pointCount; i++) {
 		// 広い面ほど選ばれやすくして、細長い箱でも面積あたりの数をそろえる。
 		const float areaPosition = unitDistribution(randomEngine) * (areaX + areaY + areaZ);
@@ -106,7 +106,7 @@ PointCloudData CreateBoxPointCloud(uint32_t pointCount, const Vector3& size, con
 		const float first = unitDistribution(randomEngine) * 2.0f - 1.0f;
 		const float second = unitDistribution(randomEngine) * 2.0f - 1.0f;
 
-		PointCloudTarget target = {};
+		ParticleTarget target = {};
 		if (areaPosition < areaX) {
 			target.normal = { side, 0.0f, 0.0f };
 			target.position = { side * halfSize.x, first * halfSize.y, second * halfSize.z };
@@ -118,12 +118,12 @@ PointCloudData CreateBoxPointCloud(uint32_t pointCount, const Vector3& size, con
 			target.position = { first * halfSize.x, second * halfSize.y, side * halfSize.z };
 		}
 		target.color = color;
-		pointCloud.targets.push_back(target);
+		shape.targets.push_back(target);
 	}
-	return pointCloud;
+	return shape;
 }
 
-PointCloudData CreateMeshSurfacePointCloud(const MeshData& mesh, const ImageData& image, uint32_t pointCount) {
+ParticleShape CreateMeshSurfaceParticleShape(const MeshData& mesh, const ImageData& image, uint32_t pointCount) {
 	// 頂点だけに置くと平らな面に点が来ないので、三角形の面積に比例した確率で三角形を選ぶ。
 	const size_t triangleCount = mesh.indices.size() / 3;
 	std::vector<float> cumulativeAreas;
@@ -137,16 +137,16 @@ PointCloudData CreateMeshSurfacePointCloud(const MeshData& mesh, const ImageData
 		cumulativeAreas.push_back(totalArea);
 	}
 
-	PointCloudData pointCloud;
+	ParticleShape shape;
 	if (totalArea <= 0.0f || image.mips.empty()) {
-		printf("面積のないメッシュか空の画像なので、点群を作れません。\n");
-		return pointCloud;
+		printf("面積のないメッシュか空の画像なので、形を作れません。\n");
+		return shape;
 	}
 
 	std::mt19937 randomEngine(kRandomSeed);
 	std::uniform_real_distribution<float> unitDistribution(0.0f, 1.0f);
 
-	pointCloud.targets.reserve(pointCount);
+	shape.targets.reserve(pointCount);
 	for (uint32_t i = 0; i < pointCount; i++) {
 		// 面積の累積和の中で乱数の位置を二分探索すると、広い三角形ほど選ばれやすくなる。
 		const float areaPosition = unitDistribution(randomEngine) * totalArea;
@@ -169,13 +169,13 @@ PointCloudData CreateMeshSurfacePointCloud(const MeshData& mesh, const ImageData
 			vertex0.uv.y * weight0 + vertex1.uv.y * weight1 + vertex2.uv.y * weight2,
 		};
 
-		PointCloudTarget target = {};
+		ParticleTarget target = {};
 		target.position = vertex0.position * weight0 + vertex1.position * weight1 + vertex2.position * weight2;
 		target.normal = Normalize(vertex0.normal * weight0 + vertex1.normal * weight1 + vertex2.normal * weight2);
 		target.color = ReadImageColor(image, uv);
-		pointCloud.targets.push_back(target);
+		shape.targets.push_back(target);
 	}
-	return pointCloud;
+	return shape;
 }
 
 } // namespace KujataEngine

@@ -11,7 +11,7 @@
 
 namespace KujataEngine {
 
-// 中身はLines.cppだけが知っていればよいので、クラスの名前だけを伝える。
+// 中身はLineRendering.cppだけが知っていればよいので、クラスの名前だけを伝える。
 class LinePass;
 
 // 1フレームに描ける線の数で、超えた分は描かない。太い線は1本に6頂点を使うので少なめにする。
@@ -58,10 +58,10 @@ struct LineBatches {
 /// <summary>
 /// 線を描くように頼む窓口を出し、頼まれた線を描画の工程で描くモジュール。
 /// </summary>
-class Lines : public IModule, public ILineRenderer {
+class LineRendering : public IModule, public ILineRenderer {
 public:
-	Lines();
-	~Lines() override;
+	LineRendering();
+	~LineRendering() override;
 
 	std::vector<std::string> GetProvidedServices() override;
 	std::vector<std::string> GetRequiredServices() override;

@@ -7,7 +7,7 @@ cbuffer LineConstants : register(b0) {
 	float2 gPadding;
 };
 
-// Lines.hのThickLineSegmentと並びを合わせる。
+// LineRendering.hのThickLineSegmentと並びを合わせる。
 struct ThickLine {
 	float3 start;
 	float thickness;
@@ -23,7 +23,7 @@ struct VertexOutput {
 	float4 color : COLOR;
 };
 
-// Lines.hのLineWidthUnitを数にしたもの。
+// LineRendering.hのLineWidthUnitを数にしたもの。
 static const uint kWorldUnit = 0;
 
 // 板の6頂点の、xは始点(0)か終点(1)か、yは線のどちら側(-1か1)へ広げるか。

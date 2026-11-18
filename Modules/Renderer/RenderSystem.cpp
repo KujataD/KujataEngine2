@@ -49,8 +49,6 @@ void RenderSystem::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	opaquePass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, resourcesDirectory, &renderQueue_, &gpuAssets_);
 	passList_.AddPass(&opaquePass_, RenderStage::Opaque, 0);
 
-	pointCloudPass_.Initialize(gpu_, &shaderCompiler_, &shaderResourceHeap_, resourcesDirectory, &renderQueue_, &gpuAssets_);
-	passList_.AddPass(&pointCloudPass_, RenderStage::Additive, 0);
 
 	frameLoop.Register(kSubmitRender, [this]() {
 		CollectRenderRequests();

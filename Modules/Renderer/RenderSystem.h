@@ -9,7 +9,6 @@
 #include "Interface/ITime.h"
 #include "Interface/IWindow.h"
 #include "OpaquePass.h"
-#include "PointCloudPass.h"
 #include "RenderPassList.h"
 #include "RenderQueue.h"
 
@@ -46,7 +45,6 @@ private:
 	RenderPassList passList_;
 
 	OpaquePass opaquePass_;
-	PointCloudPass pointCloudPass_;
 
 	bool hasWarnedNoCamera_ = false;
 	bool hasWarnedNoLight_ = false;

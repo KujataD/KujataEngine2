@@ -1,5 +1,5 @@
-// PointCloudPass.cppのPointCloudConstantsと並びを合わせる。
-cbuffer PointCloudConstants : register(b0) {
+// ParticleDrawPass.cppのDrawConstantsと並びを合わせる。
+cbuffer DrawConstants : register(b0) {
 	float4x4 gView;
 	float4x4 gProjection;
 	float gPointSize;
@@ -14,6 +14,6 @@ struct VertexOutput {
 };
 
 float4 main(VertexOutput input) : SV_TARGET {
-	// 板のどこでも同じ明るさで、点の色を足す。
+	// 板のどこでも同じ明るさで、粒の色を足す。
 	return float4(input.color * gIntensity, 1.0f);
 }

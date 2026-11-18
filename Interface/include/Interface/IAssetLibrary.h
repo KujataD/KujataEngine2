@@ -54,11 +54,6 @@ public:
 	/// </summary>
 	virtual MeshHandle AddMesh(const MeshData& mesh) = 0;
 
-	/// <summary>
-	/// コードで作った点群の集まる先を登録し、空なら代わりの物を返す。
-	/// </summary>
-	virtual PointCloudHandle AddPointCloud(const PointCloudData& pointCloud) = 0;
-
 	// Rendererが転送のために読む。
 
 	/// <summary>
@@ -80,16 +75,6 @@ public:
 	/// 画像のデータを返し、範囲外のハンドルなら0番を返す。
 	/// </summary>
 	virtual const ImageData& GetImageData(TextureHandle handle) = 0;
-
-	/// <summary>
-	/// 登録されている点群の数を返す。
-	/// </summary>
-	virtual uint32_t GetPointCloudCount() = 0;
-
-	/// <summary>
-	/// 点群のデータを返し、範囲外のハンドルなら0番を返す。
-	/// </summary>
-	virtual const PointCloudData& GetPointCloudData(PointCloudHandle handle) = 0;
 };
 
 } // namespace KujataEngine
