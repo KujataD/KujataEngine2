@@ -2,6 +2,7 @@
 
 #include "Core/Math/Matrix4x4.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Math/Vector4.h"
 #include "Interface/AssetHandle.h"
 
 #include <cstdint>
@@ -45,9 +46,9 @@ public:
 	virtual void SetDirectionalLight(const DirectionalLightData& light) = 0;
 
 	/// <summary>
-	/// メッシュを指定の画像とワールド行列で描くように頼む。
+	/// メッシュを描くように頼む。tintは画像の色に掛ける。
 	/// </summary>
-	virtual void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) = 0;
+	virtual void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world, const Vector4& tint) = 0;
 };
 
 } // namespace KujataEngine

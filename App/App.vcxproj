@@ -82,7 +82,21 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DemoScene.cpp" />
+    <ClCompile Include="Game\Bullet.cpp" />
+    <ClCompile Include="Game\Enemy.cpp" />
+    <ClCompile Include="Game\MovementFollower.cpp" />
+    <ClCompile Include="Game\PlayerController.cpp" />
+    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DemoScene.h" />
+    <ClInclude Include="Game\Bullet.h" />
+    <ClInclude Include="Game\Enemy.h" />
+    <ClInclude Include="Game\GameLayers.h" />
+    <ClInclude Include="Game\MovementFollower.h" />
+    <ClInclude Include="Game\PlayerController.h" />
+    <ClInclude Include="GameScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\EngineResources\Shaders\Line.PS.hlsl" />

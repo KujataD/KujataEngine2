@@ -11,7 +11,7 @@ MeshRenderer::MeshRenderer(MeshHandle mesh, TextureHandle texture) {
 }
 
 void MeshRenderer::SubmitRender(IRenderQueue* renderQueue) {
-	renderQueue->Submit(mesh_, texture_, GetOwner()->GetTransform().matWorld_);
+	renderQueue->Submit(mesh_, texture_, GetOwner()->GetTransform().matWorld_, tint);
 }
 
 } // namespace KujataEngine

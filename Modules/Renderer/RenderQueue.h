@@ -13,6 +13,7 @@ struct DrawRequest {
 	MeshHandle mesh;
 	TextureHandle texture;
 	Matrix4x4 world;
+	Vector4 tint;
 };
 
 /// <summary>
@@ -22,7 +23,7 @@ class RenderQueue : public IRenderQueue {
 public:
 	void SetCamera(const CameraData& camera) override;
 	void SetDirectionalLight(const DirectionalLightData& light) override;
-	void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) override;
+	void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world, const Vector4& tint) override;
 
 	bool HasCamera() const;
 	const CameraData& GetCamera() const;

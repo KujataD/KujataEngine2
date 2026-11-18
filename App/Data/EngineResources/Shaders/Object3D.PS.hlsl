@@ -15,10 +15,11 @@ struct VertexOutput {
 	float4 position : SV_POSITION;
 	float2 texcoord : TEXCOORD;
 	float3 normal : NORMAL;
+	float4 tint : COLOR;
 };
 
 float4 main(VertexOutput input) : SV_TARGET {
-	float4 textureColor = gTexture.Sample(gSampler, input.texcoord);
+	float4 textureColor = gTexture.Sample(gSampler, input.texcoord) * input.tint;
 
 	// 頂点の間で補間すると長さが1からずれるので、計算の前に戻す。
 	float3 normal = normalize(input.normal);

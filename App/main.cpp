@@ -2,6 +2,7 @@
 #include "Console/Console.h"
 #include "Core/App.h"
 #include "DemoScene.h"
+#include "GameScene.h"
 #include "Gpu/Gpu.h"
 #include "ImGuiModule/ImGuiModule.h"
 #include "Input/Input.h"
@@ -14,6 +15,9 @@
 #include "Window/Window.h"
 
 #include <Windows.h>
+
+// trueでゲームの代わりにデモのシーンを組む。
+static constexpr bool kBuildDemoScene = false;
 
 int main() {
 	// コンソールをUTF-8にそろえる。
@@ -68,10 +72,17 @@ int main() {
 		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
-		KujataEngine::IConsoleCommands* consoleCommands = static_cast<KujataEngine::IConsoleCommands*>(services.Get(KujataEngine::kConsoleCommandsServiceName));
-		KujataEngine::ILineRenderer* lineRenderer = static_cast<KujataEngine::ILineRenderer*>(services.Get(KujataEngine::kLineRendererServiceName));
-		KujataEngine::IParticleRenderer* particleRenderer = static_cast<KujataEngine::IParticleRenderer*>(services.Get(KujataEngine::kParticleRendererServiceName));
-		BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands, lineRenderer, particleRenderer);
+
+		if (kBuildDemoScene) {
+			KujataEngine::IConsoleCommands* consoleCommands = static_cast<KujataEngine::IConsoleCommands*>(services.Get(KujataEngine::kConsoleCommandsServiceName));
+			KujataEngine::ILineRenderer* lineRenderer = static_cast<KujataEngine::ILineRenderer*>(services.Get(KujataEngine::kLineRendererServiceName));
+			KujataEngine::IParticleRenderer* particleRenderer = static_cast<KujataEngine::IParticleRenderer*>(services.Get(KujataEngine::kParticleRendererServiceName));
+			BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands, lineRenderer, particleRenderer);
+			return;
+		}
+
+		KujataEngine::IWindow* window = static_cast<KujataEngine::IWindow*>(services.Get(KujataEngine::kWindowServiceName));
+		BuildGameScene(sceneModule.GetScene(), assets, inputActions, time, window);
 	});
 
 	app.Run();

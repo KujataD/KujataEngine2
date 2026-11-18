@@ -1,4 +1,4 @@
-﻿#include "OpaquePass.h"
+#include "OpaquePass.h"
 
 #include "Core/Assert.h"
 #include "Core/Math/MathUtil.h"
@@ -16,7 +16,9 @@ namespace KujataEngine {
 struct TransformData {
 	Matrix4x4 worldViewProjection;
 	Matrix4x4 worldInverseTranspose;
+	Vector4 tint;
 };
+static_assert(sizeof(TransformData) == 144, "TransformDataの大きさが変わったらObject3D.VS.hlslも直す。");
 
 // Object3D.PS.hlslのLightDataと並びを合わせ、HLSLの16バイトの区切りに合うように詰め物を入れる。
 struct LightData {
@@ -102,6 +104,7 @@ void OpaquePass::Execute(const RenderContext& context) {
 		TransformData transformData = {};
 		transformData.worldViewProjection = request.world * context.viewProjection;
 		transformData.worldInverseTranspose = Transpose(Inverse(request.world));
+		transformData.tint = request.tint;
 		transformBuffer_.Write(drawIndex, &transformData);
 		transformBuffer_.Bind(list, kTransformRootParameterIndex, drawIndex);
 

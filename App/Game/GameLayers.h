@@ -1,0 +1,21 @@
+#pragma once
+
+#include <cstdint>
+
+/// <summary>
+/// 衝突の絞り込みに使うLayerの番号。
+/// </summary>
+namespace GameLayer {
+
+// 0は既定の番号なので使わない。
+constexpr uint32_t kBullet = 2;
+constexpr uint32_t kEnemy = 3;
+
+/// <summary>
+/// Layerの番号をビットマスクにする。
+/// </summary>
+constexpr uint32_t ToMask(uint32_t layer) {
+	return 1u << layer;
+}
+
+} // namespace GameLayer

@@ -12,11 +12,12 @@ void RenderQueue::SetDirectionalLight(const DirectionalLightData& light) {
 	hasDirectionalLight_ = true;
 }
 
-void RenderQueue::Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world) {
+void RenderQueue::Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world, const Vector4& tint) {
 	DrawRequest request;
 	request.mesh = mesh;
 	request.texture = texture;
 	request.world = world;
+	request.tint = tint;
 	drawRequests_.push_back(request);
 }
 

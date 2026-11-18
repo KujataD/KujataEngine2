@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Math/Vector4.h"
 #include "Framework/Component.h"
 #include "Interface/AssetHandle.h"
 #include "Interface/IRenderable.h"
@@ -14,6 +15,9 @@ public:
 	MeshRenderer(MeshHandle mesh, TextureHandle texture);
 
 	void SubmitRender(IRenderQueue* renderQueue) override;
+
+	// 画像の色に掛ける色。
+	Vector4 tint = {1.0f, 1.0f, 1.0f, 1.0f};
 
 private:
 	MeshHandle mesh_;
