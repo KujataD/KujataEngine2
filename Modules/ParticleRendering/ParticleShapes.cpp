@@ -1,6 +1,6 @@
 ﻿#include "ParticleShapes.h"
 
-#include "Core/Math/MathUtil.h"
+#include "Core/Math/Vector3.h"
 
 #include <algorithm>
 #include <cmath>

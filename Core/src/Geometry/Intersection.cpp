@@ -1,10 +1,10 @@
-#include "Core/Geometry/ShapeUtil.h"
+#include "Core/Geometry/Intersection.h"
+
+#include "Core/Math/Matrix4x4.h"
 #include <algorithm>
 #include <cassert>
 
 namespace KujataEngine {
-namespace ShapeUtil {
-
 bool IsCollision(const Sphere& sphere, const Plane& plane) {
 	float k = std::abs(Dot(plane.normal, sphere.center) - plane.distance);
 	return (k <= sphere.radius);
@@ -235,6 +235,8 @@ bool IsCollision(const OBB& obb, const Ray& ray) {
 	return IsCollision(localAABB, localRay);
 }
 
+namespace {
+
 bool IsOverlappingOnAxis(const OBB& obb1, const OBB& obb2, const Vector3& axis) {
 	Vector3 L = Normalize(axis);
 
@@ -253,6 +255,8 @@ bool IsOverlappingOnAxis(const OBB& obb1, const OBB& obb2, const Vector3& axis) 
 
 	return sumSpan >= longSpan;
 }
+
+} // namespace
 
 bool IsCollision(const OBB& obb1, const OBB& obb2) {
 	if (!IsOverlappingOnAxis(obb1, obb2, obb1.orientations[0])) {
@@ -700,7 +704,5 @@ bool ComputeContact(const OBB& a, const OBB& b, Contact& out) {
 	out.point = (a.center + b.center) * 0.5f; // 近似接触点
 	return true;
 }
-
-} // namespace ShapeUtil
 
 } // namespace KujataEngine

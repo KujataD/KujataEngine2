@@ -2,8 +2,8 @@
 #include "Framework/Scene.h"
 #include "ColliderComponent.h"
 #include "RigidbodyComponent.h"
-#include "Core/Math/MathUtil.h"
-#include "Core/Geometry/ShapeUtil.h"
+#include "Core/Math/Matrix4x4.h"
+#include "Core/Geometry/Intersection.h"
 
 namespace KujataEngine {
 

@@ -13,4 +13,7 @@ public:
 	Vector3 diff;   // 終点の差分ベクトル
 };
 
+// 線分の上で、点に最も近い位置を返す。
+Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
+
 } // namespace KujataEngine

@@ -22,6 +22,8 @@ Vector2 Vector2::Normalize(const Vector2& v) {
 
 float Vector2::Dot(const Vector2& v1, const Vector2& v2) { return v1.x * v2.x + v1.y * v2.y; }
 
+float Vector2::Distance(const Vector2& v1, const Vector2& v2) { return Length(v1 - v2); }
+
 float Vector2::Orientation(const Vector2& a, const Vector2& b, const Vector2& p) {
 	Vector2 ap = p - a;
 	Vector2 ab = b - a;
@@ -111,4 +113,4 @@ Vector2 Vector2::Transform(const Matrix3x3& m) const {
 	result.y /= w;
 	return result;
 }
-}
+}

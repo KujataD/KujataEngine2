@@ -4,7 +4,7 @@
 #include "Framework/Component.h"
 #include "Interface/ICollisionListener.h"
 #include "Core/Geometry/AABB.h"
-#include "Core/Geometry/ShapeUtil.h"
+#include "Core/Geometry/Intersection.h"
 #include <cstdint>
 
 namespace KujataEngine {

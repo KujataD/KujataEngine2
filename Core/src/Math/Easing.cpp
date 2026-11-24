@@ -1,7 +1,7 @@
 #include "Core/Math/Easing.h"
 
 namespace KujataEngine {
-namespace EaseUtil {
+namespace Easing {
 
 float GetEaseCalc(float t, EaseType easeType) {
 	switch (easeType) {
@@ -57,4 +57,4 @@ float GetEaseCalc(float t, EaseType easeType) {
 }
 
 } // namespace Easing
-} // namespace KujataEngine
+} // namespace KujataEngine

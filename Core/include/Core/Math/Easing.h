@@ -4,7 +4,7 @@
 
 namespace KujataEngine {
 
-namespace EaseUtil {
+namespace Easing {
 
 enum class EaseType { Linear, InQuad, OutQuad, InOutQuad, InBack, OutBack, OutBounce };
 
@@ -16,4 +16,4 @@ inline float EaseLerp(const float start, const float end, float t, EaseType type
 }
 
 } // namespace Easing
-} // namespace KujataEngine
+} // namespace KujataEngine

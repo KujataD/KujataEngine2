@@ -1,7 +1,7 @@
 #include "OpaquePass.h"
 
 #include "Core/Assert.h"
-#include "Core/Math/MathUtil.h"
+#include "Core/Math/Matrix4x4.h"
 #include "GraphicsKit/RootSignature.h"
 #include "Interface/AssetData.h"
 

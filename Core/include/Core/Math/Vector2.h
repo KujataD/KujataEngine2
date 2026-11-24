@@ -19,6 +19,7 @@ public:
 	static float Length(const Vector2& v);
 	static Vector2 Normalize(const Vector2& v);
 	static float Dot(const Vector2& a, const Vector2& b);
+	static float Distance(const Vector2& a, const Vector2& b);
 	static float Orientation(const Vector2& a, const Vector2& b, const Vector2& p);
 
 	// 演算子オーバーロード

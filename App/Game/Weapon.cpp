@@ -1,7 +1,7 @@
 #include "Weapon.h"
 
 #include "Bullet.h"
-#include "Core/Math/MathUtil.h"
+#include "Core/Math/Matrix4x4.h"
 #include "Framework/GameObject.h"
 #include "Physics/ColliderComponent.h"
 #include "Scene/MeshRenderer.h"

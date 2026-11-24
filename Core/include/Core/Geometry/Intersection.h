@@ -2,8 +2,7 @@
 
 #include "Core/Geometry/AABB.h"
 #include "Core/Geometry/Shapes.h"
-#include "Core/Math/MathUtil.h"
-#include "Core/Math/Segment.h"
+#include "Core/Geometry/Segment.h"
 
 namespace KujataEngine {
 
@@ -20,8 +19,6 @@ struct Contact {
 	// ワールド座標でのおおよその接触点。
 	Vector3 point{};
 };
-
-namespace ShapeUtil {
 
 bool IsCollision(const Sphere& sphere, const Plane& plane);
 
@@ -60,11 +57,6 @@ bool IsCollision(const Capsule& a, const Capsule& b);
 bool IsCollision(const Capsule& capsule, const OBB& obb);
 
 /// <summary>
-/// 軸が重なっているかどうか
-/// </summary>
-bool IsOverlappingOnAxis(const OBB& A, const OBB& B, const Vector3& axis);
-
-/// <summary>
 /// 線分の始点から最初に当たる位置の割合を0から1で返し、始点が形の中なら0で当たったとする。
 /// </summary>
 bool RaycastSegment(const Segment& segment, const Sphere& sphere, float& outT);
@@ -82,7 +74,5 @@ bool ComputeContact(const OBB& a, const OBB& b, Contact& out);
 bool ComputeContact(const Capsule& capsule, const Sphere& sphere, Contact& out);
 bool ComputeContact(const Capsule& a, const Capsule& b, Contact& out);
 bool ComputeContact(const Capsule& capsule, const OBB& obb, Contact& out);
-
-} // namespace ShapeUtil
 
 } // namespace KujataEngine

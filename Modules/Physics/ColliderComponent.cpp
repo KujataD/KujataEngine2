@@ -1,7 +1,7 @@
 #include "ColliderComponent.h"
-#include "Core/Math/MathUtil.h"
+#include "Core/Math/Matrix4x4.h"
 #include "Framework/GameObject.h"
-#include "Core/Geometry/ShapeUtil.h"
+#include "Core/Geometry/Intersection.h"
 #include <algorithm>
 #include <atomic>
 #include <cmath>
@@ -86,10 +86,10 @@ bool IsCollisionBoxAndBox(const ColliderComponent& a, const ColliderComponent& b
 	const BoxColliderComponent& boxB = AsBoxColliderUnchecked(b);
 
 	if (boxA.UsesWorldOBB() || boxB.UsesWorldOBB()) {
-		return ShapeUtil::IsCollision(boxA.GetWorldOBB(), boxB.GetWorldOBB());
+		return IsCollision(boxA.GetWorldOBB(), boxB.GetWorldOBB());
 	}
 
-	return ShapeUtil::IsCollision(boxA.GetWorldAABB(), boxB.GetWorldAABB());
+	return IsCollision(boxA.GetWorldAABB(), boxB.GetWorldAABB());
 }
 
 // Sphere/CapsuleをワールドCapsuleへ変換する(球はp0==p1の退化カプセルとして扱う)。Boxには使わない。
@@ -125,17 +125,17 @@ bool ComputeContactByShape(const ColliderComponent& a, const ColliderComponent& 
 
 	if (!aBox && !bBox) {
 		// カプセル-カプセル(sphere-sphere / sphere-capsule を含む)
-		return ShapeUtil::ComputeContact(MakeWorldCapsule(a), MakeWorldCapsule(b), out);
+		return ComputeContact(MakeWorldCapsule(a), MakeWorldCapsule(b), out);
 	}
 	if (aBox && bBox) {
-		return ShapeUtil::ComputeContact(MakeWorldOBB(a), MakeWorldOBB(b), out);
+		return ComputeContact(MakeWorldOBB(a), MakeWorldOBB(b), out);
 	}
 	if (!aBox && bBox) {
 		// カプセルa→箱b: normal は capsule→obb = a→b
-		return ShapeUtil::ComputeContact(MakeWorldCapsule(a), MakeWorldOBB(b), out);
+		return ComputeContact(MakeWorldCapsule(a), MakeWorldOBB(b), out);
 	}
 	// 箱a→カプセルb: capsule(b)→obb(a) を求めると normal は b→a なので反転する
-	if (ShapeUtil::ComputeContact(MakeWorldCapsule(b), MakeWorldOBB(a), out)) {
+	if (ComputeContact(MakeWorldCapsule(b), MakeWorldOBB(a), out)) {
 		out.normal = out.normal * -1.0f;
 		return true;
 	}
@@ -147,7 +147,7 @@ bool IntersectsByShape(const ColliderComponent& a, const ColliderComponent& b) {
 	const bool bBox = b.GetShapeType() == ColliderShapeType::Box;
 
 	if (!aBox && !bBox) {
-		return ShapeUtil::IsCollision(MakeWorldCapsule(a), MakeWorldCapsule(b));
+		return IsCollision(MakeWorldCapsule(a), MakeWorldCapsule(b));
 	}
 
 	if (aBox && bBox) {
@@ -157,7 +157,7 @@ bool IntersectsByShape(const ColliderComponent& a, const ColliderComponent& b) {
 	// カプセル(または球) vs 箱
 	const ColliderComponent& capsuleCollider = aBox ? b : a;
 	const ColliderComponent& boxCollider = aBox ? a : b;
-	return ShapeUtil::IsCollision(MakeWorldCapsule(capsuleCollider), MakeWorldOBB(boxCollider));
+	return IsCollision(MakeWorldCapsule(capsuleCollider), MakeWorldOBB(boxCollider));
 }
 
 } // namespace
