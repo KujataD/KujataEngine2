@@ -1,6 +1,6 @@
 #include "Asset/Asset.h"
 #include "Console/Console.h"
-#include "Core/App.h"
+#include "Core/ModuleHub.h"
 #include "DemoScene.h"
 #include "GameScene.h"
 #include "Gpu/Gpu.h"
@@ -23,52 +23,52 @@ int main() {
 	// コンソールをUTF-8にそろえる。
 	SetConsoleOutputCP(CP_UTF8);
 
-	KujataEngine::App app;
+	KujataEngine::ModuleHub hub;
 
 	// ほかのモジュールより先に、今のフレームの秒数を測る。
 	KujataEngine::Time timeModule;
-	app.Add(&timeModule);
+	hub.Add(&timeModule);
 
-	// ウィンドウを作ってAppに入れると、閉じたときにループが終わる。
+	// ウィンドウを作ってModuleHubに入れると、閉じたときにループが終わる。
 	KujataEngine::Window window(L"LE2B_03_オオツカ_ダイチ", 1280, 720);
-	app.Add(&window);
+	hub.Add(&window);
 
 	KujataEngine::Input input;
-	app.Add(&input);
+	hub.Add(&input);
 
 	KujataEngine::Gpu gpu;
-	app.Add(&gpu);
+	hub.Add(&gpu);
 
 	KujataEngine::Asset asset;
-	app.Add(&asset);
+	hub.Add(&asset);
 
 	KujataEngine::Renderer renderer;
-	app.Add(&renderer);
+	hub.Add(&renderer);
 
 	// 線を描く工程を、Rendererの登録口に足す。
 	KujataEngine::LineRendering lineRendering;
-	app.Add(&lineRendering);
+	hub.Add(&lineRendering);
 
 	// 粒子を動かす工程と描く工程を、Rendererの登録口に足す。
 	KujataEngine::ParticleRendering particleRendering;
-	app.Add(&particleRendering);
+	hub.Add(&particleRendering);
 
 	// シーンやほかのモジュールが、フレームの中でimguiのウィンドウを組めるようにする。
 	KujataEngine::ImGuiModule imguiModule;
-	app.Add(&imguiModule);
+	hub.Add(&imguiModule);
 
 	KujataEngine::SceneModule sceneModule;
-	app.Add(&sceneModule);
+	hub.Add(&sceneModule);
 
 	KujataEngine::Physics physics;
-	app.Add(&physics);
+	hub.Add(&physics);
 
 	// ターミナルに打ったコマンドを実行できるようにする。
 	KujataEngine::Console console;
-	app.Add(&console);
+	hub.Add(&console);
 
 	// Assetなどの起動が終わってからシーンを作る。
-	app.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
+	hub.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
 		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
@@ -85,6 +85,6 @@ int main() {
 		BuildGameScene(sceneModule.GetScene(), assets, inputActions, time, window);
 	});
 
-	app.Run();
+	hub.Run();
 	return 0;
 }

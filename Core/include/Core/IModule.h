@@ -9,7 +9,7 @@
 namespace KujataEngine {
 
 /// <summary>
-/// Appに組み込める機能のまとまりで、各モジュールはこれを継承する。
+/// ModuleHubに組み込める機能のまとまりで、各モジュールはこれを継承する。
 /// </summary>
 class IModule {
 public:
@@ -23,7 +23,7 @@ public:
 	}
 
 	/// <summary>
-	/// Startupで受け取るサービスの名前を返し、Appはこれを見て起動の順番を決める。
+	/// Startupで受け取るサービスの名前を返し、ModuleHubはこれを見て起動の順番を決める。
 	/// </summary>
 	virtual std::vector<std::string> GetRequiredServices() {
 		return {};

@@ -1,4 +1,4 @@
-#include "Core/App.h"
+#include "Core/ModuleHub.h"
 
 #include "Core/Assert.h"
 
@@ -32,17 +32,17 @@ static void PrintMissingServices(const std::vector<IModule*>& waitingModules, co
 	}
 }
 
-void App::Add(IModule* addedModule) {
+void ModuleHub::Add(IModule* addedModule) {
 	KUJATA_ASSERT(addedModule != nullptr);
 
 	modules_.push_back(addedModule);
 }
 
-void App::SetSetup(std::function<void(ServiceRegistry&)> setup) {
+void ModuleHub::SetSetup(std::function<void(ServiceRegistry&)> setup) {
 	setup_ = setup;
 }
 
-void App::SortModulesByDependency() {
+void ModuleHub::SortModulesByDependency() {
 	std::vector<IModule*> sortedModules;
 	std::vector<IModule*> waitingModules = modules_;
 	std::set<std::string> availableServices;
@@ -77,7 +77,7 @@ void App::SortModulesByDependency() {
 	modules_ = sortedModules;
 }
 
-void App::Run() {
+void ModuleHub::Run() {
 	SortModulesByDependency();
 
 	// 全モジュールの初期化

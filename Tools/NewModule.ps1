@@ -144,5 +144,5 @@ Write-TextFile $solutionPath $solutionText
 Write-TextFile $appProjectPath $appProjectText
 
 Write-Host "モジュール $Name を作りました: Modules\$Name" -ForegroundColor Green
-Write-Host "使うときはmain.cppで #include `"$Name/$Name.h`" を書いて、app.Add で追加してください。"
+Write-Host "使うときはmain.cppで #include `"$Name/$Name.h`" を書いて、hub.Add で追加してください。"
 Write-Host 'Visual Studioで開いているときは、再読み込みを聞かれたら再読み込みを選んでください。'

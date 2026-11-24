@@ -12,7 +12,7 @@ namespace KujataEngine {
 /// <summary>
 /// モジュールを集めて、起動とフレームの実行と終了を順番に進める。
 /// </summary>
-class App {
+class ModuleHub {
 public:
 	/// <summary>
 	/// モジュールを一覧に入れるだけで、まだ動かさない。
