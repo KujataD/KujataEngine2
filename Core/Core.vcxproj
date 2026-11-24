@@ -56,6 +56,9 @@
     <ClInclude Include="include\Core\App.h" />
     <ClInclude Include="include\Core\Assert.h" />
     <ClInclude Include="include\Core\FrameLoop.h" />
+    <ClInclude Include="include\Core\Geometry\AABB.h" />
+    <ClInclude Include="include\Core\Geometry\Shapes.h" />
+    <ClInclude Include="include\Core\Geometry\ShapeUtil.h" />
     <ClInclude Include="include\Core\IModule.h" />
     <ClInclude Include="include\Core\Math\Easing.h" />
     <ClInclude Include="include\Core\Math\MathUtil.h" />
@@ -74,6 +77,7 @@
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Assert.cpp" />
     <ClCompile Include="src\FrameLoop.cpp" />
+    <ClCompile Include="src\Geometry\ShapeUtil.cpp" />
     <ClCompile Include="src\Math\Easing.cpp" />
     <ClCompile Include="src\Math\MathUtil.cpp" />
     <ClCompile Include="src\Math\Matrix3x3.cpp" />

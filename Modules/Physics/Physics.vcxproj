@@ -5,21 +5,17 @@
     <RootNamespace>Physics</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ClInclude Include="AABB.h" />
     <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="Physics.h" />
-    <ClInclude Include="Rect.h" />
     <ClInclude Include="RigidbodyComponent.h" />
     <ClInclude Include="SceneCollisionSystem.h" />
     <ClInclude Include="ScenePhysics.h" />
-    <ClInclude Include="ShapeUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="SceneCollisionSystem.cpp" />
     <ClCompile Include="ScenePhysics.cpp" />
-    <ClCompile Include="ShapeUtil.cpp" />
   </ItemGroup>
   <Import Project="..\Module.props" />
 </Project>

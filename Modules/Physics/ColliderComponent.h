@@ -3,8 +3,8 @@
 #include "Core/Math/Vector3.h"
 #include "Framework/Component.h"
 #include "Interface/ICollisionListener.h"
-#include "AABB.h"
-#include "ShapeUtil.h"
+#include "Core/Geometry/AABB.h"
+#include "Core/Geometry/ShapeUtil.h"
 #include <cstdint>
 
 namespace KujataEngine {

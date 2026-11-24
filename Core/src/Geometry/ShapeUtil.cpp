@@ -1,4 +1,4 @@
-#include "ShapeUtil.h"
+#include "Core/Geometry/ShapeUtil.h"
 #include <algorithm>
 #include <cassert>
 
@@ -699,94 +699,6 @@ bool ComputeContact(const OBB& a, const OBB& b, Contact& out) {
 	out.depth = minOverlap;
 	out.point = (a.center + b.center) * 0.5f; // 近似接触点
 	return true;
-}
-
-Vector3 Reflect(const Vector3& input, const Vector3& normal) { return input - normal * (2.0f * Dot(input, normal)); }
-
-Vector3 CatmullRomInterpolation(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, float t) {
-	const float s = 0.5f;
-
-	float t2 = t * t;
-	float t3 = t2 * t;
-
-	Vector3 e3 = -p0 + 3 * p1 - 3 * p2 + p3;
-	Vector3 e2 = 2 * p0 - 5 * p1 + 4 * p2 - p3;
-	Vector3 e1 = -p0 + p2;
-	Vector3 e0 = 2 * p1;
-
-	return s * (e3 * t3 + e2 * t2 + e1 * t + e0);
-}
-
-Vector3 CatmullRomPosition(const std::vector<Vector3>& points, float t) {
-	assert(points.size() >= 4 && "制御点は4点以上必要です");
-
-	// 区間数は制御点の数-1
-	size_t division = points.size() - 1;
-	// 全体を区間数ぶんに伸ばした位置(整数部が区間番号になる)
-	float scaledT = std::clamp(t, 0.0f, 1.0f) * division;
-
-	// 区間番号が上限を超えないように収める
-	size_t index = std::min<size_t>(static_cast<size_t>(scaledT), division - 1);
-
-	// 区間内の始点を0.0f、終点を1.0fとしたときの現在位置
-	float t_2 = scaledT - static_cast<float>(index);
-
-	// 4点分のインデックス
-	size_t index0 = index - 1;
-	size_t index1 = index;
-	size_t index2 = index + 1;
-	size_t index3 = index + 2;
-
-	// 最初の区間のp0はp1を重複使用する
-	if (index == 0) {
-		index0 = index1;
-	}
-
-	// 最後の区間のp3はp2を重複使用する
-	if (index3 >= points.size()) {
-		index3 = index2;
-	}
-
-	// 4点の座標
-	const Vector3& p0 = points[index0];
-	const Vector3& p1 = points[index1];
-	const Vector3& p2 = points[index2];
-	const Vector3& p3 = points[index3];
-
-	// 4点を指定してCatmull-Rom補間
-	return CatmullRomInterpolation(p0, p1, p2, p3, t_2);
-}
-
-Segment MakeLimitedSegment(const Vector3& start, const Vector3& end, float maxDistance) {
-	Vector3 toEnd = end - start;
-
-	Segment segment{};
-	segment.origin = start;
-
-	if (Length(toEnd) <= maxDistance) {
-		segment.diff = toEnd;
-	} else {
-		Vector3 direction = Normalize(toEnd);
-		segment.diff = direction * maxDistance;
-	}
-
-	return segment;
-}
-
-Segment MakeNattoSegment(const Vector3& start, const Vector3& end, float maxDistance, float minDistance) {
-	Vector3 toEnd = end - start;
-
-	Segment segment{};
-	segment.origin = start;
-
-	if (Length(toEnd) <= maxDistance) {
-		segment.diff = toEnd;
-	} else {
-		Vector3 direction = Normalize(toEnd);
-		segment.diff = direction * (maxDistance / Length(toEnd) * 4.0f);
-	}
-
-	return segment;
 }
 
 } // namespace ShapeUtil

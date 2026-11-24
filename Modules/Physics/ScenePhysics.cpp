@@ -3,7 +3,7 @@
 #include "ColliderComponent.h"
 #include "RigidbodyComponent.h"
 #include "Core/Math/MathUtil.h"
-#include "ShapeUtil.h"
+#include "Core/Geometry/ShapeUtil.h"
 
 namespace KujataEngine {
 
