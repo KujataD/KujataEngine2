@@ -1,12 +1,12 @@
-#include "SceneModule.h"
+#include "SceneRunner.h"
 
 namespace KujataEngine {
 
-std::vector<std::string> SceneModule::GetProvidedServices() {
+std::vector<std::string> SceneRunner::GetProvidedServices() {
 	return { kSceneServiceName };
 }
 
-void SceneModule::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
+void SceneRunner::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	services.Register(kSceneServiceName, &scene_);
 
 	frameLoop.Register(kUpdate, [this]() {
@@ -20,7 +20,7 @@ void SceneModule::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	});
 }
 
-Scene* SceneModule::GetScene() {
+Scene* SceneRunner::GetScene() {
 	return &scene_;
 }
 

@@ -5,7 +5,11 @@
     <RootNamespace>Renderer</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="DebugCamera.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="GpuAssetTable.h" />
+    <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="OpaquePass.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPassList.h" />
@@ -13,7 +17,11 @@
     <ClInclude Include="RenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DebugCamera.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="GpuAssetTable.cpp" />
+    <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="OpaquePass.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderPassList.cpp" />

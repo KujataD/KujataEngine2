@@ -1,4 +1,4 @@
-#include "Framework/GameObject.h"
+#include "SceneGraph/GameObject.h"
 
 #include "Core/Assert.h"
 

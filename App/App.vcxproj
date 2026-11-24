@@ -52,7 +52,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Core\include;$(ProjectDir)..\Interface\include;$(ProjectDir)..\Framework\include;$(ProjectDir)..\Modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Core\include;$(ProjectDir)..\Interface\include;$(ProjectDir)..\SceneGraph\include;$(ProjectDir)..\Modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,13 +115,13 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{2D9C4F16-7A3E-4B58-8E21-6C1F0A93D7B2}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Framework\Framework.vcxproj">
+    <ProjectReference Include="..\SceneGraph\SceneGraph.vcxproj">
       <Project>{1EC34E72-ADC4-401D-BD88-BC331E428EA9}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Modules\QuitAfterFrames\QuitAfterFrames.vcxproj">
       <Project>{9F4A6E03-1B7D-4C92-A5E8-D30B7F2C6A15}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Modules\Scene\Scene.vcxproj">
+    <ProjectReference Include="..\Modules\SceneRunner\SceneRunner.vcxproj">
       <Project>{098c7c72-a6f4-41d0-be65-c060d081b0ea}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Modules\Audio\Audio.vcxproj">

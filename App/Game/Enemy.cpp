@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-#include "Framework/GameObject.h"
+#include "SceneGraph/GameObject.h"
 
 using namespace KujataEngine;
 

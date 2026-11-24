@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/Math/Vector3.h"
-#include "Framework/Component.h"
-#include "Framework/WorldTransform.h"
+#include "SceneGraph/Component.h"
+#include "SceneGraph/WorldTransform.h"
 
 /// <summary>
 /// 相手が動いた分だけ動き、相手との位置の差を保つ。

@@ -10,7 +10,7 @@
 #include "ParticleRendering/ParticleRendering.h"
 #include "Physics/Physics.h"
 #include "Renderer/Renderer.h"
-#include "Scene/SceneModule.h"
+#include "SceneRunner/SceneRunner.h"
 #include "Time/Time.h"
 #include "Window/Window.h"
 
@@ -57,8 +57,8 @@ int main() {
 	KujataEngine::ImGuiModule imguiModule;
 	hub.Add(&imguiModule);
 
-	KujataEngine::SceneModule sceneModule;
-	hub.Add(&sceneModule);
+	KujataEngine::SceneRunner sceneRunner;
+	hub.Add(&sceneRunner);
 
 	KujataEngine::Physics physics;
 	hub.Add(&physics);
@@ -68,7 +68,7 @@ int main() {
 	hub.Add(&console);
 
 	// Assetなどの起動が終わってからシーンを作る。
-	hub.SetSetup([&sceneModule](KujataEngine::ServiceRegistry& services) {
+	hub.SetSetup([&sceneRunner](KujataEngine::ServiceRegistry& services) {
 		KujataEngine::IAssetLibrary* assets = static_cast<KujataEngine::IAssetLibrary*>(services.Get(KujataEngine::kAssetLibraryServiceName));
 		KujataEngine::IInputActions* inputActions = static_cast<KujataEngine::IInputActions*>(services.Get(KujataEngine::kInputActionsServiceName));
 		KujataEngine::ITime* time = static_cast<KujataEngine::ITime*>(services.Get(KujataEngine::kTimeServiceName));
@@ -77,12 +77,12 @@ int main() {
 			KujataEngine::IConsoleCommands* consoleCommands = static_cast<KujataEngine::IConsoleCommands*>(services.Get(KujataEngine::kConsoleCommandsServiceName));
 			KujataEngine::ILineRenderer* lineRenderer = static_cast<KujataEngine::ILineRenderer*>(services.Get(KujataEngine::kLineRendererServiceName));
 			KujataEngine::IParticleRenderer* particleRenderer = static_cast<KujataEngine::IParticleRenderer*>(services.Get(KujataEngine::kParticleRendererServiceName));
-			BuildDemoScene(sceneModule.GetScene(), assets, inputActions, time, consoleCommands, lineRenderer, particleRenderer);
+			BuildDemoScene(sceneRunner.GetScene(), assets, inputActions, time, consoleCommands, lineRenderer, particleRenderer);
 			return;
 		}
 
 		KujataEngine::IWindow* window = static_cast<KujataEngine::IWindow*>(services.Get(KujataEngine::kWindowServiceName));
-		BuildGameScene(sceneModule.GetScene(), assets, inputActions, time, window);
+		BuildGameScene(sceneRunner.GetScene(), assets, inputActions, time, window);
 	});
 
 	hub.Run();

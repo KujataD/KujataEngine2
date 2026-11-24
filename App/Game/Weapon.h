@@ -2,8 +2,8 @@
 
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Vector4.h"
-#include "Framework/Component.h"
-#include "Framework/Scene.h"
+#include "SceneGraph/Component.h"
+#include "SceneGraph/Scene.h"
 #include "Interface/AssetHandle.h"
 #include "Interface/ITime.h"
 

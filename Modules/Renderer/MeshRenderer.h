@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Math/Vector4.h"
-#include "Framework/Component.h"
+#include "SceneGraph/Component.h"
 #include "Interface/AssetHandle.h"
 #include "Interface/IRenderable.h"
 

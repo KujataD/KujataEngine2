@@ -2,9 +2,9 @@
 
 #include "Bullet.h"
 #include "Core/Math/Matrix4x4.h"
-#include "Framework/GameObject.h"
+#include "SceneGraph/GameObject.h"
 #include "Physics/ColliderComponent.h"
-#include "Scene/MeshRenderer.h"
+#include "Renderer/MeshRenderer.h"
 
 using namespace KujataEngine;
 

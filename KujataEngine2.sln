@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QuitAfterFrames", "Modules\QuitAfterFrames\QuitAfterFrames.vcxproj", "{9F4A6E03-1B7D-4C92-A5E8-D30B7F2C6A15}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scene", "Modules\Scene\Scene.vcxproj", "{098C7C72-A6F4-41D0-BE65-C060D081B0EA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneRunner", "Modules\SceneRunner\SceneRunner.vcxproj", "{098C7C72-A6F4-41D0-BE65-C060D081B0EA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio", "Modules\Audio\Audio.vcxproj", "{588E5C46-83DD-426C-909A-DF55529A0096}"
 EndProject
@@ -22,7 +22,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTex", "externals\Dir
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics", "Modules\Physics\Physics.vcxproj", "{A97CAF68-3020-40E3-A3B5-326FFBDC217A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "Framework\Framework.vcxproj", "{1EC34E72-ADC4-401D-BD88-BC331E428EA9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneGraph", "SceneGraph\SceneGraph.vcxproj", "{1EC34E72-ADC4-401D-BD88-BC331E428EA9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "Interface\Interface.vcxproj", "{9CA2B3EA-E6C7-484B-9922-DF9BDCB99513}"
 EndProject

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Framework/Component.h"
-#include "Framework/WorldTransform.h"
+#include "SceneGraph/Component.h"
+#include "SceneGraph/WorldTransform.h"
 
 #include <cstdint>
 

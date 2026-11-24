@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Camera.h"
-#include "Framework/Component.h"
+#include "SceneGraph/Component.h"
 #include "Interface/IInputActions.h"
 #include "Interface/IRenderable.h"
 #include "Interface/ITime.h"

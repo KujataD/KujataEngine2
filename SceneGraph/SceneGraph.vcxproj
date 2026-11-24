@@ -18,7 +18,7 @@
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{1EC34E72-ADC4-401D-BD88-BC331E428EA9}</ProjectGuid>
-    <RootNamespace>Framework</RootNamespace>
+    <RootNamespace>SceneGraph</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -53,10 +53,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Framework\Component.h" />
-    <ClInclude Include="include\Framework\GameObject.h" />
-    <ClInclude Include="include\Framework\Scene.h" />
-    <ClInclude Include="include\Framework\WorldTransform.h" />
+    <ClInclude Include="include\SceneGraph\Component.h" />
+    <ClInclude Include="include\SceneGraph\GameObject.h" />
+    <ClInclude Include="include\SceneGraph\Scene.h" />
+    <ClInclude Include="include\SceneGraph\WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameObject.cpp" />

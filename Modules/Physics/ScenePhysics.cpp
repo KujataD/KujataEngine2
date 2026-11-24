@@ -1,5 +1,5 @@
 #include "ScenePhysics.h"
-#include "Framework/Scene.h"
+#include "SceneGraph/Scene.h"
 #include "ColliderComponent.h"
 #include "RigidbodyComponent.h"
 #include "Core/Math/Matrix4x4.h"

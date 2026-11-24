@@ -1,5 +1,5 @@
 #include "SceneCollisionSystem.h"
-#include "Framework/Scene.h"
+#include "SceneGraph/Scene.h"
 #include "ScenePhysics.h"
 #include "ColliderComponent.h"
 #include <algorithm>

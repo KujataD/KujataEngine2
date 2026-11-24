@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Framework/Scene.h"
+#include "SceneGraph/Scene.h"
 #include "Interface/IAssetLibrary.h"
 #include "Interface/IInputActions.h"
 #include "Interface/ITime.h"

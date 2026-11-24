@@ -1,6 +1,6 @@
 #include "ColliderComponent.h"
 #include "Core/Math/Matrix4x4.h"
-#include "Framework/GameObject.h"
+#include "SceneGraph/GameObject.h"
 #include "Core/Geometry/Intersection.h"
 #include <algorithm>
 #include <atomic>

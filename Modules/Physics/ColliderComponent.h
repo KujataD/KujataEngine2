@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Math/Vector3.h"
-#include "Framework/Component.h"
+#include "SceneGraph/Component.h"
 #include "Interface/ICollisionListener.h"
 #include "Core/Geometry/AABB.h"
 #include "Core/Geometry/Intersection.h"

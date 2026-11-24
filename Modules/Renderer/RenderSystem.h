@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/IModule.h"
-#include "Framework/Scene.h"
+#include "SceneGraph/Scene.h"
 #include "GpuAssetTable.h"
 #include "GraphicsKit/ShaderCompiler.h"
 #include "GraphicsKit/ShaderResourceHeap.h"

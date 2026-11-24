@@ -3,10 +3,10 @@
 #include "Interface/LineShapes.h"
 #include "ParticleRendering/ParticleRenderer.h"
 #include "ParticleRendering/ParticleShapes.h"
-#include "Scene/Camera.h"
-#include "Scene/DebugCamera.h"
-#include "Scene/DirectionalLight.h"
-#include "Scene/MeshRenderer.h"
+#include "Renderer/Camera.h"
+#include "Renderer/DebugCamera.h"
+#include "Renderer/DirectionalLight.h"
+#include "Renderer/MeshRenderer.h"
 
 #include <algorithm>
 #include <cmath>

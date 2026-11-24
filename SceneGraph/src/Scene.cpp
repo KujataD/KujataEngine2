@@ -1,4 +1,4 @@
-#include "Framework/Scene.h"
+#include "SceneGraph/Scene.h"
 
 #include <algorithm>
 

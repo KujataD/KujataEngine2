@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Framework/GameObject.h"
+#include "SceneGraph/GameObject.h"
 
 #include <functional>
 #include <vector>

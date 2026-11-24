@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Framework/Component.h"
+#include "SceneGraph/Component.h"
 #include "Interface/IRenderable.h"
 
 namespace KujataEngine {

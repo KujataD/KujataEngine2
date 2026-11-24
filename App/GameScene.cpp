@@ -7,9 +7,9 @@
 #include "Game/PlayerController.h"
 #include "Game/Weapon.h"
 #include "Physics/ColliderComponent.h"
-#include "Scene/Camera.h"
-#include "Scene/DirectionalLight.h"
-#include "Scene/MeshRenderer.h"
+#include "Renderer/Camera.h"
+#include "Renderer/DirectionalLight.h"
+#include "Renderer/MeshRenderer.h"
 
 #include <numbers>
 

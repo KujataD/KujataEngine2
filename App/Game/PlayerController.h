@@ -2,11 +2,11 @@
 
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
-#include "Framework/Component.h"
+#include "SceneGraph/Component.h"
 #include "Interface/IInputActions.h"
 #include "Interface/ITime.h"
 #include "Interface/IWindow.h"
-#include "Scene/Camera.h"
+#include "Renderer/Camera.h"
 #include "Weapon.h"
 
 #include <numbers>
