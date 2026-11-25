@@ -9,6 +9,7 @@
 #include "Game/PlayerController.h"
 #include "Game/Weapon.h"
 #include "Physics/ColliderComponent.h"
+#include "Physics/RigidbodyComponent.h"
 #include "Renderer/Camera.h"
 #include "Renderer/DirectionalLight.h"
 #include "Renderer/MeshRenderer.h"
@@ -64,17 +65,22 @@ static void CreateFloor(Scene* scene, IAssetLibrary* assets) {
 }
 
 /// <summary>
-/// 自機の弾にだけ当たり、targetへ撃つ敵を置く。
+/// 自機の弾とほかの敵に当たり、targetへ揺れながら近づいて撃つ敵を置く。
 /// </summary>
-static void CreateEnemy(Scene* scene, IAssetLibrary* assets, ITime* time, TextureHandle texture, const Vector3& position, GameObject* target) {
+static void CreateEnemy(Scene* scene, IAssetLibrary* assets, ITime* time, TextureHandle texture, const Vector3& position, GameObject* target, float noiseSeed = 0.0f) {
 	GameObject* enemy = scene->CreateGameObject();
 	enemy->SetLayer(GameLayer::kEnemy);
 	enemy->GetTransform().translation_ = position;
 	enemy->AddComponent(new MeshRenderer(assets->GetCubeMesh(), texture));
 
 	BoxColliderComponent* collider = new BoxColliderComponent();
-	collider->SetCollisionMask(GameLayer::ToMask(GameLayer::kPlayerBullet));
+	collider->SetCollisionMask(GameLayer::ToMask(GameLayer::kPlayerBullet) | GameLayer::ToMask(GameLayer::kEnemy));
 	enemy->AddComponent(collider);
+
+	// 敵どうしが重ならないように押し出させ、床に当たり判定がないので重力は切る。
+	RigidbodyComponent* rigidbody = new RigidbodyComponent();
+	rigidbody->SetGravityScale(0.0f);
+	enemy->AddComponent(rigidbody);
 
 	Weapon* weapon = new Weapon(scene, time, assets->GetCubeMesh(), assets->GetWhiteTexture());
 	weapon->interval = kEnemyFireInterval;
@@ -86,7 +92,7 @@ static void CreateEnemy(Scene* scene, IAssetLibrary* assets, ITime* time, Textur
 	weapon->targetLayerMask = GameLayer::ToMask(GameLayer::kPlayer);
 	enemy->AddComponent(weapon);
 
-	enemy->AddComponent(new Enemy(weapon, target));
+	enemy->AddComponent(new Enemy(time, weapon, target, noiseSeed));
 	enemy->AddComponent(new Health(kEnemyInitHP));
 }
 
@@ -129,9 +135,9 @@ static void PlaceGameObjects(Scene* scene, IAssetLibrary* assets, IInputActions*
 
 	// 敵は狙う相手として自機を受け取るので、自機の後に作る。
 	const TextureHandle uvChecker = assets->LoadTexture("Textures/uvChecker.png");
-	CreateEnemy(scene, assets, time, uvChecker, {-2.5f, 0.5f, 4.0f}, player);
-	CreateEnemy(scene, assets, time, uvChecker, {0.0f, 0.5f, 4.0f}, player);
-	CreateEnemy(scene, assets, time, uvChecker, {2.5f, 0.5f, 4.0f}, player);
+	CreateEnemy(scene, assets, time, uvChecker, {-2.5f, 0.5f, 4.0f}, player, 0.0f);
+	CreateEnemy(scene, assets, time, uvChecker, {0.0f, 0.5f, 4.0f}, player, -10.0f);
+	CreateEnemy(scene, assets, time, uvChecker, {2.5f, 0.5f, 4.0f}, player, 10.0f);
 
 	GameObject* gameRule = scene->CreateGameObject();
 	gameRule->AddComponent(new GameRule(scene, inputActions, playerHealth, [scene, assets, inputActions, time, window]() {

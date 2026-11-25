@@ -1,12 +1,15 @@
 #include "Enemy.h"
 
+#include "Core/Math/Noise.h"
 #include "Health.h"
 
 using namespace KujataEngine;
 
-Enemy::Enemy(Weapon* weapon, GameObject* target) {
+Enemy::Enemy(ITime* time, Weapon* weapon, GameObject* target, float noiseSeed) {
+	time_ = time;
 	weapon_ = weapon;
 	target_ = target;
+	noiseSeed_ = noiseSeed;
 }
 
 void Enemy::Update() {
@@ -18,16 +21,40 @@ void Enemy::Update() {
 		}
 	}
 
-	// 倒れた相手は止まっているので撃たない。
+	// 倒れた相手は止まっているので、動かず撃たない。
 	if (!target_->IsActive()) {
 		return;
 	}
 
-	// 相手への水平な向きへ、Weaponの間隔ごとに撃ち続ける。
+	// 相手への水平な向きで、移動と弾の両方に使う。
 	Vector3 toTarget = target_->GetTransform().translation_ - owner->GetTransform().translation_;
 	toTarget.y = 0.0f;
-	if (Length(toTarget) < kMinAimDistance) {
+	const float targetDistance = Length(toTarget);
+	if (targetDistance < kMinAimDistance) {
 		return;
 	}
-	weapon_->TryFire(Normalize(toTarget));
+	const Vector3 aimDirection = Normalize(toTarget);
+
+	Move(aimDirection, targetDistance);
+
+	// Weaponの間隔ごとに撃ち続ける。
+	weapon_->TryFire(aimDirection);
+}
+
+void Enemy::Move(const Vector3& aimDirection, float targetDistance) {
+	const float deltaTime = time_->GetDeltaTime();
+	elapsedSeconds_ += deltaTime;
+
+	const float noiseTime = elapsedSeconds_ * wanderFrequency;
+	const Vector3 wander = {
+	    PerlinNoise(noiseTime, noiseSeed_),
+	    0.0f,
+	    PerlinNoise(noiseTime, noiseSeed_ + kAxisRowOffset),
+	};
+
+	// 近づきすぎると相手に重なるので、離れているときだけ向かう。
+	const float chase = (targetDistance > keepDistance) ? chaseSpeed : 0.0f;
+
+	const Vector3 velocity = aimDirection * chase + wander * wanderSpeed;
+	GetOwner()->GetTransform().translation_ += velocity * deltaTime;
 }
