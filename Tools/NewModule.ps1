@@ -14,6 +14,9 @@ $configurations = @('Debug', 'Development', 'Release')
 # ソリューションに書く、C++のプロジェクトを表す決まった番号。
 $cppProjectType = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
 
+# ソリューションに書く、見た目を整理するフォルダを表す決まった番号。
+$solutionFolderType = '{2150E333-8FDC-42A3-9474-1A3956D46DE8}'
+
 $rootDir = Split-Path -Parent $PSScriptRoot
 $moduleDir = Join-Path $rootDir "Modules\$Name"
 $solutionPath = Join-Path $rootDir 'KujataEngine2.sln'
@@ -76,6 +79,21 @@ if ($sectionBegin -lt 0) {
 }
 $sectionEnd = $solutionText.IndexOf("`tEndGlobalSection", $sectionBegin)
 $solutionText = $solutionText.Insert($sectionEnd, $configurationLines)
+
+# 入れ先を書かないと、ソリューション エクスプローラーでModulesの下ではなく一番上に出る。
+$modulesFolderPattern = [regex]::Escape("Project(`"$solutionFolderType`") = `"Modules`", `"Modules`", `"") + '(\{[0-9A-Fa-f-]+\})'
+$modulesFolderMatch = [regex]::Match($solutionText, $modulesFolderPattern)
+if (-not $modulesFolderMatch.Success) {
+	Stop-WithMessage 'ソリューションにModulesのフォルダが見つかりません。'
+}
+$modulesFolderGuid = $modulesFolderMatch.Groups[1].Value
+
+$nestedBegin = $solutionText.IndexOf('GlobalSection(NestedProjects)')
+if ($nestedBegin -lt 0) {
+	Stop-WithMessage 'ソリューションにフォルダの入れ先の一覧が見つかりません。'
+}
+$nestedEnd = $solutionText.IndexOf("`tEndGlobalSection", $nestedBegin)
+$solutionText = $solutionText.Insert($nestedEnd, "`t`t$guid = $modulesFolderGuid`n")
 
 # Appの参照の一覧の最後に足す。
 $lastReferenceEnd = '</ProjectReference>'
