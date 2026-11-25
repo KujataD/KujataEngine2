@@ -15,6 +15,9 @@
     <ClInclude Include="RenderPassList.h" />
     <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="SpritePass.h" />
+    <ClInclude Include="SpriteQuad.h" />
+    <ClInclude Include="SpriteRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -27,6 +30,9 @@
     <ClCompile Include="RenderPassList.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="SpritePass.cpp" />
+    <ClCompile Include="SpriteQuad.cpp" />
+    <ClCompile Include="SpriteRenderer.cpp" />
   </ItemGroup>
   <Import Project="..\Module.props" />
   <Import Project="..\..\GraphicsKit\GraphicsKit.props" />

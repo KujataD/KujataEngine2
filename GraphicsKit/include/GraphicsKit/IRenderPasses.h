@@ -18,6 +18,9 @@ enum class RenderStage {
 	// 深度を書く不透明な物。
 	Opaque,
 
+	// 深度を比べるだけで書かずに、後ろの色と混ぜる物。
+	Transparent,
+
 	// 深度を書かずに明るさを足す物。
 	Additive,
 

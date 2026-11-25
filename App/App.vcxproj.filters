@@ -32,6 +32,8 @@
     <None Include="Data\EngineResources\Shaders\ParticleDraw.PS.hlsl" />
     <None Include="Data\EngineResources\Shaders\ParticleDraw.VS.hlsl" />
     <None Include="Data\EngineResources\Shaders\ParticleSimulation.CS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Sprite.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Sprite.VS.hlsl" />
     <None Include="Data\EngineResources\Shaders\ThickLine.PS.hlsl" />
     <None Include="Data\EngineResources\Shaders\ThickLine.VS.hlsl" />
   </ItemGroup>

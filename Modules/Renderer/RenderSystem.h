@@ -8,6 +8,7 @@
 #include "Interface/IGpu.h"
 #include "Interface/ITime.h"
 #include "OpaquePass.h"
+#include "SpritePass.h"
 #include "RenderPassList.h"
 #include "RenderQueue.h"
 
@@ -39,6 +40,7 @@ private:
 	ShaderCompiler shaderCompiler_;
 	ShaderResourceHeap shaderResourceHeap_;
 	RenderQueue renderQueue_;
+	SpritePass spritePass_;
 	GpuAssetTable gpuAssets_;
 	RenderPassList passList_;
 

@@ -12,13 +12,9 @@ namespace KujataEngine {
 // テクスチャの棚に置ける数。
 static const UINT kShaderResourceHeapCapacity = 4096;
 
-std::vector<std::string> RenderSystem::GetProvidedServices() {
-	return { kRenderPassesServiceName };
-}
+std::vector<std::string> RenderSystem::GetProvidedServices() { return {kRenderPassesServiceName}; }
 
-std::vector<std::string> RenderSystem::GetRequiredServices() {
-	return { kGpuServiceName, kSceneServiceName, kAssetLibraryServiceName, kTimeServiceName };
-}
+std::vector<std::string> RenderSystem::GetRequiredServices() { return {kGpuServiceName, kSceneServiceName, kAssetLibraryServiceName, kTimeServiceName}; }
 
 void RenderSystem::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	gpu_ = static_cast<IGpu*>(services.Get(kGpuServiceName));
@@ -46,18 +42,14 @@ void RenderSystem::Startup(ServiceRegistry& services, FrameLoop& frameLoop) {
 	opaquePass_.Initialize(gpu_, &passList_, resourcesDirectory, &renderQueue_, &gpuAssets_);
 	passList_.AddPass(&opaquePass_, RenderStage::Opaque, 0);
 
+	spritePass_.Initialize(gpu_, &passList_, resourcesDirectory, &renderQueue_, &gpuAssets_);
+	passList_.AddPass(&spritePass_, RenderStage::Transparent, 0);
 
-	frameLoop.Register(kSubmitRender, [this]() {
-		CollectRenderRequests();
-	});
-	frameLoop.Register(kRender, [this]() {
-		Draw();
-	});
+	frameLoop.Register(kSubmitRender, [this]() { CollectRenderRequests(); });
+	frameLoop.Register(kRender, [this]() { Draw(); });
 }
 
-void RenderSystem::Prepare() {
-	gpuAssets_.UploadAll(gpu_, &shaderResourceHeap_, assets_);
-}
+void RenderSystem::Prepare() { gpuAssets_.UploadAll(gpu_, &shaderResourceHeap_, assets_); }
 
 void RenderSystem::CollectRenderRequests() {
 	for (GameObject* gameObject : scene_->GetGameObjects()) {

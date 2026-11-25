@@ -49,6 +49,11 @@ public:
 	/// メッシュを描くように頼む。tintは画像の色に掛ける。
 	/// </summary>
 	virtual void Submit(MeshHandle mesh, TextureHandle texture, const Matrix4x4& world, const Vector4& tint) = 0;
+
+	/// <summary>
+	/// スプライトを描くように頼む。sortingOrderが大きいほど手前。
+	/// </summary>
+	virtual void SubmitSprite(MeshHandle quad, TextureHandle texture, const Matrix4x4& world, const Vector4& color, const Matrix4x4& uvTransform, int sortingOrder) = 0;
 };
 
 } // namespace KujataEngine
