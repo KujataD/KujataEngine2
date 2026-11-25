@@ -24,6 +24,9 @@ public:
 	// 相手にこれより近づいたら、向かうのをやめる距離。
 	float keepDistance = 3.0f;
 
+	// 止まった後、keepDistanceよりこれだけ離れたら、また向かう距離。
+	float resumeMargin = 1.0f;
+
 	// ノイズの揺れで1秒に進む距離の目安。
 	float wanderSpeed = 1.0f;
 
@@ -49,4 +52,7 @@ private:
 
 	// 動き始めてからの秒数で、ノイズの時間に使う。
 	float elapsedSeconds_ = 0.0f;
+
+	// 相手へ向かっている間はtrueで、止まる距離とまた向かう距離を分けるために覚える。
+	bool isChasing_ = true;
 };

@@ -52,8 +52,13 @@ void Enemy::Move(const Vector3& aimDirection, float targetDistance) {
 	    PerlinNoise(noiseTime, noiseSeed_ + kAxisRowOffset),
 	};
 
-	// 近づきすぎると相手に重なるので、離れているときだけ向かう。
-	const float chase = (targetDistance > keepDistance) ? chaseSpeed : 0.0f;
+	// 止まる距離のヒステリシス
+	if (isChasing_) {
+		isChasing_ = targetDistance > keepDistance;
+	} else {
+		isChasing_ = targetDistance > keepDistance + resumeMargin;
+	}
+	const float chase = isChasing_ ? chaseSpeed : 0.0f;
 
 	const Vector3 velocity = aimDirection * chase + wander * wanderSpeed;
 	GetOwner()->GetTransform().translation_ += velocity * deltaTime;
