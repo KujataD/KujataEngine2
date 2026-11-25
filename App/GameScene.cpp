@@ -6,6 +6,7 @@
 #include "Game/MovementFollower.h"
 #include "Game/PlayerController.h"
 #include "Game/Weapon.h"
+#include "Game/Health.h"
 #include "Physics/ColliderComponent.h"
 #include "Renderer/Camera.h"
 #include "Renderer/DirectionalLight.h"
@@ -21,6 +22,9 @@ static constexpr float kFloorThickness = 0.2f;
 
 // 自機から見たカメラの位置。
 static const Vector3 kCameraOffset = {0.0f, 20.0f, 0.0f};
+
+static const int kEnemyInitHP = 10;
+static const int kBulletDamage = 5;
 
 /// <summary>
 /// 斜めから当たる光を置く。
@@ -55,6 +59,7 @@ static void CreateEnemy(Scene* scene, MeshHandle mesh, TextureHandle texture, co
 	enemy->AddComponent(collider);
 
 	enemy->AddComponent(new Enemy());
+	enemy->AddComponent(new Health(10));
 }
 
 void BuildGameScene(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IWindow* window) {

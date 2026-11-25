@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DemoScene.cpp" />
+    <ClCompile Include="Game\Bullet.cpp" />
+    <ClCompile Include="Game\Enemy.cpp" />
+    <ClCompile Include="Game\MovementFollower.cpp" />
+    <ClCompile Include="Game\PlayerController.cpp" />
+    <ClCompile Include="Game\Weapon.cpp" />
+    <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Game\Health.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DemoScene.h" />
+    <ClInclude Include="Game\Bullet.h" />
+    <ClInclude Include="Game\Enemy.h" />
+    <ClInclude Include="Game\GameLayers.h" />
+    <ClInclude Include="Game\Health.h" />
+    <ClInclude Include="Game\MovementFollower.h" />
+    <ClInclude Include="Game\PlayerController.h" />
+    <ClInclude Include="Game\Weapon.h" />
+    <ClInclude Include="GameScene.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\EngineResources\Shaders\Line.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Line.VS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Object3D.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\Object3D.VS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\ParticleDraw.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\ParticleDraw.VS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\ParticleSimulation.CS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\ThickLine.PS.hlsl" />
+    <None Include="Data\EngineResources\Shaders\ThickLine.VS.hlsl" />
+  </ItemGroup>
+</Project>

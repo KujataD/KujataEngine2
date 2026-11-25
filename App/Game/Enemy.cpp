@@ -1,14 +1,16 @@
 #include "Enemy.h"
 
+#include "Health.h"
 #include "SceneGraph/GameObject.h"
 
 using namespace KujataEngine;
 
-void Enemy::OnTriggerEnter(GameObject* other) {
-	// 同じフレームで当たり済みの物は数えない。
-	if (GetOwner()->IsDestroyed() || other->IsDestroyed()) {
-		return;
+void Enemy::Update() {
+	// 死亡判定
+	GameObject* owner = GetOwner();
+	if (Health* health = owner->GetComponent<Health>()) {
+		if (!health->IsAlive()) {
+			owner->Destroy();
+		}
 	}
-	other->Destroy();
-	GetOwner()->Destroy();
 }

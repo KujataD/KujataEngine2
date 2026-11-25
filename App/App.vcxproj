@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -84,6 +84,7 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     <ClCompile Include="DemoScene.cpp" />
     <ClCompile Include="Game\Bullet.cpp" />
     <ClCompile Include="Game\Enemy.cpp" />
+    <ClCompile Include="Game\Health.cpp" />
     <ClCompile Include="Game\MovementFollower.cpp" />
     <ClCompile Include="Game\PlayerController.cpp" />
     <ClCompile Include="Game\Weapon.cpp" />
@@ -95,6 +96,7 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     <ClInclude Include="Game\Bullet.h" />
     <ClInclude Include="Game\Enemy.h" />
     <ClInclude Include="Game\GameLayers.h" />
+    <ClInclude Include="Game\Health.h" />
     <ClInclude Include="Game\MovementFollower.h" />
     <ClInclude Include="Game\PlayerController.h" />
     <ClInclude Include="Game\Weapon.h" />
@@ -162,4 +164,4 @@ xcopy /E /I /Y "$(ProjectDir)Data" "$(TargetDir)Data\Game"</Command>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-</Project>
+</Project>
