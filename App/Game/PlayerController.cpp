@@ -27,7 +27,18 @@ void PlayerController::RegisterActions(IInputActions* inputActions) {
 	inputActions->BindMouseButton(kFireAction, MouseButton::Left);
 }
 
+void PlayerController::Start() {
+	// 付ける順によらず見つかるように、全部付け終わった後で探す。
+	health_ = GetOwner()->GetComponent<Health>();
+}
+
 void PlayerController::Update() {
+	// 消すとカメラや敵が持つ参照が切れるので、止めるだけにする。
+	if (health_ != nullptr && !health_->IsAlive()) {
+		GetOwner()->SetActive(false);
+		return;
+	}
+
 	WorldTransform& transform = GetOwner()->GetTransform();
 
 	// 2軸の上を奥にして、床の上を動く。

@@ -2,6 +2,7 @@
 
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
+#include "Health.h"
 #include "SceneGraph/Component.h"
 #include "Interface/IInputActions.h"
 #include "Interface/ITime.h"
@@ -23,6 +24,7 @@ public:
 	/// </summary>
 	static void RegisterActions(KujataEngine::IInputActions* inputActions);
 
+	void Start() override;
 	void Update() override;
 
 	// 1秒に進む距離。
@@ -54,4 +56,7 @@ private:
 	KujataEngine::IWindow* window_;
 	KujataEngine::Camera* camera_;
 	Weapon* weapon_;
+
+	// 同じGameObjectのHealthで、付いていなければnullptr。
+	Health* health_ = nullptr;
 };

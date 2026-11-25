@@ -17,6 +17,8 @@ public:
 
 	// 撃ってから消えるまでの秒数。
 	float lifeSeconds = 2.0f;
+
+	// 当たった相手から減らすHP。
 	int damage = 4;
 
 private:

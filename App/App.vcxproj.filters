@@ -4,6 +4,7 @@
     <ClCompile Include="DemoScene.cpp" />
     <ClCompile Include="Game\Bullet.cpp" />
     <ClCompile Include="Game\Enemy.cpp" />
+    <ClCompile Include="Game\GameRule.cpp" />
     <ClCompile Include="Game\MovementFollower.cpp" />
     <ClCompile Include="Game\PlayerController.cpp" />
     <ClCompile Include="Game\Weapon.cpp" />
@@ -16,6 +17,7 @@
     <ClInclude Include="Game\Bullet.h" />
     <ClInclude Include="Game\Enemy.h" />
     <ClInclude Include="Game\GameLayers.h" />
+    <ClInclude Include="Game\GameRule.h" />
     <ClInclude Include="Game\Health.h" />
     <ClInclude Include="Game\MovementFollower.h" />
     <ClInclude Include="Game\PlayerController.h" />

@@ -43,6 +43,8 @@ bool Weapon::TryFire(const Vector3& direction) {
 	collider->SetCollisionMask(targetLayerMask);
 	bullet->AddComponent(collider);
 
-	bullet->AddComponent(new Bullet(time_, direction * bulletSpeed));
+	Bullet* bulletComponent = new Bullet(time_, direction * bulletSpeed);
+	bulletComponent->damage = bulletDamage;
+	bullet->AddComponent(bulletComponent);
 	return true;
 }

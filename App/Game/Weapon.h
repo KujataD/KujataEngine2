@@ -29,6 +29,9 @@ public:
 	// 弾が1秒に進む距離。
 	float bulletSpeed = 8.0f;
 
+	// 弾が1発で減らすHP。
+	int bulletDamage = 4;
+
 	// 弾の大きさで、当たり判定にも掛かる。
 	float bulletScale = 0.2f;
 

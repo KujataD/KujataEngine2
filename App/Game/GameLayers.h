@@ -8,8 +8,10 @@
 namespace GameLayer {
 
 // 0は既定の番号なので使わない。
+constexpr uint32_t kPlayer = 1;
 constexpr uint32_t kPlayerBullet = 2;
 constexpr uint32_t kEnemy = 3;
+constexpr uint32_t kEnemyBullet = 4;
 
 /// <summary>
 /// Layerの番号をビットマスクにする。
