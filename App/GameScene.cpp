@@ -18,6 +18,10 @@
 
 using namespace KujataEngine;
 
+// ----------------------------------------------
+// 調整項目
+// ----------------------------------------------
+
 // 床の一辺の長さと厚み。
 static constexpr float kFloorSize = 40.0f;
 static constexpr float kFloorThickness = 0.2f;
@@ -30,7 +34,7 @@ static const int kEnemyInitHP = 10;
 static const int kPlayerInitHP = 10;
 
 // 自機の弾と敵の弾が1発で減らすHP。
-static const int kBulletDamage = 5;
+static const int kBulletDamage = 2;
 static const int kEnemyBulletDamage = 2;
 
 // 敵が撃つ間隔で、単位は秒。
@@ -44,6 +48,10 @@ static constexpr float kEnemyMuzzleDistance = 0.7f;
 
 // 敵の弾の色。
 static const Vector4 kEnemyBulletTint = {0.6f, 0.3f, 1.0f, 1.0f};
+
+// ----------------------------------------------
+// オブジェクト生成
+// ----------------------------------------------
 
 /// <summary>
 /// 斜めから当たる光を置く。
@@ -100,10 +108,12 @@ static void CreateEnemy(Scene* scene, IAssetLibrary* assets, ITime* time, Textur
 /// ゲームの物を最初の状態で置き、リトライのたびに呼び直す。
 /// </summary>
 static void PlaceGameObjects(Scene* scene, IAssetLibrary* assets, IInputActions* inputActions, ITime* time, IWindow* window) {
+	const TextureHandle uvChecker = assets->LoadTexture("Textures/uvChecker.png");
+	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
+
 	CreateLight(scene);
 	CreateFloor(scene, assets);
 
-	const ModelHandles tori = assets->LoadModel("Models/tori/tori.obj");
 	GameObject* player = scene->CreateGameObject();
 	player->SetLayer(GameLayer::kPlayer);
 	player->GetTransform().translation_ = {0.0f, 0.5f, -1.0f};
@@ -134,7 +144,6 @@ static void PlaceGameObjects(Scene* scene, IAssetLibrary* assets, IInputActions*
 	player->AddComponent(new PlayerController(inputActions, time, window, cameraComponent, weapon));
 
 	// 敵は狙う相手として自機を受け取るので、自機の後に作る。
-	const TextureHandle uvChecker = assets->LoadTexture("Textures/uvChecker.png");
 	CreateEnemy(scene, assets, time, uvChecker, {-2.5f, 0.5f, 4.0f}, player, 0.0f);
 	CreateEnemy(scene, assets, time, uvChecker, {0.0f, 0.5f, 4.0f}, player, -10.0f);
 	CreateEnemy(scene, assets, time, uvChecker, {2.5f, 0.5f, 4.0f}, player, 10.0f);
